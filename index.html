@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Value Plan - Hive Metrics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiByeD0iNiIgZmlsbD0iI0UzMTMzNyIvPgo8cGF0aCBkPSJNMTggNkMxMS4zNzMgNiA2IDExLjM3MyA2IDE4QzYgMjQuNjI3IDExLjM3MyAzMCAxOCAzMEMyNC42MjcgMzAgMzAgMjQuNjI3IDMwIDE4QzMwIDExLjM3MyAyNC42MjcgNiAxOCA2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE4IDEwQzIyLjQxODMgMTAgMjYgMTMuNTgxNyAyNiAxOEMyNiAyMi40MTgzIDIyLjQxODMgMjYgMTggMjZDMTMuNTgxNyAyNiAxMCAyMi40MTgzIDEwIDE4QzEwIDEzLjU4MTcgMTMuNTgxNyAxMCAxOCAxMFoiIGZpbGw9IiNFMzEzMzciLz4KPHBhdGggZD0iTTE4IDE0QzE2Ljg5NTQgMTQgMTYgMTQuODk1NCAxNiAxNkMxNiAxNy4xMDQ2IDE2Ljg5NTQgMTggMTggMThDMTkuMTA0NiAxOCAyMCAxNy4xMDQ2IDIwIDE2QzIwIDE0Ljg5NTQgMTkuMTA0NiAxNCAxOCAxNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=" alt="Value Plan Logo">
+                <span>Value Plan</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+                <a href="#metrics" class="nav-link">Metrics</a>
+                <a href="#posts" class="nav-link">Posts</a>
+                <a href="https://hive.io" target="_blank" class="nav-link">Hive</a>
+            </div>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Value Plan Metrics Dashboard</h1>
+            <p>Real-time monitoring of funded projects on the Hive blockchain</p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-projects">72</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-funding">$793.706,34</div>
+                    <div class="stat-label">Total Funding</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="active-countries">30</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard-section">
+        <div class="section-header">
+            <h2>Interactive Dashboard</h2>
+            <p>Complete visualization of metrics and trends</p>
+        </div>
+        <div class="dashboard-container">
+            <div class="looker-iframe-container">
+                <iframe width="100%" height="450" src="https://lookerstudio.google.com/embed/reporting/d3731429-f552-4cec-bfa5-790ce73d18b2/page/page_12345" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+                <iframe width="600" height="450" src="https://lookerstudio.google.com/embed/reporting/d3731429-f552-4cec-bfa5-790ce73d18b2/page/page_12345" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Metrics Section -->
+    <section id="metrics" class="metrics-section">
+        <div class="section-header">
+            <h2>Real-Time Metrics</h2>
+            <p>Data updated directly from the spreadsheet</p>
+            <button id="refresh-data" class="refresh-btn">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+        </div>
+        <div class="metrics-grid" id="metrics-container">
+            <!-- Data will be loaded dynamically with JavaScript -->
+        </div>
+    </section>
+
+    <!-- Posts Section -->
+    <section id="posts" class="posts-section">
+        <div class="section-header">
+            <h2>Latest Hive Posts</h2>
+            <p>Recent content from the Hive blockchain</p>
+        </div>
+        <div class="search-container">
+            <input type="text" id="user-search" placeholder="Search Hive user...">
+            <button id="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="hero-post" id="hero-section">
+            <!-- Featured post will be loaded here -->
+        </div>
+        <div class="posts-grid" id="posts-grid">
+            <!-- Posts grid will be loaded here -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Value Plan</h3>
+                <p>Funded projects to promote Hive around the world.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#metrics">Metrics</a></li>
+                    <li><a href="#posts">Posts</a></li>
+                    <li><a href="https://hive.io" target="_blank">Hive Blockchain</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Value Plan. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
