@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Métricas + Noticias (desde Google Sheets)</title>
+  <link rel="stylesheet" href="sheets.css" />
+  <!-- PapaParse para CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>📊 Dashboard (Métricas + Noticias)</h1>
+    <div class="sync">
+      <span>Última actualización: <strong id="last-sync">—</strong></span>
+      <button id="reload-btn" type="button" aria-label="Recargar">Recargar</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="metrics">
+      <h2>Métricas</h2>
+      <div id="metrics-grid" class="grid"></div>
+    </section>
+
+    <section class="news">
+      <h2>📰 Noticias / Enlaces curados</h2>
+      <ul id="news-list" class="news-list"></ul>
+    </section>
+  </main>
+
+  <footer class="footnote">
+    <small>Edita las pestañas <strong>Métricas</strong> y <strong>Noticias</strong> en tu Google Sheet. Se reflejan aquí sin tocar código.</small>
+  </footer>
+
+  <script src="sheets.js"></script>
+</body>
+</html>

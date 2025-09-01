@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Value Plan — Premium Events Calendar</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <!-- PapaParse for CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="calendar.css" />
+</head>
+<body>
+  <main class="app-shell">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">VP</div>
+        <div class="title">
+          <h1>Events Calendar</h1>
+          <p class="subtitle">Beautiful, curated events — funds in HBD — premium UI</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="control-item">
+          <span>Months</span>
+          <select id="months-count" aria-label="Number of months to show">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+
+        <label class="control-item switch">
+          <input id="show-past-toggle" type="checkbox" />
+          <span>Show past events</span>
+        </label>
+<a href="index.html" class="btn-home">🏠 Home</a>
+        <button id="expand-btn" class="btn-primary" title="Expand calendar">
+          <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+          Expand
+        </button>
+      </div>
+    </header>
+
+    <!-- Layout -->
+    <section class="layout">
+      <!-- Left: stacked mini calendars + list -->
+      <aside class="left-col">
+        <div id="compact-calendars" class="compact-calendars" aria-live="polite">
+          <!-- JS injects 1..n vertically stacked mini calendars here (fixed size) -->
+        </div>
+
+        <!-- Controls under calendars -->
+        <div class="mini-controls">
+          <button id="expand-bottom-btn" class="btn-outline"><i class="fa-solid fa-expand"></i> Expand Calendar</button>
+          <button id="view-all-btn" class="btn-ghost"><i class="fa-solid fa-list"></i> View All Events</button>
+        </div>
+
+        <div class="events-panel">
+          <div class="panel-header">
+            <h3>Upcoming Events</h3>
+            <small id="events-count" class="muted"></small>
+          </div>
+          <div id="events-list" class="events-list">
+            <!-- event cards injected here -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right: charts & map (bigger) -->
+      <aside class="right-col">
+        <div class="charts-grid">
+          <div class="card chart-card">
+            <div class="card-head">
+              <h4>Funds by Event (Top)</h4>
+              <div class="card-actions">
+                <button id="bar-expand" class="icon-btn" title="Expand bar chart"><i class="fa-solid fa-expand"></i></button>
+              </div>
+            </div>
+            <canvas id="barChart" width="800" height="380"></canvas>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-head">
+              <h4>Funds by Country (Pie)</h4>
+              <div class="card-actions">
+                <button id="pie-expand" class="icon-btn" title="Expand pie chart"><i class="fa-solid fa-expand"></i></button>
+              </div>
+            </div>
+            <canvas id="pieChart" width="640" height="380"></canvas>
+          </div>
+        </div>
+
+        <div class="card map-card">
+          <div class="card-head">
+            <h4>Event Map (country shading)</h4>
+            <div class="card-actions">
+              <button id="map-expand" class="icon-btn" title="Expand map"><i class="fa-solid fa-expand"></i></button>
+            </div>
+          </div>
+          <div id="map" style="height:420px;border-radius:12px;overflow:hidden"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Expanded calendar modal -->
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-top">
+          <h2 id="modal-title">Full Calendar</h2>
+          <div class="modal-actions">
+            <button id="close-modal" class="btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+        <div id="expanded-calendar" style="min-height:640px"></div>
+      </div>
+    </div>
+
+    <!-- Chart modal -->
+    <div id="chart-modal" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="chart-backdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:1100px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <h3 id="chart-modal-title">Chart</h3>
+          <button id="chart-close" class="btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="chart-modal-body" style="min-height:520px"></div>
+      </div>
+    </div>
+
+    <!-- Events list modal -->
+    <div id="list-modal" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="list-backdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:900px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <h3>All Events</h3>
+          <button id="list-close" class="btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="all-events-list" style="max-height:640px;overflow:auto"></div>
+      </div>
+    </div>
+
+    <!-- Event drawer for details -->
+    <aside id="event-drawer" class="drawer" aria-hidden="true">
+      <button id="drawer-close" class="drawer-close"><i class="fa-solid fa-xmark"></i></button>
+      <div id="drawer-content"></div>
+    </aside>
+
+  </main>
+
+  <!-- App script -->
+  <script src="calendar.js"></script>
+</body>
+</html>
