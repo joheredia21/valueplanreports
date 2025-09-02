@@ -11,30 +11,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation -->
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-logo">
-            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiByeD0iNiIgZmlsbD0iI0UzMTMzNyIvPgo8cGF0aCBkPSJNMTggNkMxMS4zNzMgNiA2IDExLjM3MyA2IDE4QzYgMjQuNjI3IDExLjM3MyAzMCAxOCAzMEMyNC42MjcgMzAgMzAgMjQuNjI3IDMwIDE4QzMwIDExLjM3MyAyNC42MjcgNiAxOCA2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE4IDEwQzIyLjQxODMgMTAgMjYgMTMuNTgxNyAyNiAxOEMyNiAyMi40MTgzIDIyLjQxODMgMjYgMTggMjZDMTMuNTgxNyAyNiAxMCAyMi40MTgzIDEwIDE4QzEwIDEzLjU4MTcgMTMuNTgxNyAxMCAxOCAxMFoiIGZpbGw9IiNFMzEzMzciLz4KPHBhdGggZD0iTTE4IDE0QzE2Ljg5NTQgMTQgMTYgMTQuODk1NCAxNiAxNkMxNiAxNy4xMDQ2IDE2Ljg5NTQgMTggMTggMThDMTkuMTA0NiAxOCAyMCAxNy4xMDQ2IDIwIDE2QzIwIDE0Ljg5NTQgMTkuMTA0NiAxNCAxOCAxNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=" alt="Value Plan Logo">
-            <span>Value Plan</span>
-        </div>
-        <div class="nav-menu">
-            <a href="index.html#dashboard" class="nav-link">Dashboard</a>
-            <a href="index.html#metrics" class="nav-link">Metrics</a>
-            <a href="index.html#posts" class="nav-link">Posts</a>
-            
-            <!-- ✅ Nuevos enlaces -->
-            <a href="sheets.html" class="nav-link">Sheets</a>
-            <a href="calendar.html" class="nav-link">Calendar</a>
-
-            <a href="https://hive.io" target="_blank" class="nav-link">Hive</a>
-        </div>
-        <div class="nav-toggle" id="mobile-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </div>
+ <!-- NAVIGATION: replace existing <nav class="navbar"> ... </nav> with this block -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="nav-container">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo" aria-label="Value Plan Home">
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiByeD0iNiIgZmlsbD0iI0UzMTMzNyIvPgo8cGF0aCBkPSJNMTggNkMxMS4zNzMgNiA2IDExLjM3MyA2IDE4QzYgMjQuNjI3IDExLjM3MyAzMCAxOCAzMEMyNC42MjcgMzAgMzAgMjQuNjI3IDMwIDE4QzMwIDExLjM3MyAyNC42MjcgNiAxOCA2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE4IDEwQzIyLjQxODMgMTAgMjYgMTMuNTgxNyAyNiAxOEMyNiAyMi40MTgzIDIyLjQxODMgMjYgMTggMjZDMTMuNTgxNyAyNiAxMCAyMi40MTgzIDEwIDE4QzEwIDEzLjU4MTcgMTMuNTgxNyAxMCAxOCAxMFoiIGZpbGw9IiNFMzEzMzciLz4KPHBhdGggZD0iTTE4IDE0QzE2Ljg5NTQgMTQgMTYgMTQuODk1NCAxNiAxNkMxNiAxNy4xMDQ2IDE2Ljg5NTQgMTggMTggMThDMTkuMTA0NiAxOCAyMCAxNy4xMDQ2IDIwIDE2QzIwIDE0Ljg5NTQgMTkuMTA0NiAxNCAxOCAxNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=" alt="Value Plan Logo">
+        <span style="color: #fff; font-weight:700;">Value Plan</span>
+      </a>
     </div>
+
+    <!-- Main nav links -->
+    <div id="main-nav" class="nav-menu" role="menubar" aria-hidden="false">
+      <a href="index.html#dashboard" class="nav-link" role="menuitem">Dashboard</a>
+      <a href="index.html#metrics" class="nav-link" role="menuitem">Metrics</a>
+      <a href="index.html#posts" class="nav-link" role="menuitem">Posts</a>
+      <a href="sheets.html" class="nav-link" role="menuitem">Sheets</a>
+      <a href="calendar.html" class="nav-link" role="menuitem">Calendar</a>
+      <a href="https://hive.io" target="_blank" rel="noopener noreferrer" class="nav-link" role="menuitem">Hive</a>
+    </div>
+
+    <!-- Hamburger button visible on small screens -->
+    <button id="mobile-menu" aria-controls="main-nav" aria-expanded="false" class="nav-toggle" aria-label="Toggle navigation">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </div>
 </nav>
 
     <!-- Hero Section -->

@@ -27,19 +27,45 @@
   <link rel="stylesheet" href="calendar.css" />
 </head>
 <body>
-  <main class="app-shell">
+  <header class="site-topbar" role="banner">
+    <div class="topbar-inner">
+      <div class="brand-left">
+        <a href="index.html" class="brand-link">
+          <img src="" alt="Value Plan" class="brand-icon" aria-hidden="true">
+          <span class="brand-text">Value Plan</span>
+        </a>
+      </div>
 
-    <!-- Header -->
+      <nav class="main-nav" role="navigation" aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="metrics.html">Metrics</a></li>
+          <li><a href="posts.html">Posts</a></li>
+          <li><a href="sheets.html">Sheets</a></li>
+          <li class="active"><a href="calendar.html">Calendar</a></li>
+          <li><a href="https://hive.io" target="_blank" rel="noopener noreferrer">Hive</a></li>
+        </ul>
+      </nav>
+
+      <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="app-shell" role="main">
+
+    <!-- Header for calendar (keeps controls) -->
     <header class="app-header">
       <div class="brand">
-        <div class="logo">VP</div>
+        <div class="logo" aria-hidden="true">VP</div>
         <div class="title">
           <h1>Events Calendar</h1>
           <p class="subtitle">Beautiful, curated events — funds in HBD — premium UI</p>
         </div>
       </div>
 
-      <div class="controls">
+      <div class="controls" id="controls-row">
         <label class="control-item">
           <span>Months</span>
           <select id="months-count" aria-label="Number of months to show">
@@ -54,7 +80,7 @@
           <input id="show-past-toggle" type="checkbox" />
           <span>Show past events</span>
         </label>
-<a href="index.html" class="btn-home">🏠 Home</a>
+
         <button id="expand-btn" class="btn-primary" title="Expand calendar">
           <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
           Expand
@@ -65,7 +91,7 @@
     <!-- Layout -->
     <section class="layout">
       <!-- Left: stacked mini calendars + list -->
-      <aside class="left-col">
+      <aside class="left-col" aria-label="Calendars and upcoming events">
         <div id="compact-calendars" class="compact-calendars" aria-live="polite">
           <!-- JS injects 1..n vertically stacked mini calendars here (fixed size) -->
         </div>
@@ -76,10 +102,10 @@
           <button id="view-all-btn" class="btn-ghost"><i class="fa-solid fa-list"></i> View All Events</button>
         </div>
 
-        <div class="events-panel">
+        <div class="events-panel" aria-label="Upcoming events">
           <div class="panel-header">
             <h3>Upcoming Events</h3>
-            <small id="events-count" class="muted"></small>
+            <small id="events-count" class="muted" aria-live="polite"></small>
           </div>
           <div id="events-list" class="events-list">
             <!-- event cards injected here -->
@@ -87,38 +113,30 @@
         </div>
       </aside>
 
-      <!-- Right: charts & map (bigger) -->
-      <aside class="right-col">
-        <div class="charts-grid">
-          <div class="card chart-card">
+      <!-- Right: bar chart (bigger) + map -->
+      <aside class="right-col" aria-label="Charts and map">
+        <div class="charts-grid single">
+          <div class="card chart-card" aria-label="Funds by event">
             <div class="card-head">
               <h4>Funds by Event (Top)</h4>
               <div class="card-actions">
-                <button id="bar-expand" class="icon-btn" title="Expand bar chart"><i class="fa-solid fa-expand"></i></button>
+                <!-- DETAILS opens modal where pie chart is primary (by event) -->
+                <button id="chart-details" class="icon-btn red" title="Details (pie chart)"><i class="fa-solid fa-circle-info"></i></button>
               </div>
             </div>
-            <canvas id="barChart" width="800" height="380"></canvas>
-          </div>
-
-          <div class="card chart-card">
-            <div class="card-head">
-              <h4>Funds by Country (Pie)</h4>
-              <div class="card-actions">
-                <button id="pie-expand" class="icon-btn" title="Expand pie chart"><i class="fa-solid fa-expand"></i></button>
-              </div>
-            </div>
-            <canvas id="pieChart" width="640" height="380"></canvas>
+            <canvas id="barChart" width="920" height="420" aria-label="Funds bar chart"></canvas>
           </div>
         </div>
 
-        <div class="card map-card">
+        <div class="card map-card" aria-label="Event map">
           <div class="card-head">
             <h4>Event Map (country shading)</h4>
             <div class="card-actions">
               <button id="map-expand" class="icon-btn" title="Expand map"><i class="fa-solid fa-expand"></i></button>
             </div>
           </div>
-          <div id="map" style="height:420px;border-radius:12px;overflow:hidden"></div>
+          <div id="map" style="height:520px;border-radius:12px;overflow:hidden" aria-hidden="false"></div>
+          <div id="map-note" class="muted" style="margin-top:8px;font-size:13px"></div>
         </div>
       </aside>
     </section>
@@ -130,46 +148,53 @@
         <div class="modal-top">
           <h2 id="modal-title">Full Calendar</h2>
           <div class="modal-actions">
-            <button id="close-modal" class="btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+            <button id="close-modal" class="btn-ghost" aria-label="Close calendar modal"><i class="fa-solid fa-xmark"></i></button>
           </div>
         </div>
-        <div id="expanded-calendar" style="min-height:640px"></div>
+        <div id="expanded-calendar" style="min-height:680px"></div>
       </div>
     </div>
 
-    <!-- Chart modal -->
+    <!-- Chart modal (pie by event) -->
     <div id="chart-modal" class="modal" aria-hidden="true">
       <div class="modal-backdrop" id="chart-backdrop"></div>
-      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:1100px;">
+      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:1000px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <h3 id="chart-modal-title">Chart</h3>
-          <button id="chart-close" class="btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+          <h3 id="chart-modal-title">Details</h3>
+          <button id="chart-close" class="btn-ghost" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="chart-modal-body" style="min-height:520px"></div>
+        <div id="chart-modal-body" style="min-height:420px;display:flex;gap:18px;align-items:flex-start">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+            <canvas id="pieChartModal" width="520" height="420"></canvas>
+          </div>
+          <div style="flex:0.9">
+            <div id="chart-summary" style="background:var(--bg-white);padding:12px;border-radius:12px;box-shadow:var(--shadow)"></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Events list modal -->
     <div id="list-modal" class="modal" aria-hidden="true">
       <div class="modal-backdrop" id="list-backdrop"></div>
-      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:900px;">
+      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:980px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <h3>All Events</h3>
-          <button id="list-close" class="btn-ghost"><i class="fa-solid fa-xmark"></i></button>
+          <button id="list-close" class="btn-ghost" aria-label="Close all events"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="all-events-list" style="max-height:640px;overflow:auto"></div>
+        <div id="all-events-list" style="max-height:700px;overflow:auto"></div>
       </div>
     </div>
 
-    <!-- Event drawer for details -->
-    <aside id="event-drawer" class="drawer" aria-hidden="true">
-      <button id="drawer-close" class="drawer-close"><i class="fa-solid fa-xmark"></i></button>
-      <div id="drawer-content"></div>
+    <!-- Event drawer for details and Hive posts -->
+    <aside id="event-drawer" class="drawer" aria-hidden="true" aria-label="Event details">
+      <button id="drawer-close" class="drawer-close" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button>
+      <div id="drawer-content" class="drawer-main"></div>
+      <div id="hive-posts" style="margin-top:12px;"></div>
     </aside>
 
   </main>
 
-  <!-- App script -->
   <script src="calendar.js"></script>
 </body>
 </html>

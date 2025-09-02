@@ -489,3 +489,51 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, true);
 });
+// -------------------- Mobile nav toggle (simple, resilient) --------------------
+(function(){
+  const btn = document.getElementById('mobile-menu');
+  const nav = document.getElementById('main-nav');
+
+  if(!btn || !nav) return;
+
+  function openNav(){
+    btn.classList.add('active');
+    nav.classList.add('active');
+    document.body.classList.add('menu-open');
+    btn.setAttribute('aria-expanded','true');
+  }
+  function closeNav(){
+    btn.classList.remove('active');
+    nav.classList.remove('active');
+    document.body.classList.remove('menu-open');
+    btn.setAttribute('aria-expanded','false');
+  }
+
+  // toggle on click
+  btn.addEventListener('click', () => {
+    if(btn.classList.contains('active')) closeNav(); else openNav();
+  });
+
+  // close when clicking a nav link
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      // little delay so navigation happens visually smooth
+      setTimeout(closeNav, 120);
+    });
+  });
+
+  // close when pressing Esc
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeNav();
+  });
+
+  // close if user clicks outside nav (on overlay)
+  document.addEventListener('click', (e) => {
+    if(!nav.classList.contains('active')) return;
+    // if click is outside nav and outside button -> close
+    if(!nav.contains(e.target) && !btn.contains(e.target)){
+      closeNav();
+    }
+  });
+
+})();

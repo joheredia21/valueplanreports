@@ -721,3 +721,55 @@ section {
 .bg-hive-red {
     background-color: var(--hive-red);
 }
+/* ------------------------
+   MOBILE NAV / HAMBURGER
+   Paste this near the end of styles.css
+   ------------------------ */
+
+/* base: hide hamburger on desktop, show normal nav */
+.nav-toggle { display: none; background: transparent; border: none; padding: 8px; cursor: pointer; }
+.nav-toggle .bar { width: 22px; height: 2px; background: var(--hive-light-gray); margin: 4px 0; border-radius: 2px; transition: transform .25s ease, opacity .25s ease; }
+
+/* mobile layout */
+@media (max-width: 920px) {
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 86%;
+    max-width: 420px;
+    height: 100%;
+    background: linear-gradient(180deg, #0f1720, #0b1114);
+    padding: 72px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: left .28s cubic-bezier(.2,.9,.2,1);
+    z-index: 9998;
+  }
+  .nav-menu a { color: #e7e7f1; padding: 10px 6px; border-radius: 8px; display:block; }
+  .nav-menu a:hover { background: rgba(227,19,55,0.06); color: var(--hive-red); transform: translateX(4px); }
+
+  /* when active, slide in */
+  .nav-menu.active { left: 0; }
+
+  /* show hamburger */
+  .nav-toggle { display: inline-flex; align-items:center; justify-content:center; z-index:9999; }
+
+  /* hamburger -> cross when active */
+  .nav-toggle.active .bar:nth-child(2) { opacity: 0; }
+  .nav-toggle.active .bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-toggle.active .bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* overlay to dim page when menu open (optional) */
+  body.menu-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 9997;
+  }
+}
+
+/* ensure nav is always on top and sticky */
+.navbar { position: sticky; top: 0; z-index: 10000; }
