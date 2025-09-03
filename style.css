@@ -773,3 +773,64 @@ section {
 
 /* ensure nav is always on top and sticky */
 .navbar { position: sticky; top: 0; z-index: 10000; }
+/* Project Reports — estilo mejorado (Hive rojo) */
+.project-reports-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+  background: linear-gradient(180deg, #ff444d 0%, #e31337 100%);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(227,19,55,0.14), inset 0 -2px 6px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 120ms ease;
+  white-space: nowrap;
+}
+
+/* Icono dentro del botón */
+.project-reports-btn i {
+  font-size: 0.95rem;
+  line-height: 1;
+  transform-origin: center;
+}
+
+/* Hover / active */
+.project-reports-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(227,19,55,0.20);
+}
+.project-reports-btn:active {
+  transform: translateY(-1px) scale(.998);
+  box-shadow: 0 8px 18px rgba(227,19,55,0.16);
+}
+
+/* Focus accesible */
+.project-reports-btn:focus {
+  outline: 3px solid rgba(227,19,55,0.16);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(227,19,55,0.06);
+}
+
+/* Pequeña animación “pulse” opcional (actívala añadiendo .pulse) */
+.project-reports-btn.pulse {
+  animation: pulse-hive 2.8s infinite;
+}
+@keyframes pulse-hive {
+  0% { box-shadow: 0 8px 20px rgba(227,19,55,0.12); }
+  50% { box-shadow: 0 18px 36px rgba(227,19,55,0.18); }
+  100% { box-shadow: 0 8px 20px rgba(227,19,55,0.12); }
+}
+
+/* Estilo para la versión móvil dentro del menú (si usas el enlace .create-copy-mobile) */
+.create-copy-mobile {
+  display: inline-block; /* en mobile se mostrará como link destacado */
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(227,19,55,0.06);
+  color: #fff;
+  font-weight:700;
+}
