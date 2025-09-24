@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Value Plan — Premium Events Calendar</title>
 
+  <!-- favicon -->
+  <link rel="icon" href="https://promote.hive.io/icons/hive-logo.png" />
+
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,13 +28,16 @@
 
   <!-- App styles -->
   <link rel="stylesheet" href="calendar.css" />
+
+  <!-- dhive (optional) -->
+  <script src="https://unpkg.com/@hiveio/dhive/dist/dhive.js"></script>
 </head>
 <body>
   <header class="site-topbar" role="banner">
     <div class="topbar-inner">
       <div class="brand-left">
         <a href="index.html" class="brand-link">
-          <img src="" alt="Value Plan" class="brand-icon" aria-hidden="true">
+          <img src="https://promote.hive.io/icons/hive-logo.png" alt="Value Plan" class="brand-icon" aria-hidden="true">
           <span class="brand-text">Value Plan</span>
         </a>
       </div>
@@ -58,7 +64,9 @@
     <!-- Header for calendar (keeps controls) -->
     <header class="app-header">
       <div class="brand">
-        <div class="logo" aria-hidden="true">VP</div>
+        <img src="https://files.peakd.com/file/peakd-hive/joheredia21/23uQtuwkDLZfCzn6YTdXZFTf64Xe3xMLBUMFT3LTNicRjk43MCUWgsUGaXfS59WFPbHZu.png" 
+     alt="Hive Logo" style="height:70px; border-radius:10px;">
+
         <div class="title">
           <h1>Events Calendar</h1>
           <p class="subtitle">Beautiful, curated events — funds in HBD — premium UI</p>
@@ -76,9 +84,11 @@
           </select>
         </label>
 
-        <label class="control-item switch">
+        <!-- Reworked switch: visible but elegant -->
+        <label class="control-item switch" title="Toggle showing past (completed) events">
           <input id="show-past-toggle" type="checkbox" />
-          <span>Show past events</span>
+          <span class="toggle" aria-hidden="true"><span class="knob"></span></span>
+          <span class="switch-label">Show past events</span>
         </label>
 
         <button id="expand-btn" class="btn-primary" title="Expand calendar">
@@ -122,6 +132,7 @@
               <div class="card-actions">
                 <!-- DETAILS opens modal where pie chart is primary (by event) -->
                 <button id="chart-details" class="icon-btn red" title="Details (pie chart)"><i class="fa-solid fa-circle-info"></i></button>
+                <span class="chart-hint">See breakdown</span>
               </div>
             </div>
             <canvas id="barChart" width="920" height="420" aria-label="Funds bar chart"></canvas>
@@ -192,6 +203,18 @@
       <div id="drawer-content" class="drawer-main"></div>
       <div id="hive-posts" style="margin-top:12px;"></div>
     </aside>
+
+    <!-- Post modal: show single post HTML nicely -->
+    <div id="post-modal" class="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="post-backdrop"></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" style="max-width:1000px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <h3 id="post-modal-title">Post</h3>
+          <button id="post-close" class="btn-ghost" aria-label="Close post"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="post-modal-body" style="max-height:72vh;overflow:auto;padding:12px;background:var(--bg-white);border-radius:8px;box-shadow:var(--shadow)"></div>
+      </div>
+    </div>
 
   </main>
 
