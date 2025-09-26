@@ -149,6 +149,18 @@ body{
      si usas overflow:visible en otro sitio, puedes quitar esta línea */
   overflow: hidden;
 }
+/* Ajuste específico para las celdas de sábado en los mini calendarios */
+.mini-cal .fc-day-sat {
+  margin-right: 10px; /* prueba con 2px, 3px o 4px según lo que veas mejor */
+  box-sizing: border-box; /* asegura que no desborde */
+}
+/* A: Aumentar espacio dentro de la celda (top area) — aplica solo en mini-cal y sábados */
+.mini-cal .fc-daygrid-day.fc-day-sat .fc-daygrid-day-top {
+  padding-right: 16px !important; /* prueba 8..14px según resultado */
+  box-sizing: border-box;
+}
+
+
 
 /* Asegura que el número del día esté por encima de los eventos */
 .mini-cal .fc .fc-daygrid-day-number,
@@ -160,7 +172,7 @@ body{
 /* Limita la altura del área de eventos para que no empuje el top-number */
 .mini-cal .fc .fc-daygrid-day-events,
 .mini-cal .fc .fc-daygrid-day-events > * {
-  max-height: calc(100% - 34px); /* deja espacio suficiente para el número del día */
+  max-height: calc(100% - 28px); /* deja espacio suficiente para el número del día */
   overflow: hidden;
   z-index: 1;
 }
