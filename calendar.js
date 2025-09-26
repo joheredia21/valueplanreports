@@ -898,7 +898,6 @@ const raw = await client.database.getDiscussions('created', { tag, limit: dhiveL
     };
 
     // COMMUNITY button: performs the SAME tag-based fetch but uses Tag2 (col I) INDEPENDENTLY
-    // COMMUNITY button: performs the SAME tag-based fetch but uses Tag2 (col I) INDEPENDENTLY
 if(communityBtn) communityBtn.onclick = async (e) => {
   e.stopPropagation();
   const rawTag2 = ev.tag2 || '';

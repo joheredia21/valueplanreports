@@ -109,6 +109,80 @@ body{
 .mini-cal{ width:100%; height:280px; background: linear-gradient(180deg,#fff,var(--bg-white)); border-radius:12px; padding:10px; box-shadow: var(--shadow); transition:var(--transition); overflow:hidden; }
 .mini-cal:hover{ transform: translateY(-3px); }
 
+/* IMPORTANT: ensure day cell number is always visible and events don't expand the cell */
+.mini-cal .fc .fc-daygrid-day-frame { position: relative; padding-top: 28px !important; box-sizing: border-box; }
+.mini-cal .fc .fc-daygrid-day-number,
+.mini-cal .fc .fc-daygrid-day-top { position: absolute; top: 6px; left: 8px; z-index: 6; }
+.mini-cal .fc .fc-daygrid-day-number { font-weight:700; background: transparent; padding:0 4px; line-height:1; font-size:13px; color: inherit; }
+
+/* For event-day (red) ensure number remains white and on top */
+.mini-cal .fc-daygrid-day.event-day .fc-daygrid-day-number { color:#fff !important; z-index:8; }
+
+/* Limit how many event rows can visually expand inside mini calendars. Keep them truncated */
+.mini-cal .fc .fc-daygrid-day-events,
+.mini-cal .fc .fc-daygrid-day-events > * {
+  max-height: calc(100% - 36px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Compact event appearance inside mini calendars to avoid pushing cell height */
+.mini-cal .fc .fc-daygrid-event, 
+.mini-cal .fc .fc-event {
+  padding: 4px 6px !important;
+  margin: 2px 0 !important;
+  font-size: 12px !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  display: block !important;
+  border-radius: 8px !important;
+}
+
+/* Dar un poco de respiro a la columna derecha para que el número no se corte */
+/* Ajuste para evitar que el número del sábado se corte en el borde derecho */
+.mini-cal {
+  /* un poco de respiro a la derecha, evita que el número sea recortado */
+  padding-right: 0px; /* prueba 8px / 10px / 12px según tu preferencia visual */
+  /* si prefieres no mostrar overflow de sombras, mantén overflow:hidden; 
+     si usas overflow:visible en otro sitio, puedes quitar esta línea */
+  overflow: hidden;
+}
+
+/* Asegura que el número del día esté por encima de los eventos */
+.mini-cal .fc .fc-daygrid-day-number,
+.mini-cal .fc .fc-daygrid-day-top {
+  position: relative !important;
+  z-index: 60 !important;
+}
+
+/* Limita la altura del área de eventos para que no empuje el top-number */
+.mini-cal .fc .fc-daygrid-day-events,
+.mini-cal .fc .fc-daygrid-day-events > * {
+  max-height: calc(100% - 34px); /* deja espacio suficiente para el número del día */
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Si aún ves recortes en algunos navegadores, aumenta padding-right a 10-12px */
+
+
+/* reducir riesgo de empuje por eventos: limitar su altura y z-index */
+.mini-cal .fc .fc-daygrid-day-events,
+.mini-cal .fc .fc-daygrid-day-events > * {
+  max-height: calc(100% - 36px);
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* opcional: si el contenedor estaba usando border-radius y quieres permitir overflow visible */
+.mini-cal { overflow: visible; }
+/* si usas overflow:visible y quieres mantener el fondo y bordes, entonces envuelve el calendario en .mini-cal-inner
+   y aplica background/border-radius a .mini-cal-inner en lugar de .mini-cal */
+
+
+/* FullCalendar internal tweaks */
 .mini-cal .fc .fc-button{ border-radius:8px; padding:6px 8px; font-size:12px; }
 .mini-cal .fc .fc-daygrid-day-number{ font-weight:600; }
 .mini-cal .fc .fc-daygrid-day-frame{ padding:6px 6px 8px 6px; }
@@ -119,10 +193,13 @@ body{
 /* Hive red for event days */
 .fc-daygrid-day.event-day{ background: var(--hive-red) !important; color: #fff !important; border-radius: 8px; }
 .fc-daygrid-day.event-day .fc-daygrid-day-number{ color:#fff !important; font-weight:800; }
-.fc-daygrid-day.event-day .fc-event{ color:#fff !important; background:transparent !important; border:none !important; font-weight:700; }
+.fc-daygrid-day.event-day .fc-event{ color:#fff !important; background:transparent !important; border:none !important; font-weight:700 !important; }
 
-.fc-daygrid-day .fc-daygrid-more-link{ background: rgba(255,255,255,.16); color:#fff; border:none; border-radius:999px; padding:2px 8px; font-weight:700; font-size:11px; }
-.fc-daygrid-day:not(.event-day) .fc-daygrid-more-link{ background: rgba(227,19,55,.10); color: var(--hive-red); }
+/* +n more link hidden (keeps layout tidy in mini calendars) */
+.fc .fc-daygrid-more-link {
+  display: none !important;
+  pointer-events: none !important;
+}
 
 /* bottom controls under mini calendars */
 .mini-controls{ display:flex; gap:10px; align-items:center; margin-top:6px; }
