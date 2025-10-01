@@ -391,12 +391,12 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
 /*
   EDITABLE VALUES & NOTES:
   - DEFAULT_COPY_SHEET: default Google Sheets copy link used by "Get report template".
-  - APP_SCRIPT_ENDPOINT: set this to the deployed Apps Script Web App URL after deploy.https://script.google.com/macros/s/AKfycbz-ID9ca-GUDRysUUkSQuqLfn_nfKX8dtZDpIlt2bnCywW6BAvoWct3w5GcpUwdUoSqIQ/exec
+  - APP_SCRIPT_ENDPOINT: set this to the deployed Apps Script Web App URL after deploy.https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec
   - APP_ORIGIN: the page origin / URL that will be sent to the Apps Script for auditing.
   - TRACKING_SHEET_URL: public tracking sheet where manual paste can be done by user.
 */
 
-const APP_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz-ID9ca-GUDRysUUkSQuqLfn_nfKX8dtZDpIlt2bnCywW6BAvoWct3w5GcpUwdUoSqIQ/exec'; // <-- paste your Apps Script Web App URL here after deploy
+const APP_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec'; // <-- paste your Apps Script Web App URL here after deploy
 const DEFAULT_COPY_SHEET = 'https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy';
 const TRACKING_SHEET_URL = 'https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0';
 
@@ -892,86 +892,117 @@ function saveLocalTemplate(url, category){
 }
 
 /* Validate spreadsheet URL */
-function isValidSpreadsheetUrl(url){
-  return /https?:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+/i.test(url);
+function isValidSpreadsheetUrl(u){
+  if(!u || typeof u !== 'string') return false;
+  // basic check for google sheets url
+  return /^https?:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+/.test(u);
 }
 
-/* Main register click handler — single red Register button */
-$('#register-template').addEventListener('click', async ()=>{
+async function tryRegisterTemplate(url, category){
+  // Save locally regardless
+  saveLocalTemplate(url, category);
+
+  // small UX feedback
+  showToast(LANG==='es' ? 'Registrando plantilla...' : 'Registering template...', 1200);
+
+  // Prepare payload as form data (URLSearchParams) -> avoids preflight OPTIONS
+  const params = new URLSearchParams();
+  params.append('url', url);
+  params.append('category', category || 'General');
+  params.append('origin', window.location.origin || location.origin || '');
+
+  // If no endpoint configured, do not attempt server write; offer manual open
+  if(!APP_SCRIPT_ENDPOINT || APP_SCRIPT_ENDPOINT.length < 10){
+    showToast(LANG==='es' ? 'No hay endpoint configurado. Copia y pega manualmente.' : 'No endpoint configured. Please copy & paste manually.', 4000);
+    showManualTrackingButton();
+    return { ok:false, reason: 'no-endpoint' };
+  }
+
+  try {
+    const resp = await fetch(APP_SCRIPT_ENDPOINT, {
+      method: 'POST',
+      body: params,          // application/x-www-form-urlencoded
+      mode: 'cors'           // keep default CORS mode
+    });
+    const text = await resp.text();
+    let json = null;
+    try{ json = JSON.parse(text); } catch(e){ /* not JSON */ }
+
+    if(resp.ok && json && (json.status === 'success' || json.ok === true || json.row)){
+      // success
+      showToast(LANG==='es' ? 'Plantilla registrada correctamente.' : 'Template registered successfully.', 3000);
+      // push analytics
+      window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event:'register_template', category, row: json.row || null });
+      // close modal
+      closeRegisterModal();
+      return { ok:true, resp: json };
+    } else {
+      console.warn('Register server reply', resp.status, text);
+      showToast(LANG==='es' ? 'Registro no confirmado. Revisa la consola o pega manualmente.' : 'Register not confirmed. Check console or paste manually.', 6000);
+      showManualTrackingButton();
+      return { ok:false, respText: text, status: resp.status };
+    }
+  } catch(err){
+    console.error('Register request error', err);
+    showToast(LANG==='es' ? 'Error de conexión. Intenta manualmente.' : 'Connection error. Try manual paste.', 5000);
+    showManualTrackingButton();
+    return { ok:false, error: err };
+  }
+}
+
+function showManualTrackingButton(){
+  // add manual-open link inside modal (if not present)
+  const modalBody = modalReg.querySelector('.modal') || modalReg;
+  if(!modalBody) return;
+  if(document.getElementById('manual-open-tracking')) return; // already added
+
+  const btn = document.createElement('a');
+  btn.id = 'manual-open-tracking';
+  btn.href = TRACKING_SHEET_URL;
+  btn.target = '_blank';
+  btn.rel = 'noopener';
+  btn.className = 'btn-ghost';
+  btn.style.display = 'inline-flex';
+  btn.style.marginTop = '10px';
+  btn.textContent = (LANG === 'es') ? 'Abrir hoja de seguimiento (manual)' : 'Open tracking sheet (manual)';
+
+  modalBody.appendChild(btn);
+}
+
+/* Replace existing click handler */
+$('#register-template').replaceWith( $('#register-template').cloneNode(true) ); // remove old listeners
+document.getElementById('register-template').addEventListener('click', async ()=>{
   const url = templateUrlInput.value.trim();
   const category = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
+
   if(!isValidSpreadsheetUrl(url)){
-    showToast(TRANSLATIONS[LANG].reg_invalid, 3200);
+    showToast(LANG==='es' ? 'Pega una URL válida de Google Sheets' : 'Please paste a valid Google Sheets URL', 3500);
     return;
   }
 
-  // Save locally for user reference
-  saveLocalTemplate(url, category);
+  // Attempt server write (form-urlencoded -> avoids preflight)
+  const result = await tryRegisterTemplate(url, category);
 
-  // Inform user
-  showToast(LANG==='es' ? 'Registrando plantilla...' : 'Registering template...', 1600);
-
-  // Prepare payload (include origin to help auditing)
-  const payload = { url: url, category: category, origin: APP_ORIGIN };
-
-  // If APP_SCRIPT_ENDPOINT is configured, attempt server-side register
-  if(APP_SCRIPT_ENDPOINT && APP_SCRIPT_ENDPOINT.length > 10){
-    try{
-      const resp = await fetch(APP_SCRIPT_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        mode: 'cors'
-      });
-      // Parse JSON safely
-      const json = await resp.json().catch(()=>({ ok:false, status: resp.status }));
-      if(json && json.ok){
-        showToast(TRANSLATIONS[LANG].reg_success, 3200);
-        closeRegisterModal();
-        // analytics hook
-        window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event:'register_template', category, row: json.row || null });
-        return;
-      } else {
-        console.warn('Server registration response', json);
-        showToast(TRANSLATIONS[LANG].reg_fail, 3200);
-        // fallback: open tracking sheet so user can paste manually
-        setTimeout(()=> window.open(TRACKING_SHEET_URL, '_blank', 'noopener'), 400);
-        closeRegisterModal();
-        return;
-      }
-    }catch(err){
-      console.error('Register request error', err);
-      showToast(LANG==='es' ? 'No se pudo conectar al servidor. Abriendo hoja de seguimiento' : 'Could not reach server endpoint. Opening tracking sheet', 3200);
-      // fallback to tracking sheet
-      setTimeout(()=> window.open(TRACKING_SHEET_URL, '_blank', 'noopener'), 400);
-      closeRegisterModal();
-      return;
-    }
-  }
-
-  // No endpoint configured: copy to clipboard and open tracking sheet for manual paste
-  try{
-    await navigator.clipboard.writeText(url);
-    showToast(LANG==='es' ? 'URL copiada. Abriendo hoja de seguimiento...' : 'Template URL copied. Opening tracking sheet...', 2400);
-  }catch(err){
-    showToast(LANG==='es' ? 'No se pudo copiar al portapapeles. Abriendo hoja de seguimiento...' : 'Could not copy to clipboard. Opening tracking sheet...', 2400);
-  } finally {
-    setTimeout(()=> { window.open(TRACKING_SHEET_URL, '_blank', 'noopener'); closeRegisterModal(); }, 600);
-  }
+  // Optional: if result failed for reasons, keep modal open for user to manually open tracking sheet
+  // (we already show manual open button in tryRegisterTemplate on failure)
 });
 
-/* Copy & open tracking sheet fallback (button) */
-$('#copy-to-clipboard').addEventListener('click', async ()=>{
+/* Replace copy-to-clipboard handler: copy URL and show manual open button (no auto open) */
+$('#copy-to-clipboard').replaceWith( $('#copy-to-clipboard').cloneNode(true) );
+document.getElementById('copy-to-clipboard').addEventListener('click', async ()=>{
   const url = templateUrlInput.value.trim();
-  if(!url){ showToast(LANG==='es' ? 'Pega la URL primero' : 'Paste the URL first', 2000); return; }
+  if(!url){
+    showToast(LANG==='es' ? 'Pega la URL primero' : 'Paste the URL first', 2200);
+    return;
+  }
   try{
     await navigator.clipboard.writeText(url);
-    showToast(LANG==='es' ? 'URL copiada — abriendo hoja...' : 'URL copied — opening tracking sheet...', 1800);
+    showToast(LANG==='es' ? 'URL copiada — abre la hoja de seguimiento si deseas pegarla.' : 'URL copied — open tracking sheet to paste it.', 2200);
+    showManualTrackingButton();
   }catch(err){
-    showToast(LANG==='es' ? 'No se pudo acceder al portapapeles' : 'Clipboard not available', 1800);
-  } finally {
-    window.open(TRACKING_SHEET_URL,'_blank');
-    closeRegisterModal();
+    console.warn('Clipboard failed', err);
+    showToast(LANG==='es' ? 'No se pudo acceder al portapapeles' : 'Clipboard not available', 2200);
+    showManualTrackingButton();
   }
 });
 
