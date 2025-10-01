@@ -235,13 +235,12 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
       </div>
     </div>
 
-    <!-- SMART SECTION -->
+    <!-- SMART SECTION (unchanged) -->
     <section id="smart-section" class="section hidden" aria-labelledby="smart-h">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h2 id="smart-h" data-i18n="smart_heading">What is SMART</h2>
         <div style="display:flex;gap:8px"><button class="segment-btn" id="smart-close" aria-label="Close SMART">Close</button></div>
       </div>
-
       <div style="margin-top:12px;display:grid;gap:14px;grid-template-columns:1fr 360px; align-items:start;">
         <div>
           <div style="display:flex;flex-direction:column;gap:12px">
@@ -249,42 +248,35 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
               <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">S</div>
               <div><div style="font-weight:700" data-i18n="s_title">Specific</div><div class="small" data-i18n="s_text">What exactly will we achieve? (e.g., sign up new accounts, capture leads, onboard partners).</div></div>
             </div>
-
             <div style="display:flex;gap:12px;align-items:flex-start">
               <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">M</div>
               <div><div style="font-weight:700" data-i18n="m_title">Measurable</div><div class="small" data-i18n="m_text">Which number or indicator will tell us we've reached the goal?</div></div>
             </div>
-
             <div style="display:flex;gap:12px;align-items:flex-start">
               <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">A</div>
               <div><div style="font-weight:700" data-i18n="a_title">Achievable</div><div class="small" data-i18n="a_text">Is it realistic with available resources? (Conservative / Moderate / Ambitious).</div></div>
             </div>
-
             <div style="display:flex;gap:12px;align-items:flex-start">
               <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">R</div>
               <div><div style="font-weight:700" data-i18n="r_title">Relevant</div><div class="small" data-i18n="r_text">Why does this matter for Value Plan and Hive?</div></div>
             </div>
-
             <div style="display:flex;gap:12px;align-items:flex-start">
               <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">T</div>
               <div><div style="font-weight:700" data-i18n="t_title">Time-bound</div><div class="small" data-i18n="t_text">What is the deadline or period (e.g., 30/60/90 days)?</div></div>
             </div>
           </div>
-
           <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
             <button class="segment-btn" id="open-example" aria-label="Open example details">Details</button>
             <a id="smart-make-copy" class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener" data-i18n="templates_cta">Make a copy</a>
           </div>
         </div>
-
-        <!-- Compact video container on right -->
         <div id="smart-media" style="min-height:200px;border-radius:12px;padding:6px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#fbfbff);box-shadow:var(--shadow)">
           <div class="small" data-i18n="smart_open_hint">Open SMART to view the short instructional video here.</div>
         </div>
       </div>
     </section>
 
-    <!-- TEMPLATES SECTION -->
+    <!-- TEMPLATES SECTION (unchanged layout) -->
     <section id="templates-section" class="section hidden" aria-labelledby="tpl-h">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h2 id="tpl-h" data-i18n="templates_heading">Build your report — Templates</h2>
@@ -342,23 +334,38 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
       </div>
     </div>
 
-    <!-- Register modal -->
+    <!-- Register modal (MODIFIED: single red register, public-note and help video link) -->
     <div class="modal-backdrop" id="modal-reg" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-reg-title">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <h3 id="modal-reg-title">Register your template</h3>
+          <h3 id="modal-reg-title" data-i18n="reg_modal_title">Register your template</h3>
           <button class="segment-btn" id="modal-reg-close" aria-label="Close register modal">Close</button>
         </div>
         <div style="margin-top:12px">
-          <p class="small" data-i18n="reg_instructions">Paste the full URL of the template you created (Google Sheets). This will be saved locally and — if you provide an Apps Script endpoint — it can be written automatically to the tracking sheet provided.</p>
+          <!-- IMPORTANT NOTE about public sheet -->
+          <p class="small" id="reg-note" data-i18n="reg_note">
+            Important: The sheet you register must be <strong>publicly viewable</strong>. If it's not public the team won't be able to access it.
+          </p>
+
+          <!-- Small help button to a YouTube tutorial (language-aware) -->
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <a id="share-help" class="btn-ghost" target="_blank" rel="noopener" data-i18n="reg_video_btn">How to make a sheet public (video)</a>
+            <span class="small" style="color:var(--muted)">(opens YouTube)</span>
+          </div>
+
           <label class="small" for="template-url" data-i18n="reg_label_url">Template URL</label>
           <input id="template-url" type="url" placeholder="https://docs.google.com/spreadsheets/..." style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--hive-light-gray);margin-top:6px" />
+
           <div style="display:flex;gap:8px;margin-top:12px">
-            <button id="register-template" class="btn-sheet" data-i18n="reg_btn_register">Register</button>
+            <!-- Single red register button (primary action) -->
+            <button id="register-template" class="btn-register" aria-label="Register template" data-i18n="reg_btn_register">Register</button>
+
+            <!-- fallback copy/open -->
             <button id="copy-to-clipboard" class="btn-ghost" data-i18n="reg_btn_copyopen">Copy & Open tracking sheet</button>
           </div>
+
           <div style="margin-top:12px" class="small">
-            <a id="tracking-sheet-link" href="https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0" target="_blank" rel="noopener">Tracking sheet</a>
+            <a id="tracking-sheet-link" href="https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0" target="_blank" rel="noopener">Tracking sheet (public)</a>
           </div>
         </div>
       </div>
@@ -384,21 +391,26 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
 /*
   EDITABLE VALUES & NOTES:
   - DEFAULT_COPY_SHEET: default Google Sheets copy link used by "Get report template".
-  - APP_SCRIPT_ENDPOINT: (optional) Apps Script Web App URL to POST registered templates.
-  - IMAGE_MAP: map category keys to preview image URLs for the templates preview.
-    * Edit IMAGE_MAP to change preview images per category easily.
+  - APP_SCRIPT_ENDPOINT: set this to the deployed Apps Script Web App URL after deploy.https://script.google.com/macros/s/AKfycbwjooyhoQd5Fwkl2JgzbKOG9wS6E5vtCWfLqytGXbrxongCKLmKGE5SOYlpueqJlfnMNA/exec
+  - APP_ORIGIN: the page origin / URL that will be sent to the Apps Script for auditing.
+  - TRACKING_SHEET_URL: public tracking sheet where manual paste can be done by user.
 */
 
-const APP_SCRIPT_ENDPOINT = ''; // <-- set Apps Script endpoint here if you have one
+const APP_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwjooyhoQd5Fwkl2JgzbKOG9wS6E5vtCWfLqytGXbrxongCKLmKGE5SOYlpueqJlfnMNA/exec'; // <-- paste your Apps Script Web App URL here after deploy
 const DEFAULT_COPY_SHEET = 'https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy';
 const TRACKING_SHEET_URL = 'https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0';
+
+// The origin/page that will be sent to the Apps Script (helps auditing)
+const APP_ORIGIN = 'https://valueplanreports.vercel.app/reports.html';
+
+// SMART video IDs (as before)
 const SMART_VIDEO_EN = 'https://www.youtube.com/embed/bUIhbXCfm0w?rel=0';
 const SMART_VIDEO_ES = 'https://www.youtube.com/embed/quQKyihbuzo?rel=0';
 
 /* =========================
    TRANSLATIONS (EN / ES)
+   Extended with new keys for register-note & video button text
    =========================
-   (unchanged from previous audited version)
 */
 const TRANSLATIONS = {
   en: {
@@ -423,6 +435,11 @@ const TRANSLATIONS = {
     reg_label_url: "Template URL",
     reg_btn_register: "Register",
     reg_btn_copyopen: "Copy & Open tracking sheet",
+    reg_note: "Important: The sheet you register must be publicly viewable. If it's not public the team won't be able to access it.",
+    reg_video_btn: "How to make a sheet public (video)",
+    reg_success: "Template registered successfully.",
+    reg_fail: "Registration failed. Try again or open the tracking sheet.",
+    reg_invalid: "Please paste a valid Google Sheets URL.",
     appsheet_cta: "Request a custom AppSheet app",
     instructions_title: "Instructions",
     instructions_text: "Step-by-step guide to build SMART objectives, get a copy of templates, and register your template for access and metrics.",
@@ -550,6 +567,11 @@ const TRANSLATIONS = {
     reg_label_url: "URL de la plantilla",
     reg_btn_register: "Registrar",
     reg_btn_copyopen: "Copiar y abrir hoja de seguimiento",
+    reg_note: "Importante: la hoja que registres debe ser visible públicamente. Si no es pública, el equipo no podrá acceder.",
+    reg_video_btn: "Cómo hacer pública la hoja (video)",
+    reg_success: "Plantilla registrada correctamente.",
+    reg_fail: "Error al registrar. Intenta de nuevo o abre la hoja de seguimiento.",
+    reg_invalid: "Por favor pega una URL válida de Google Sheets.",
     appsheet_cta: "Solicitar una app personalizada en AppSheet",
     instructions_title: "Instrucciones",
     instructions_text: "Guía paso a paso para crear objetivos SMART, obtener la copia de plantillas y registrar tu plantilla para acceso y métricas.",
@@ -659,17 +681,16 @@ const TRANSLATIONS = {
 /* =========================
    IMAGE MAP (edit here to change previews)
    Keys must match TRANSLATIONS[lang].categories[].key
-   Provided images (used exactly as you sent). Comments included for easy edits.
 */
 const IMAGE_MAP = {
-  Conferences: "https://images.hive.blog/DQmWbSzBjHS4sE2afHKnZa8UU81c9rtYcm7e6uGYzea7Wa6/image.png", // Conferences image
-  HBD_B2B: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/aksurevm89/Eoc7ZFCgq1uP3UmNcfywGEWuZa3fqGgymmjMuJk5m4wjmvM4gEFxoNWnmWVnzqhghw2.jpeg", // HBD Adoption & B2B
-  Technical: "https://images.hive.blog/DQmdXmMPuuCABE4CWGykFhkhxaq13Pa2KtscLCpjF6ang71/image.png", // Devs & Hackathons
-  Alliances: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/valueplan/23tvbtaik6TscCP1X1JWZocHs2mudjHWwdeqgJ6bPyrtFhMYRjiZgNBVpFf1SGkC7qM2i.png", // Institutional Alliances
-  Mass_Reach: "https://images.hive.blog/DQmTGHUDcTMrYHWKVJmfBxmXRMjsyDyBkEZa6gEMqadFqTq/image.png", // Mass Reach / Sports
-  Arts: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/filoriologo/23wWroqwtV4kgv9H1WfjJEuLaWHyiqp6C5G2cHT92N3qU8jZam7a2wYnHqayQLM24A26w.jpg", // Arts & Culture
-  Impact: "https://images.hive.blog/0x0/https://i.imgur.com/AxfLWKD.jpg", // Impact Social
-  Marketing: "https://images.hive.blog/DQmVKZ1Aowm5381s4RRNMhf8VCKa3bcP1HvXZQJCw5rpQhE/image.png" // Marketing Digital
+  Conferences: "https://images.hive.blog/DQmWbSzBjHS4sE2afHKnZa8UU81c9rtYcm7e6uGYzea7Wa6/image.png",
+  HBD_B2B: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/aksurevm89/Eoc7ZFCgq1uP3UmNcfywGEWuZa3fqGgymmjMuJk5m4wjmvM4gEFxoNWnmWVnzqhghw2.jpeg",
+  Technical: "https://images.hive.blog/DQmdXmMPuuCABE4CWGykFhkhxaq13Pa2KtscLCpjF6ang71/image.png",
+  Alliances: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/valueplan/23tvbtaik6TscCP1X1JWZocHs2mudjHWwdeqgJ6bPyrtFhMYRjiZgNBVpFf1SGkC7qM2i.png",
+  Mass_Reach: "https://images.hive.blog/DQmTGHUDcTMrYHWKVJmfBxmXRMjsyDyBkEZa6gEMqadFqTq/image.png",
+  Arts: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/filoriologo/23wWroqwtV4kgv9H1WfjJEuLaWHyiqp6C5G2cHT92N3qU8jZam7a2wYnHqayQLM24A26w.jpg",
+  Impact: "https://images.hive.blog/0x0/https://i.imgur.com/AxfLWKD.jpg",
+  Marketing: "https://images.hive.blog/DQmVKZ1Aowm5381s4RRNMhf8VCKa3bcP1HvXZQJCw5rpQhE/image.png"
 };
 
 /* Utilities */
@@ -684,7 +705,7 @@ const smartSection = $('#smart-section'), templatesSection = $('#templates-secti
 const drawerBackdrop = $('#drawer'), drawerBody = $('#drawer-body');
 const modalReg = $('#modal-reg'), registerTemplateBtn = $('#register-template'), templateUrlInput = $('#template-url'), copyToClipboardBtn = $('#copy-to-clipboard');
 const toastEl = $('#toast'), openSmartBtn = $('#open-smart'), openTemplatesBtn = $('#open-templates'), openInstructionsBtn = $('#open-instructions');
-const smartMedia = $('#smart-media'), requestAppBtn = $('#request-app');
+const smartMedia = $('#smart-media'), requestAppBtn = $('#request-app'), shareHelpBtn = $('#share-help');
 
 /* Language init */
 let LANG = localStorage.getItem('lang') || (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en');
@@ -698,6 +719,13 @@ function applyTranslations(){
     const key = el.getAttribute('data-i18n');
     if(TRANSLATIONS[LANG][key] !== undefined) el.textContent = TRANSLATIONS[LANG][key];
   });
+  // update register note and video button specifically
+  $('#reg-note').textContent = TRANSLATIONS[LANG].reg_note;
+  $('#share-help').textContent = TRANSLATIONS[LANG].reg_video_btn;
+  // set share-help link per language (YouTube search for "make sheet public")
+  $('#share-help').href = LANG === 'es'
+    ? 'https://www.youtube.com/results?search_query=como+hacer+publica+hoja+google+sheets'
+    : 'https://www.youtube.com/results?search_query=how+to+make+google+sheets+public';
   renderCategories();
   const activeKey = tplListEl.querySelector('.tpl-item.active')?.dataset.key || TRANSLATIONS[LANG].categories[0].key;
   setActiveCategory(activeKey);
@@ -726,7 +754,7 @@ function renderCategories(){
     el.setAttribute('tabindex', '0');
     el.setAttribute('role', 'button');
     el.dataset.key = cat.key;
-    el.dataset.sheet = DEFAULT_COPY_SHEET; // default copy link for each category; edit per-category if needed
+    el.dataset.sheet = DEFAULT_COPY_SHEET; // default copy link for each category
     el.innerHTML = `
       <div class="glyph" aria-hidden="true">${cat.glyph}</div>
       <div class="cat-body"><div class="cat-title">${cat.title}</div><div class="cat-desc">${cat.desc}</div></div>
@@ -747,12 +775,11 @@ function setActiveCategory(key){
   previewDescEl.textContent = ex.goal || catObj.desc;
 
   // Use IMAGE_MAP to set preview image per category.
-  // If image not found, falls back to a placeholder.
   const img = IMAGE_MAP[key] || ('https://placehold.co/600x360?text=' + encodeURIComponent(catObj.title));
   previewImg.src = img;
   previewImg.alt = catObj.title + ' preview';
 
-  // set sheet link
+  // set sheet link and category data
   const el = tplListEl.querySelector(`.tpl-item[data-key="${key}"]`);
   const sheet = el ? el.dataset.sheet : DEFAULT_COPY_SHEET;
   previewCopy.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
@@ -851,7 +878,7 @@ document.addEventListener('click', (e)=>{
   setTimeout(()=> { window.open(href,'_blank','noopener'); showToast(LANG==='es' ? 'Plantilla abierta — crea una copia en Drive.' : 'Template opened — create a copy in Drive.', 2600); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'template_copy', category: btn.dataset.cat || previewCopy.dataset.cat || 'unknown'}); }, 700);
 });
 
-/* Register template modal logic */
+/* Register template modal logic (UPDATED per your request) */
 function openRegisterModal(){ modalReg.style.display = 'flex'; modalReg.setAttribute('aria-hidden','false'); templateUrlInput.value = ''; setTimeout(()=> modalReg.querySelector('.modal').classList.add('show'), 20); templateUrlInput.focus(); }
 function closeRegisterModal(){ modalReg.querySelector('.modal').classList.remove('show'); modalReg.setAttribute('aria-hidden','true'); setTimeout(()=> modalReg.style.display='none', 260); }
 $('#open-register').addEventListener('click', openRegisterModal);
@@ -864,49 +891,91 @@ function saveLocalTemplate(url, category){
   localStorage.setItem('registeredTemplates', JSON.stringify(list));
 }
 
+/* Validate spreadsheet URL */
+function isValidSpreadsheetUrl(url){
+  return /https?:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+/i.test(url);
+}
+
+/* Main register click handler — single red Register button */
 $('#register-template').addEventListener('click', async ()=>{
   const url = templateUrlInput.value.trim();
   const category = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
-  if(!url){ showToast(LANG==='es' ? 'Pega una URL válida de Google Sheets' : 'Please paste a valid Google Sheets URL'); return; }
+  if(!isValidSpreadsheetUrl(url)){
+    showToast(TRANSLATIONS[LANG].reg_invalid, 3200);
+    return;
+  }
+
+  // Save locally for user reference
   saveLocalTemplate(url, category);
 
-  if(APP_SCRIPT_ENDPOINT){
+  // Inform user
+  showToast(LANG==='es' ? 'Registrando plantilla...' : 'Registering template...', 1600);
+
+  // Prepare payload (include origin to help auditing)
+  const payload = { url: url, category: category, origin: APP_ORIGIN };
+
+  // If APP_SCRIPT_ENDPOINT is configured, attempt server-side register
+  if(APP_SCRIPT_ENDPOINT && APP_SCRIPT_ENDPOINT.length > 10){
     try{
-      const resp = await fetch(APP_SCRIPT_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({url:url, category:category}) });
-      if(resp.ok){ showToast(LANG==='es' ? 'Plantilla registrada (servidor)' : 'Template registered (server)'); }
-      else { showToast(LANG==='es' ? 'Error al registrar en servidor' : 'Server error while registering'); window.open(TRACKING_SHEET_URL,'_blank'); }
+      const resp = await fetch(APP_SCRIPT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'cors'
+      });
+      // Parse JSON safely
+      const json = await resp.json().catch(()=>({ ok:false, status: resp.status }));
+      if(json && json.ok){
+        showToast(TRANSLATIONS[LANG].reg_success, 3200);
+        closeRegisterModal();
+        // analytics hook
+        window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event:'register_template', category, row: json.row || null });
+        return;
+      } else {
+        console.warn('Server registration response', json);
+        showToast(TRANSLATIONS[LANG].reg_fail, 3200);
+        // fallback: open tracking sheet so user can paste manually
+        setTimeout(()=> window.open(TRACKING_SHEET_URL, '_blank', 'noopener'), 400);
+        closeRegisterModal();
+        return;
+      }
     }catch(err){
-      console.error(err);
-      showToast(LANG==='es' ? 'No se pudo conectar al servidor. Abriendo hoja de seguimiento' : 'Could not reach server endpoint. Opening tracking sheet');
-      window.open(TRACKING_SHEET_URL,'_blank');
-    }
-  } else {
-    try{
-      await navigator.clipboard.writeText(url);
-      showToast(LANG==='es' ? 'URL copiada. Abriendo hoja de seguimiento...' : 'Template URL copied to clipboard. Opening tracking sheet...');
-      window.open(TRACKING_SHEET_URL,'_blank');
-    }catch(err){
-      showToast(LANG==='es' ? 'Copia manual requerida. Abriendo hoja de seguimiento.' : 'Clipboard not available. Please copy manually. Opening tracking sheet.');
-      window.open(TRACKING_SHEET_URL,'_blank');
+      console.error('Register request error', err);
+      showToast(LANG==='es' ? 'No se pudo conectar al servidor. Abriendo hoja de seguimiento' : 'Could not reach server endpoint. Opening tracking sheet', 3200);
+      // fallback to tracking sheet
+      setTimeout(()=> window.open(TRACKING_SHEET_URL, '_blank', 'noopener'), 400);
+      closeRegisterModal();
+      return;
     }
   }
-  setTimeout(()=> closeRegisterModal(), 900);
-});
 
-$('#copy-to-clipboard').addEventListener('click', async ()=>{
-  const url = templateUrlInput.value.trim();
-  if(!url){ showToast(LANG==='es' ? 'Pega la URL primero' : 'Paste the URL first'); return; }
+  // No endpoint configured: copy to clipboard and open tracking sheet for manual paste
   try{
     await navigator.clipboard.writeText(url);
-    showToast(LANG==='es' ? 'URL copiada — abriendo hoja...' : 'URL copied — opening tracking sheet...');
-    window.open(TRACKING_SHEET_URL,'_blank');
+    showToast(LANG==='es' ? 'URL copiada. Abriendo hoja de seguimiento...' : 'Template URL copied. Opening tracking sheet...', 2400);
   }catch(err){
-    showToast(LANG==='es' ? 'No se pudo acceder al portapapeles' : 'Clipboard not available');
-    window.open(TRACKING_SHEET_URL,'_blank');
+    showToast(LANG==='es' ? 'No se pudo copiar al portapapeles. Abriendo hoja de seguimiento...' : 'Could not copy to clipboard. Opening tracking sheet...', 2400);
+  } finally {
+    setTimeout(()=> { window.open(TRACKING_SHEET_URL, '_blank', 'noopener'); closeRegisterModal(); }, 600);
   }
 });
 
-/* Request App (Discord DM copy) */
+/* Copy & open tracking sheet fallback (button) */
+$('#copy-to-clipboard').addEventListener('click', async ()=>{
+  const url = templateUrlInput.value.trim();
+  if(!url){ showToast(LANG==='es' ? 'Pega la URL primero' : 'Paste the URL first', 2000); return; }
+  try{
+    await navigator.clipboard.writeText(url);
+    showToast(LANG==='es' ? 'URL copiada — abriendo hoja...' : 'URL copied — opening tracking sheet...', 1800);
+  }catch(err){
+    showToast(LANG==='es' ? 'No se pudo acceder al portapapeles' : 'Clipboard not available', 1800);
+  } finally {
+    window.open(TRACKING_SHEET_URL,'_blank');
+    closeRegisterModal();
+  }
+});
+
+/* Request App (Discord DM copy) - unchanged */
 const DISCORD_ALIAS = 'joheredia21#5240';
 $('#request-app').addEventListener('click', ()=>{
   const title = LANG === 'es' ? 'Solicitar App personalizada (Discord)' : 'Request custom App (Discord)';
@@ -925,7 +994,7 @@ $('#request-app').addEventListener('click', ()=>{
   }, 120);
 });
 
-/* Instructions drawer */
+/* Instructions drawer - unchanged */
 $('#open-instructions').addEventListener('click', ()=>{
   const title = TRANSLATIONS[LANG].instructions_title;
   const steps = LANG === 'es'
