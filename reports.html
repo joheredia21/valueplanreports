@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Value Plan — SMART Objectives & Reports</title>
+<link rel="icon" href="https://promote.hive.io/icons/hive-logo.png" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hive-black: #212529;
+  --hive-light-gray: #e7e7f1;
+  --hive-red: #e31337;
+  --hive-red-dark: #9b0f22;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --bg-light: #f8f9fa;
+  --bg-white: #ffffff;
+  --shadow: 0 12px 38px rgba(2,6,23,0.08);
+  --border-radius: 14px;
+  --transition: all .28s cubic-bezier(.2,.9,.2,1);
+  --muted: #6b7280;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Reset & base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:var(--font-sans);background:linear-gradient(180deg,var(--bg-light), #f6f7fb);
+  color:var(--text-primary);-webkit-font-smoothing:antialiased;padding-top:84px;
+}
+:focus{outline:3px solid rgba(33,37,41,0.06);outline-offset:2px}
+
+/* Topbar */
+.site-topbar{
+  position:fixed; inset:0 0 auto 0; height:64px; top:0; z-index:1200;
+  background:#121416; color:#fff; box-shadow:0 3px 10px rgba(0,0,0,0.25);
+}
+.topbar-inner{ max-width:1280px; margin:0 auto; height:100%; display:flex; align-items:center; justify-content:space-between; padding:0 18px; }
+.brand-left{ display:flex; align-items:center; gap:12px; }
+.brand-link{ display:flex; align-items:center; gap:10px; color:#fff; text-decoration:none; font-weight:600; }
+.brand-icon { height:42px; width:42px; display:flex; align-items:center; justify-content:center; }
+.brand-text{ font-size:16px; color:#fff; }
+
+/* navigation */
+.main-nav .nav-list{ list-style:none; display:flex; gap:16px; margin:0; padding:0; align-items:center; }
+.main-nav a{ color:#ddd; text-decoration:none; padding:8px 10px; border-radius:6px; font-weight:600; font-size:14px; }
+.main-nav a:hover, .main-nav .active a{ color:#fff; background: rgba(255,255,255,0.03); }
+
+/* container */
+.container{ max-width:1200px; margin:0 auto; padding:22px; display:grid; gap:18px; }
+
+/* header */
+.hdr-row{ display:flex; flex-direction:column; gap:10px; }
+h1{ font-size:clamp(1.2rem,2vw,1.6rem); margin:0; font-weight:700; }
+.mini-desc{ color:var(--text-secondary); margin:0; font-size:14px; max-width:980px; }
+
+/* action pills */
+.pill-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.segment-btn{ display:inline-flex; gap:12px; align-items:center; padding:12px 16px; border-radius:999px; background:var(--bg-white); box-shadow:var(--shadow); cursor:pointer; border:0; font-weight:700; color:var(--hive-black); transition:var(--transition); }
+.segment-btn svg{ width:18px; height:18px; }
+.segment-btn:hover{ transform:translateY(-4px) }
+.segment-btn.primary{ background:var(--hive-red); color:#fff }
+.segment-btn.primary:hover{ background:var(--hive-red-dark) }
+
+/* carousel (modern rectangle) */
+.carousel{
+  position:relative; width:100%; height:260px; border-radius:18px; overflow:hidden; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, rgba(227,19,55,0.04), rgba(155,15,34,0.02));
+  box-shadow:var(--shadow); transition: transform .36s cubic-bezier(.2,.9,.2,1);
+}
+.carousel.pushed{ transform: translateY(28px); }
+.carousel-track{ display:flex; height:100%; transition:transform .7s cubic-bezier(.2,.9,.2,1); will-change:transform; }
+.carousel-slide{ min-width:100%; height:100%; display:flex; align-items:center; justify-content:center; position:relative; padding:18px; box-sizing:border-box; }
+.carousel-slide .overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.04), rgba(255,255,255,0.02)); border-radius:18px; }
+.carousel-slide img{ width:100%; height:100%; object-fit:cover; border-radius:12px; filter:contrast(1.02) saturate(0.98); }
+
+/* hidden nav until hover */
+.carousel-nav{ position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; padding:0 8px; pointer-events:none; }
+.carousel:hover .carousel-nav{ pointer-events:auto; }
+.carousel-nav button{ pointer-events:auto; background:rgba(0,0,0,0.35); border:0; color:#fff; width:42px; height:42px; border-radius:8px; display:flex; align-items:center; justify-content:center; opacity:0; transition:var(--transition); transform:translateY(6px); }
+.carousel:hover .carousel-nav button{ opacity:1; transform:translateY(0) }
+
+/* section styles */
+.section{ background:var(--bg-white); border-radius:var(--border-radius); padding:18px; box-shadow:var(--shadow); transition:var(--transition); }
+.section.hidden{ max-height:0; padding:0 18px; opacity:0; pointer-events:none; }
+.section.open{ max-height:2200px; opacity:1; }
+
+/* templates layout left categories, right preview */
+.templates-layout{ display:grid; grid-template-columns:320px 1fr; gap:18px; align-items:start; }
+@media(max-width:980px){ .templates-layout{ grid-template-columns:1fr } }
+
+/* compact category item */
+.tpl-list{ display:grid; gap:10px; align-content:start; }
+.tpl-item{ display:flex; gap:12px; align-items:flex-start; padding:10px; border-radius:12px; background:linear-gradient(180deg,#fff,#fcfcff); border:1px solid rgba(2,6,23,0.03); cursor:pointer; transition:var(--transition); }
+.tpl-item .glyph{ min-width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark)); color:#fff; font-weight:700; font-size:14px; }
+.tpl-item .cat-body{ display:flex; flex-direction:column; gap:4px; }
+.tpl-item .cat-title{ font-weight:700; font-size:15px; }
+.tpl-item .cat-desc{ color:var(--text-secondary); font-size:13px; line-height:1.1; }
+.tpl-item.active{ box-shadow:0 12px 30px rgba(2,6,23,0.06); border-left:4px solid var(--hive-red); transform:translateY(-6px); }
+
+/* preview area */
+.preview{ min-height:220px; border-radius:12px; padding:18px; display:flex; gap:18px; align-items:center; justify-content:space-between; background:linear-gradient(120deg, rgba(255,255,255,0.98), rgba(250,250,252,0.98)); }
+.preview .visual{ flex:1; min-height:160px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(120deg,#fff,#fafafa); }
+.preview img{ max-width:100%; height:auto; border-radius:8px; object-fit:cover; }
+.preview .info{ width:340px; display:flex; flex-direction:column; gap:10px; }
+.preview .title{ font-weight:800; }
+.preview .desc{ color:var(--text-secondary); font-size:13px; }
+.preview .actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+/* buttons */
+.btn-sheet{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:var(--hive-red); color:#fff; font-weight:700; text-decoration:none; transition:var(--transition); }
+.btn-sheet:hover{ background:var(--hive-red-dark); transform:translateY(-2px) }
+.btn-ghost{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; background:transparent; border:1px solid var(--hive-light-gray); font-weight:600; color:var(--text-primary) }
+
+/* user DB template */
+.btn-db{ background:linear-gradient(90deg,var(--hive-red),var(--hive-red-dark)); color:#fff; padding:8px 12px; border-radius:10px; font-weight:700; text-decoration:none }
+
+/* register: lighter red + darker border */
+.btn-register{
+  display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px;
+  background: linear-gradient(180deg,#ff6b74,#e84a56);
+  border: 1.5px solid rgba(155,15,34,0.9); color:#fff; font-weight:700; cursor:pointer; transition:var(--transition);
+  box-shadow: 0 10px 28px rgba(155,15,34,0.06);
+}
+.btn-register:hover{ transform:translateY(-3px); box-shadow: 0 16px 36px rgba(155,15,34,0.09); }
+
+/* drawer & modal */
+.drawer-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.35); display:none; align-items:flex-end; justify-content:center; z-index:1400; backdrop-filter: blur(6px); padding:18px; }
+.drawer{ width:100%; max-width:920px; background:var(--bg-white); border-radius:12px; padding:18px; transform:translateY(14px); opacity:0; transition:transform .36s cubic-bezier(.2,.9,.2,1), opacity .28s; }
+.drawer.show{ transform:translateY(0); opacity:1; }
+.drawer-header{ display:flex; justify-content:space-between; align-items:center; }
+.drawer-body{ margin-top:12px; }
+
+/* modal */
+.modal-backdrop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500; background:rgba(2,6,23,0.4); }
+.modal{ width:92%; max-width:620px; background:var(--bg-white); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
+
+/* toast */
+.toast{ position:fixed; left:50%; transform:translateX(-50%) translateY(12px); bottom:22px; background:#111; color:#fff; padding:10px 14px; border-radius:10px; opacity:0; transition:all .28s; z-index:1600; }
+.toast.visible{ opacity:1; transform:translateX(-50%) translateY(0) }
+
+/* instructions CTA */
+.instructions-btn{ background:#0277bd; color:#fff; padding:10px 12px; border-radius:10px; font-weight:700; border:0; cursor:pointer; }
+.instructions-btn:hover{ background:#055a9c }
+
+/* footer */
+footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:30px; }
+.appsheet-cta{ display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; background:linear-gradient(90deg,var(--hive-red),var(--hive-red-dark)); color:#fff; font-weight:700; text-decoration:none; cursor:pointer; }
+
+/* small util */
+.small{ font-size:13px; color:var(--muted) }
+.kbd{ font-family:monospace; background:#f1f3f5; padding:2px 6px; border-radius:6px; font-size:12px; }
+
+@media(max-width:980px){ .preview .info{ width:100%; } .templates-layout{ gap:12px; } .carousel{ height:180px } .carousel.pushed{ transform: translateY(18px); } .templates-layout{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="site-topbar" role="banner">
+    <div class="topbar-inner">
+      <div style="display:flex;gap:12px;align-items:center">
+        <a class="brand-link" href="#" aria-label="Value Plan home">
+          <span class="brand-icon" aria-hidden="true">
+            <img src="https://promote.hive.io/icons/hive-logo.png" width="36" height="36" alt="Hive logo" style="display:block">
+          </span>
+          <span class="brand-text">Value Plan</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <ul class="nav-list">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="metrics.html">Metrics</a></li>
+            <li><a href="posts.html">Posts</a></li>
+            <li><a href="sheets.html">Sheets</a></li>
+            <li class="active"><a href="calendar.html">Calendar</a></li>
+            <li><a href="https://hive.io" target="_blank" rel="noopener noreferrer">Hive</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="segment-btn" id="btn-en" data-lang="en" aria-label="English" title="English" style="padding:8px 12px">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='14'><rect width='20' height='14' fill='%23b22234'/><g fill='%23fff'><rect y='1' width='20' height='1'/><rect y='3' width='20' height='1'/><rect y='5' width='20' height='1'/><rect y='7' width='20' height='1'/><rect y='9' width='20' height='1'/><rect y='11' width='20' height='1'/></g><rect width='8' height='5' fill='%233c3b6e'/></svg>" alt="US" style="height:14px;margin-right:8px">EN
+        </button>
+        <button class="segment-btn" id="btn-es" data-lang="es" aria-label="Español" title="Español" style="padding:8px 12px">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='14'><rect width='20' height='14' fill='%23c60b1e'/><rect y='3' width='20' height='8' fill='%23ffc400'/></svg>" alt="ES" style="height:14px;margin-right:8px">ES
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main container -->
+  <div class="container" id="app">
+    <div class="hdr-row">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+        <div>
+          <h1 data-i18n="title_main">SMART Objectives & Reporting — Value Plan</h1>
+          <p class="mini-desc" data-i18n="subtitle_main">Minimal workspace: choose a category and preview templates. Use the "Get report template" button to create a Google Sheets copy in your Drive.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button id="open-smart" class="segment-btn primary" data-seg="smart" aria-controls="smart-section"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v4M12 22v-4M2 12h4M22 12h-4" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/></svg><span data-i18n="seg_smart">SMART Objectives</span></button>
+          <button id="open-templates" class="segment-btn primary" data-seg="templates" aria-controls="templates-section"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="#fff" stroke-width="1.1"/></svg><span data-i18n="seg_templates">Build Report (Templates)</span></button>
+          <button id="open-instructions" class="instructions-btn" aria-label="Instructions"><span data-i18n="instructions_cta">Instructions</span></button>
+        </div>
+      </div>
+
+      <!-- CAROUSEL with requested order of images -->
+      <div class="carousel" id="hero-carousel" aria-label="Hero carousel">
+        <div class="carousel-track" id="carousel-track">
+          <!-- Slide 1 -->
+          <div class="carousel-slide" role="group" aria-label="Slide 1">
+            <div class="overlay"></div>
+            <img src="https://images.hive.blog/DQmPws1dq81x7YseVsXBrJyUzKWgBn5VcZSK5JonLWQVkws/image.png" alt="Hero 1">
+          </div>
+
+          <!-- Slide 2 -->
+          <div class="carousel-slide" role="group" aria-label="Slide 2">
+            <div class="overlay"></div>
+            <img src="https://images.hive.blog/DQma4i1Qx9CfWMsaj5rcPxjdhF9rxAowExhoTtSxWDTWJja/image.png" alt="Hero 2">
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="carousel-slide" role="group" aria-label="Slide 3">
+            <div class="overlay"></div>
+            <img src="https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/valueplan/23x1Fktjd9as5bG3VcwNUksa9MTihg1JoK3jDWa62PasimagMV52QeUiBGLjW3C48ze17.png" alt="Hero 3">
+          </div>
+        </div>
+
+        <div class="carousel-nav" aria-hidden="true">
+          <button id="prev" aria-label="Previous slide"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="next" aria-label="Next slide"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMART SECTION -->
+    <section id="smart-section" class="section hidden" aria-labelledby="smart-h">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 id="smart-h" data-i18n="smart_heading">What is SMART</h2>
+        <div style="display:flex;gap:8px"><button class="segment-btn" id="smart-close" aria-label="Close SMART">Close</button></div>
+      </div>
+
+      <div style="margin-top:12px;display:grid;gap:14px;grid-template-columns:1fr 360px; align-items:start;">
+        <div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">S</div>
+              <div><div style="font-weight:700" data-i18n="s_title">Specific</div><div class="small" data-i18n="s_text">What exactly will we achieve? (e.g., sign up new accounts, capture leads, onboard partners).</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">M</div>
+              <div><div style="font-weight:700" data-i18n="m_title">Measurable</div><div class="small" data-i18n="m_text">Which number or indicator will tell us we've reached the goal?</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">A</div>
+              <div><div style="font-weight:700" data-i18n="a_title">Achievable</div><div class="small" data-i18n="a_text">Is it realistic with available resources? (Conservative / Moderate / Ambitious).</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">R</div>
+              <div><div style="font-weight:700" data-i18n="r_title">Relevant</div><div class="small" data-i18n="r_text">Why does this matter for Value Plan and Hive?</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,var(--hive-red),var(--hive-red-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">T</div>
+              <div><div style="font-weight:700" data-i18n="t_title">Time-bound</div><div class="small" data-i18n="t_text">What is the deadline or period (e.g., 30/60/90 days)?</div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
+            <button class="segment-btn" id="open-example" aria-label="Open example details">Details</button>
+            <a id="smart-make-copy" class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener" data-i18n="templates_cta">Make a copy</a>
+          </div>
+        </div>
+
+        <!-- Compact video container on right -->
+        <div id="smart-media" style="min-height:200px;border-radius:12px;padding:6px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#fbfbff);box-shadow:var(--shadow)">
+          <div class="small" data-i18n="smart_open_hint">Open SMART to view the short instructional video here.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMPLATES SECTION -->
+    <section id="templates-section" class="section hidden" aria-labelledby="tpl-h">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 id="tpl-h" data-i18n="templates_heading">Build your report — Templates</h2>
+        <div><button class="segment-btn" id="tpl-close">Close</button></div>
+      </div>
+
+      <p class="small" data-i18n="templates_text">Select a category on the left to preview — then press the report template button to create a Google Sheets copy in your Drive.</p>
+
+      <div class="templates-layout" style="margin-top:12px">
+        <!-- Left: categories (rendered dynamically) -->
+        <div class="tpl-list" role="list" aria-label="Template categories" id="tpl-list">
+          <!-- populated by JS -->
+        </div>
+
+        <!-- Right: preview -->
+        <div class="preview" role="region" aria-live="polite" aria-label="Template preview area">
+          <div class="visual" id="preview-visual">
+            <img id="preview-img" src="https://placehold.co/600x360?text=Template+Preview" alt="Template preview">
+          </div>
+
+          <div class="info">
+            <div class="title" id="preview-title">Conferences</div>
+            <div class="desc" id="preview-desc">Presence in events.</div>
+
+            <div class="actions">
+              <a id="preview-copy" class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener" data-i18n="templates_cta">Get report template</a>
+              <a id="preview-db" class="btn-db" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener">User Database Template</a>
+              <button id="preview-example" class="btn-ghost" aria-label="View example details">Example</button>
+            </div>
+
+            <div class="small" style="margin-top:8px" id="preview-help" data-i18n="preview_help">A copy will be created in your Google Drive; you may be prompted to sign in. For novices: press "Example" to see a plain-language objective for this category.</div>
+
+            <div style="margin-top:12px">
+              <button id="open-register" class="btn-register" aria-label="Register created template">Register created template</button>
+            </div>
+
+            <div class="small" style="margin-top:8px" id="tracking-note" data-i18n="tracking_note">The tracking sheet (where new templates should be logged)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Drawer for examples -->
+    <div class="drawer-backdrop" id="drawer" aria-hidden="true">
+      <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+        <div class="drawer-header">
+          <div>
+            <h3 id="drawer-title">Example</h3>
+            <div id="drawer-sub" class="small">Example preview and SMART breakdown</div>
+          </div>
+          <div><button class="segment-btn" id="drawer-close" aria-label="Close drawer">Close</button></div>
+        </div>
+
+        <div class="drawer-body" id="drawer-body" tabindex="0"></div>
+      </div>
+    </div>
+
+    <!-- Register modal -->
+    <div class="modal-backdrop" id="modal-reg" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-reg-title">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 id="modal-reg-title">Register your template</h3>
+          <button class="segment-btn" id="modal-reg-close" aria-label="Close register modal">Close</button>
+        </div>
+        <div style="margin-top:12px">
+          <p class="small" data-i18n="reg_instructions">Paste the full URL of the template you created (Google Sheets). This will be saved locally and — if you provide an Apps Script endpoint — it can be written automatically to the tracking sheet provided.</p>
+          <label class="small" for="template-url" data-i18n="reg_label_url">Template URL</label>
+          <input id="template-url" type="url" placeholder="https://docs.google.com/spreadsheets/..." style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--hive-light-gray);margin-top:6px" />
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button id="register-template" class="btn-sheet" data-i18n="reg_btn_register">Register</button>
+            <button id="copy-to-clipboard" class="btn-ghost" data-i18n="reg_btn_copyopen">Copy & Open tracking sheet</button>
+          </div>
+          <div style="margin-top:12px" class="small">
+            <a id="tracking-sheet-link" href="https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0" target="_blank" rel="noopener">Tracking sheet</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <a href="#" class="small">README</a> · <a href="#" class="small">Contact Data Owner</a> · <a href="#" class="small">Privacy Policy</a>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center">
+        <button id="request-app" class="appsheet-cta" aria-label="Request a custom AppSheet app"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M3 12h18M12 3v18" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg><span data-i18n="appsheet_cta">Request a custom AppSheet app</span></button>
+        <div class="small">Generated for Value Plan</div>
+      </div>
+    </footer>
+  </div>
+
+<script>
+/*
+  EDITABLE VALUES & NOTES:
+  - DEFAULT_COPY_SHEET: default Google Sheets copy link used by "Get report template".
+  - APP_SCRIPT_ENDPOINT: (optional) Apps Script Web App URL to POST registered templates.
+  - IMAGE_MAP: map category keys to preview image URLs for the templates preview.
+    * Edit IMAGE_MAP to change preview images per category easily.
+*/
+
+const APP_SCRIPT_ENDPOINT = ''; // <-- set Apps Script endpoint here if you have one
+const DEFAULT_COPY_SHEET = 'https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy';
+const TRACKING_SHEET_URL = 'https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0';
+const SMART_VIDEO_EN = 'https://www.youtube.com/embed/bUIhbXCfm0w?rel=0';
+const SMART_VIDEO_ES = 'https://www.youtube.com/embed/quQKyihbuzo?rel=0';
+
+/* =========================
+   TRANSLATIONS (EN / ES)
+   =========================
+   (unchanged from previous audited version)
+*/
+const TRANSLATIONS = {
+  en: {
+    title_main: "SMART Objectives & Reporting — Value Plan",
+    subtitle_main: "Minimal workspace: choose a category and preview templates. Use the \"Get report template\" button to create a Google Sheets copy in your Drive.",
+    seg_smart: "SMART Objectives",
+    seg_templates: "Build Report (Templates)",
+    instructions_cta: "Instructions",
+    smart_heading: "What is SMART",
+    s_title: "Specific", s_text: "What exactly will we achieve? (e.g., sign up new accounts, capture leads, onboard partners).",
+    m_title: "Measurable", m_text: "Which number or indicator will tell us we've reached the goal?",
+    a_title: "Achievable", a_text: "Is it realistic with available resources? (Conservative / Moderate / Ambitious).",
+    r_title: "Relevant", r_text: "Why does this matter for Value Plan and Hive?",
+    t_title: "Time-bound", t_text: "What is the deadline or period (e.g., 30/60/90 days)?",
+    smart_open_hint: "Open SMART to view the short instructional video here.",
+    templates_heading: "Build your report — Templates",
+    templates_text: "Select a category on the left to preview — then press the report template button to create a Google Sheets copy in your Drive.",
+    preview_help: "A copy will be created in your Google Drive; you may be prompted to sign in. For novices: press \"Example\" to see a plain-language objective for this category.",
+    templates_cta: "Get report template",
+    tracking_note: "The tracking sheet (where new templates should be logged)",
+    reg_instructions: "Paste the full URL of the template you created (Google Sheets). This will be saved locally and — if you provide an Apps Script endpoint — it can be written automatically to the tracking sheet provided.",
+    reg_label_url: "Template URL",
+    reg_btn_register: "Register",
+    reg_btn_copyopen: "Copy & Open tracking sheet",
+    appsheet_cta: "Request a custom AppSheet app",
+    instructions_title: "Instructions",
+    instructions_text: "Step-by-step guide to build SMART objectives, get a copy of templates, and register your template for access and metrics.",
+    categories: [
+      { key:'Conferences', glyph:'C', title:'Conferences', desc:'Presence in major events with high opportunities.' },
+      { key:'HBD_B2B', glyph:'B', title:'HBD Adoption & B2B', desc:'Promote HBD usage in companies and businesses.' },
+      { key:'Technical', glyph:'T', title:'Technical Adoption: Devs & Hackathons', desc:'Building on Hive — developer engagements.' },
+      { key:'Alliances', glyph:'A', title:'Institutional Alliances', desc:'Institutional influence and demos.' },
+      { key:'Mass_Reach', glyph:'V', title:'Mass Reach & Viralization', desc:'Hive seen by thousands (sports & mass events).' },
+      { key:'Arts', glyph:'R', title:'Arts & Culture', desc:'High-value creative communities.' },
+      { key:'Impact', glyph:'I', title:'Social Impact', desc:'Community & CSR projects.' },
+      { key:'Marketing', glyph:'M', title:'Digital Marketing', desc:'Digital campaigns.' }
+    ],
+    examples: {
+      Conferences: {
+        title: "Example — Conference: Hive Fest",
+        goal: "Acquire 50 new accounts and 10 qualified contacts during the event.",
+        breakdown: {
+          S: "Collect 50 sign-ups and 10 contact forms from attendees.",
+          M: "50 sign-ups; 10 contacts.",
+          A: "Moderate — 2 staff and a simple landing page.",
+          R: "Grows user base and identifies institutional interest.",
+          T: "30 days to measure sign-ups and early engagement."
+        }
+      },
+      HBD_B2B: {
+        title: "Example — B2B Outreach",
+        goal: "Enroll 5 business partners and run 3 trial integrations in 60 days.",
+        breakdown: {
+          S: "Contact target companies and record trial agreements.",
+          M: "5 partners; 3 trials.",
+          A: "Moderate — BD resources allocated.",
+          R: "Creates enterprise pipeline.",
+          T: "60 days."
+        }
+      },
+      Technical: {
+        title: "Example — Hackathon / Dev event",
+        goal: "Onboard 25 developers to try the SDK and register 6 project leads.",
+        breakdown: {
+          S: "Enable developer sign-ups and collect project interest.",
+          M: "25 dev sign-ups; 6 project leads.",
+          A: "Moderate — starter kits provided.",
+          R: "Encourages technical adoption.",
+          T: "30 days."
+        }
+      },
+      Alliances: {
+        title: "Example — Institutional Demo",
+        goal: "Secure 3 partner conversations and 1 pilot agreement in 60 days.",
+        breakdown: {
+          S: "Schedule meetings and record pilot interest.",
+          M: "3 conversations; 1 pilot.",
+          A: "Moderate — BD support.",
+          R: "Builds strategic collaborations.",
+          T: "60 days."
+        }
+      },
+      Mass_Reach: {
+        title: "Example — Sports/Mass activation",
+        goal: "Reach 5,000 attendees with activations and collect 300 interested contacts.",
+        breakdown: {
+          S: "Promote Hive at mass event and capture contacts.",
+          M: "5,000 reached; 300 contacts.",
+          A: "Moderate — activation staff and materials.",
+          R: "Increases visibility and network effect.",
+          T: "30 days."
+        }
+      },
+      Arts: {
+        title: "Example — Arts & Culture",
+        goal: "Engage 500 attendees and gather 100 interested creators.",
+        breakdown: {
+          S: "Host creative sessions and collect creator contacts.",
+          M: "500 attendees; 100 creator contacts.",
+          A: "Moderate — curation & promotion.",
+          R: "Builds creative community.",
+          T: "30 days."
+        }
+      },
+      Impact: {
+        title: "Example — Community CSR",
+        goal: "Enroll 200 participants and collect 150 feedback forms.",
+        breakdown: {
+          S: "Recruit participants and collect feedback.",
+          M: "200 participants; 150 feedback forms.",
+          A: "Moderate — local outreach.",
+          R: "Demonstrates impact for stakeholders.",
+          T: "90 days."
+        }
+      },
+      Marketing: {
+        title: "Example — Digital campaign",
+        goal: "Generate 800 targeted visits and 60 sign-ups in 30 days.",
+        breakdown: {
+          S: "Run targeted ads and capture sign-ups.",
+          M: "800 visits; 60 sign-ups.",
+          A: "Moderate — ad budget & landing page.",
+          R: "Tests funnel and conversion.",
+          T: "30 days."
+        }
+      }
+    }
+  },
+
+  es: {
+    title_main: "Objetivos SMART y Reportes — Value Plan",
+    subtitle_main: "Área minimal: elige una categoría y previsualiza las plantillas. Usa 'Obtener Plantilla de Reporte' para crear una copia en Google Sheets en tu Drive.",
+    seg_smart: "Objetivos SMART",
+    seg_templates: "Construir reporte (Plantillas)",
+    instructions_cta: "Instrucciones",
+    smart_heading: "Qué es SMART",
+    s_title: "Específico", s_text: "¿Qué exactamente vamos a lograr? (p. ej., registrar cuentas nuevas, captar contactos, iniciar acuerdos).",
+    m_title: "Medible", m_text: "¿Qué indicador nos dirá que alcanzamos el objetivo?",
+    a_title: "Alcanzable", a_text: "¿Es realista con los recursos disponibles? (Conservador / Moderado / Ambicioso).",
+    r_title: "Relevante", r_text: "¿Por qué esto importa para Value Plan y Hive?",
+    t_title: "Tiempo", t_text: "¿Cuál es la fecha límite o el periodo (ej. 30/60/90 días)?",
+    smart_open_hint: "Al abrir SMART se mostrará un video corto aquí.",
+    templates_heading: "Construye tu reporte — Plantillas",
+    templates_text: "Selecciona una categoría a la izquierda para previsualizar — luego pulsa la plantilla para crear una copia en Google Sheets en tu Drive.",
+    preview_help: "Se creará una copia en tu Google Drive; es posible que debas iniciar sesión. Para novatos: pulsa \"Ejemplo\" para ver un objetivo en lenguaje sencillo para esta categoría.",
+    templates_cta: "Obtener Plantilla de Reporte",
+    tracking_note: "La hoja de seguimiento (donde deben registrarse las nuevas plantillas)",
+    reg_instructions: "Pega la URL completa de la plantilla que creaste (Google Sheets). Se guardará localmente y — si proporcionas un endpoint de Apps Script — podrá escribirse automáticamente en la hoja de seguimiento indicada.",
+    reg_label_url: "URL de la plantilla",
+    reg_btn_register: "Registrar",
+    reg_btn_copyopen: "Copiar y abrir hoja de seguimiento",
+    appsheet_cta: "Solicitar una app personalizada en AppSheet",
+    instructions_title: "Instrucciones",
+    instructions_text: "Guía paso a paso para crear objetivos SMART, obtener la copia de plantillas y registrar tu plantilla para acceso y métricas.",
+    categories: [
+      { key:'Conferences', glyph:'C', title:'Conferencias', desc:'Presencia en eventos masivos con altas oportunidades.' },
+      { key:'HBD_B2B', glyph:'B', title:'HBD Adopción & B2B', desc:'Promover el uso del HBD en empresas y negocios' },
+      { key:'Technical', glyph:'T', title:'Adopción Técnica: Devs & Hackathons', desc:'Construcción sobre Hive' },
+      { key:'Alliances', glyph:'A', title:'Alianzas Institucionales Estratégicas', desc:'Influencia institucional y Demostraciones' },
+      { key:'Mass_Reach', glyph:'V', title:'Alcance Masivo y Viralización', desc:'Hive visto por miles de personas (deportes)' },
+      { key:'Arts', glyph:'R', title:'Arte y Cultura', desc:'Comunidades creativas de alto valor' },
+      { key:'Impact', glyph:'I', title:'Impacto Social', desc:'Proyectos comunitarios CSR' },
+      { key:'Marketing', glyph:'M', title:'Marketing Digital', desc:'Campañas digitales' }
+    ],
+    examples: {
+      Conferences: {
+        title: "Ejemplo — Conferencia: Hive Fest",
+        goal: "Captar 50 cuentas nuevas y 10 contactos cualificados durante el evento.",
+        breakdown: {
+          S: "Recoger 50 registros y 10 formularios de contacto de asistentes.",
+          M: "50 registros; 10 contactos.",
+          A: "Moderado — 2 personas y landing simple.",
+          R: "Aumenta la base de usuarios y genera interés institucional.",
+          T: "30 días para medir inscripciones y primer engagement."
+        }
+      },
+      HBD_B2B: {
+        title: "Ejemplo — Adopción B2B",
+        goal: "Incorporar 5 partners comerciales y ejecutar 3 integraciones de prueba en 60 días.",
+        breakdown: {
+          S: "Contactar empresas objetivo y registrar acuerdos de prueba.",
+          M: "5 partners; 3 pruebas.",
+          A: "Moderado — recursos comerciales asignados.",
+          R: "Genera pipeline empresarial.",
+          T: "60 días."
+        }
+      },
+      Technical: {
+        title: "Ejemplo — Hackathon / Evento Dev",
+        goal: "Incorporar 25 desarrolladores para probar el SDK y registrar 6 proyectos interesados.",
+        breakdown: {
+          S: "Habilitar registros de desarrollador y recopilar interés en proyectos.",
+          M: "25 registros dev; 6 intenciones.",
+          A: "Moderado — kits de inicio disponibles.",
+          R: "Favorece adopción técnica.",
+          T: "30 días."
+        }
+      },
+      Alliances: {
+        title: "Ejemplo — Demostración Institucional",
+        goal: "Asegurar 3 conversaciones y 1 acuerdo piloto en 60 días.",
+        breakdown: {
+          S: "Agendar reuniones y registrar interés en pilotos.",
+          M: "3 conversaciones; 1 piloto.",
+          A: "Moderado — apoyo de BD.",
+          R: "Construye colaboraciones estratégicas.",
+          T: "60 días."
+        }
+      },
+      Mass_Reach: {
+        title: "Ejemplo — Activación Deportiva/Masiva",
+        goal: "Alcanzar 5.000 asistentes con activaciones y obtener 300 contactos interesados.",
+        breakdown: {
+          S: "Promocionar Hive en evento masivo y capturar contactos.",
+          M: "5.000 asistentes; 300 contactos.",
+          A: "Moderado — personal y materiales de activación.",
+          R: "Aumenta visibilidad y efecto de red.",
+          T: "30 días."
+        }
+      },
+      Arts: {
+        title: "Ejemplo — Arte y Cultura",
+        goal: "Involucrar 500 asistentes y obtener 100 creadores interesados.",
+        breakdown: {
+          S: "Organizar sesiones creativas y recopilar contactos.",
+          M: "500 asistentes; 100 contactos.",
+          A: "Moderado — curación y promoción.",
+          R: "Construye comunidad creativa.",
+          T: "30 días."
+        }
+      },
+      Impact: {
+        title: "Ejemplo — Impacto Comunitario",
+        goal: "Inscribir 200 participantes y recopilar 150 formularios de feedback.",
+        breakdown: {
+          S: "Reclutar participantes y recopilar feedback.",
+          M: "200 participantes; 150 formularios.",
+          A: "Moderado — outreach local.",
+          R: "Demuestra impacto social.",
+          T: "90 días."
+        }
+      },
+      Marketing: {
+        title: "Ejemplo — Campaña Digital",
+        goal: "Generar 800 visitas segmentadas y 60 inscripciones en 30 días.",
+        breakdown: {
+          S: "Lanzar campaña segmentada y recopilar inscripciones.",
+          M: "800 visitas; 60 inscripciones.",
+          A: "Moderado — presupuesto publicitario y landing.",
+          R: "Probar el embudo y conversión.",
+          T: "30 días."
+        }
+      }
+    }
+  }
+};
+
+/* =========================
+   IMAGE MAP (edit here to change previews)
+   Keys must match TRANSLATIONS[lang].categories[].key
+   Provided images (used exactly as you sent). Comments included for easy edits.
+*/
+const IMAGE_MAP = {
+  Conferences: "https://images.hive.blog/DQmWbSzBjHS4sE2afHKnZa8UU81c9rtYcm7e6uGYzea7Wa6/image.png", // Conferences image
+  HBD_B2B: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/aksurevm89/Eoc7ZFCgq1uP3UmNcfywGEWuZa3fqGgymmjMuJk5m4wjmvM4gEFxoNWnmWVnzqhghw2.jpeg", // HBD Adoption & B2B
+  Technical: "https://images.hive.blog/DQmdXmMPuuCABE4CWGykFhkhxaq13Pa2KtscLCpjF6ang71/image.png", // Devs & Hackathons
+  Alliances: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/valueplan/23tvbtaik6TscCP1X1JWZocHs2mudjHWwdeqgJ6bPyrtFhMYRjiZgNBVpFf1SGkC7qM2i.png", // Institutional Alliances
+  Mass_Reach: "https://images.hive.blog/DQmTGHUDcTMrYHWKVJmfBxmXRMjsyDyBkEZa6gEMqadFqTq/image.png", // Mass Reach / Sports
+  Arts: "https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/filoriologo/23wWroqwtV4kgv9H1WfjJEuLaWHyiqp6C5G2cHT92N3qU8jZam7a2wYnHqayQLM24A26w.jpg", // Arts & Culture
+  Impact: "https://images.hive.blog/0x0/https://i.imgur.com/AxfLWKD.jpg", // Impact Social
+  Marketing: "https://images.hive.blog/DQmVKZ1Aowm5381s4RRNMhf8VCKa3bcP1HvXZQJCw5rpQhE/image.png" // Marketing Digital
+};
+
+/* Utilities */
+function $(sel, ctx=document){ return ctx.querySelector(sel); }
+function $all(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)); }
+
+/* DOM refs */
+const carouselTrack = $('#carousel-track'), prevBtn = $('#prev'), nextBtn = $('#next'), heroCarousel = $('#hero-carousel');
+const tplListEl = $('#tpl-list'), previewTitleEl = $('#preview-title'), previewDescEl = $('#preview-desc'), previewImg = $('#preview-img');
+const previewCopy = $('#preview-copy'), previewDb = $('#preview-db'), previewExampleBtn = $('#preview-example');
+const smartSection = $('#smart-section'), templatesSection = $('#templates-section');
+const drawerBackdrop = $('#drawer'), drawerBody = $('#drawer-body');
+const modalReg = $('#modal-reg'), registerTemplateBtn = $('#register-template'), templateUrlInput = $('#template-url'), copyToClipboardBtn = $('#copy-to-clipboard');
+const toastEl = $('#toast'), openSmartBtn = $('#open-smart'), openTemplatesBtn = $('#open-templates'), openInstructionsBtn = $('#open-instructions');
+const smartMedia = $('#smart-media'), requestAppBtn = $('#request-app');
+
+/* Language init */
+let LANG = localStorage.getItem('lang') || (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en');
+if(!['en','es'].includes(LANG)) LANG = 'en';
+function markLangActive(){ $('#btn-en').style.opacity = LANG === 'en' ? '1' : '0.65'; $('#btn-es').style.opacity = LANG === 'es' ? '1' : '0.65'; }
+markLangActive();
+
+/* Apply translations to DOM & re-render categories */
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(TRANSLATIONS[LANG][key] !== undefined) el.textContent = TRANSLATIONS[LANG][key];
+  });
+  renderCategories();
+  const activeKey = tplListEl.querySelector('.tpl-item.active')?.dataset.key || TRANSLATIONS[LANG].categories[0].key;
+  setActiveCategory(activeKey);
+}
+function setLang(lang){ LANG = lang; localStorage.setItem('lang', lang); applyTranslations(); markLangActive(); }
+$('#btn-en').addEventListener('click', ()=> setLang('en'));
+$('#btn-es').addEventListener('click', ()=> setLang('es'));
+
+/* Carousel behavior */
+let carouselIndex = 0;
+const slides = $all('.carousel-slide');
+function updateCarousel(){ carouselTrack.style.transform = `translateX(-${carouselIndex * 100}%)`; }
+prevBtn.addEventListener('click', ()=> { carouselIndex = (carouselIndex - 1 + slides.length) % slides.length; updateCarousel(); });
+nextBtn.addEventListener('click', ()=> { carouselIndex = (carouselIndex + 1) % slides.length; updateCarousel(); });
+let carouselTimer = setInterval(()=> { carouselIndex = (carouselIndex + 1) % slides.length; updateCarousel(); }, 7000);
+heroCarousel.addEventListener('mouseenter', ()=> clearInterval(carouselTimer));
+heroCarousel.addEventListener('mouseleave', ()=> { carouselTimer = setInterval(()=> { carouselIndex = (carouselIndex + 1) % slides.length; updateCarousel(); }, 7000); });
+
+/* Render categories list */
+function renderCategories(){
+  tplListEl.innerHTML = '';
+  const cats = TRANSLATIONS[LANG].categories;
+  cats.forEach((cat) => {
+    const el = document.createElement('div');
+    el.className = 'tpl-item';
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    el.dataset.key = cat.key;
+    el.dataset.sheet = DEFAULT_COPY_SHEET; // default copy link for each category; edit per-category if needed
+    el.innerHTML = `
+      <div class="glyph" aria-hidden="true">${cat.glyph}</div>
+      <div class="cat-body"><div class="cat-title">${cat.title}</div><div class="cat-desc">${cat.desc}</div></div>
+    `;
+    el.addEventListener('click', ()=> setActiveCategory(cat.key));
+    el.addEventListener('keydown', (e)=> { if(e.key === 'Enter') setActiveCategory(cat.key); });
+    tplListEl.appendChild(el);
+  });
+}
+
+/* Set active category and update preview image from IMAGE_MAP */
+function setActiveCategory(key){
+  const cats = TRANSLATIONS[LANG].categories;
+  const catObj = cats.find(c=>c.key===key) || cats[0];
+  tplListEl.querySelectorAll('.tpl-item').forEach(it=> it.classList.toggle('active', it.dataset.key === key));
+  const ex = TRANSLATIONS[LANG].examples[key] || { title: catObj.title, goal: catObj.desc, breakdown:{} };
+  previewTitleEl.textContent = ex.title || catObj.title;
+  previewDescEl.textContent = ex.goal || catObj.desc;
+
+  // Use IMAGE_MAP to set preview image per category.
+  // If image not found, falls back to a placeholder.
+  const img = IMAGE_MAP[key] || ('https://placehold.co/600x360?text=' + encodeURIComponent(catObj.title));
+  previewImg.src = img;
+  previewImg.alt = catObj.title + ' preview';
+
+  // set sheet link
+  const el = tplListEl.querySelector(`.tpl-item[data-key="${key}"]`);
+  const sheet = el ? el.dataset.sheet : DEFAULT_COPY_SHEET;
+  previewCopy.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
+  previewCopy.dataset.cat = key;
+  previewDb.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
+}
+
+/* Drawer controls */
+function showDrawer(title, html){
+  $('#drawer-title').textContent = title;
+  drawerBody.innerHTML = html;
+  drawerBackdrop.style.display = 'flex';
+  drawerBackdrop.setAttribute('aria-hidden','false');
+  setTimeout(()=> document.querySelector('.drawer').classList.add('show'), 20);
+  setTimeout(()=> drawerBody.focus(), 250);
+}
+function closeDrawer(){ document.querySelector('.drawer').classList.remove('show'); drawerBackdrop.setAttribute('aria-hidden','true'); setTimeout(()=> drawerBackdrop.style.display='none', 260); }
+$('#drawer-close').addEventListener('click', closeDrawer);
+drawerBackdrop.addEventListener('click', (e)=> { if(e.target === drawerBackdrop) closeDrawer(); });
+document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') closeDrawer(); });
+
+/* Open example for active category */
+function openExampleForActive(){
+  const catKey = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
+  const ex = TRANSLATIONS[LANG].examples[catKey] || { title: catKey, goal:'', breakdown:{} };
+  const html = `
+    <div style="display:grid;gap:12px">
+      <div style="font-weight:800">${ex.title}</div>
+      <div class="small">${ex.goal}</div>
+      <div style="background:var(--hive-light-gray);padding:12px;border-radius:10px;display:grid;gap:8px">
+        <div><strong>S —</strong> ${ex.breakdown.S || ''}</div>
+        <div><strong>M —</strong> ${ex.breakdown.M || ''}</div>
+        <div><strong>A —</strong> ${ex.breakdown.A || ''}</div>
+        <div><strong>R —</strong> ${ex.breakdown.R || ''}</div>
+        <div><strong>T —</strong> ${ex.breakdown.T || ''}</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn-sheet" id="drawer-copy" href="${previewCopy.getAttribute('href') || DEFAULT_COPY_SHEET}" target="_blank">${TRANSLATIONS[LANG].templates_cta}</a>
+        <button class="btn-ghost" id="drawer-close-btn">Close</button>
+      </div>
+    </div>
+  `;
+  showDrawer(ex.title + ' — Example', html);
+
+  setTimeout(()=>{
+    $('#drawer-copy')?.addEventListener('click', ()=> {
+      showToast(LANG==='es' ? 'Abriendo copia en Google Sheets…' : 'Opening Google Sheets copy…', 2200);
+      window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'template_copy', category: previewCopy.dataset.cat || 'unknown'});
+    });
+    $('#drawer-close-btn')?.addEventListener('click', closeDrawer);
+  }, 120);
+}
+$('#preview-example').addEventListener('click', openExampleForActive);
+$('#open-example').addEventListener('click', openExampleForActive);
+
+/* SMART video load */
+function loadSmartVideo(){
+  const url = LANG === 'es' ? SMART_VIDEO_ES : SMART_VIDEO_EN;
+  smartMedia.innerHTML = `<div style="width:100%;height:100%;min-height:180px;display:flex;align-items:center;justify-content:center">
+    <iframe width="560" height="315" src="${url}" title="SMART Goals video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;min-height:180px;border-radius:10px"></iframe>
+  </div>`;
+}
+
+/* Sections open/close & carousel push */
+function pushCarousel(push){ heroCarousel.classList.toggle('pushed', !!push); }
+function openSection(id){
+  const s = document.getElementById(id); if(!s) return;
+  s.classList.remove('hidden'); s.classList.add('open');
+  s.querySelector('[tabindex], button, a')?.focus();
+  pushCarousel(true);
+  if(id === 'smart-section') loadSmartVideo();
+}
+function closeSection(id){
+  const s = document.getElementById(id); if(!s) return;
+  s.classList.remove('open'); s.classList.add('hidden');
+  const anyOpen = document.querySelectorAll('.section.open').length > 0;
+  if(!anyOpen) pushCarousel(false);
+  if(id === 'smart-section') smartMedia.innerHTML = `<div class="small">${TRANSLATIONS[LANG].smart_open_hint}</div>`;
+}
+$('#open-smart').addEventListener('click', ()=> smartSection.classList.contains('open') ? closeSection('smart-section') : openSection('smart-section'));
+$('#open-templates').addEventListener('click', ()=> templatesSection.classList.contains('open') ? closeSection('templates-section') : openSection('templates-section'));
+$('#smart-close').addEventListener('click', ()=> closeSection('smart-section'));
+$('#tpl-close').addEventListener('click', ()=> closeSection('templates-section'));
+
+/* Toast helper */
+function showToast(msg, time=3000){ toastEl.textContent = msg; toastEl.classList.add('visible'); setTimeout(()=> toastEl.classList.remove('visible'), time); }
+
+/* Delegated click for .btn-sheet behavior (opens new tab for copy) */
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.btn-sheet');
+  if(!btn) return;
+  const href = btn.getAttribute('href');
+  if(!href || href === '#'){ e.preventDefault(); showToast(LANG==='es' ? 'Plantilla no disponible' : 'Template not available'); return; }
+  e.preventDefault();
+  showToast(LANG==='es' ? 'Abriendo copia en Google Sheets…' : 'Opening Google Sheets copy…', 1800);
+  setTimeout(()=> { window.open(href,'_blank','noopener'); showToast(LANG==='es' ? 'Plantilla abierta — crea una copia en Drive.' : 'Template opened — create a copy in Drive.', 2600); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'template_copy', category: btn.dataset.cat || previewCopy.dataset.cat || 'unknown'}); }, 700);
+});
+
+/* Register template modal logic */
+function openRegisterModal(){ modalReg.style.display = 'flex'; modalReg.setAttribute('aria-hidden','false'); templateUrlInput.value = ''; setTimeout(()=> modalReg.querySelector('.modal').classList.add('show'), 20); templateUrlInput.focus(); }
+function closeRegisterModal(){ modalReg.querySelector('.modal').classList.remove('show'); modalReg.setAttribute('aria-hidden','true'); setTimeout(()=> modalReg.style.display='none', 260); }
+$('#open-register').addEventListener('click', openRegisterModal);
+$('#modal-reg-close').addEventListener('click', closeRegisterModal);
+modalReg.addEventListener('click', (e)=> { if(e.target === modalReg) closeRegisterModal(); });
+
+function saveLocalTemplate(url, category){
+  const list = JSON.parse(localStorage.getItem('registeredTemplates') || '[]');
+  list.push({url:url, category:category, created: new Date().toISOString()});
+  localStorage.setItem('registeredTemplates', JSON.stringify(list));
+}
+
+$('#register-template').addEventListener('click', async ()=>{
+  const url = templateUrlInput.value.trim();
+  const category = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
+  if(!url){ showToast(LANG==='es' ? 'Pega una URL válida de Google Sheets' : 'Please paste a valid Google Sheets URL'); return; }
+  saveLocalTemplate(url, category);
+
+  if(APP_SCRIPT_ENDPOINT){
+    try{
+      const resp = await fetch(APP_SCRIPT_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({url:url, category:category}) });
+      if(resp.ok){ showToast(LANG==='es' ? 'Plantilla registrada (servidor)' : 'Template registered (server)'); }
+      else { showToast(LANG==='es' ? 'Error al registrar en servidor' : 'Server error while registering'); window.open(TRACKING_SHEET_URL,'_blank'); }
+    }catch(err){
+      console.error(err);
+      showToast(LANG==='es' ? 'No se pudo conectar al servidor. Abriendo hoja de seguimiento' : 'Could not reach server endpoint. Opening tracking sheet');
+      window.open(TRACKING_SHEET_URL,'_blank');
+    }
+  } else {
+    try{
+      await navigator.clipboard.writeText(url);
+      showToast(LANG==='es' ? 'URL copiada. Abriendo hoja de seguimiento...' : 'Template URL copied to clipboard. Opening tracking sheet...');
+      window.open(TRACKING_SHEET_URL,'_blank');
+    }catch(err){
+      showToast(LANG==='es' ? 'Copia manual requerida. Abriendo hoja de seguimiento.' : 'Clipboard not available. Please copy manually. Opening tracking sheet.');
+      window.open(TRACKING_SHEET_URL,'_blank');
+    }
+  }
+  setTimeout(()=> closeRegisterModal(), 900);
+});
+
+$('#copy-to-clipboard').addEventListener('click', async ()=>{
+  const url = templateUrlInput.value.trim();
+  if(!url){ showToast(LANG==='es' ? 'Pega la URL primero' : 'Paste the URL first'); return; }
+  try{
+    await navigator.clipboard.writeText(url);
+    showToast(LANG==='es' ? 'URL copiada — abriendo hoja...' : 'URL copied — opening tracking sheet...');
+    window.open(TRACKING_SHEET_URL,'_blank');
+  }catch(err){
+    showToast(LANG==='es' ? 'No se pudo acceder al portapapeles' : 'Clipboard not available');
+    window.open(TRACKING_SHEET_URL,'_blank');
+  }
+});
+
+/* Request App (Discord DM copy) */
+const DISCORD_ALIAS = 'joheredia21#5240';
+$('#request-app').addEventListener('click', ()=>{
+  const title = LANG === 'es' ? 'Solicitar App personalizada (Discord)' : 'Request custom App (Discord)';
+  const message = LANG === 'es'
+    ? `Para enviar un DM: abre Discord (app o web), usa la búsqueda o el campo de amigos, pega el alias ${DISCORD_ALIAS} y envía un mensaje con tu solicitud. Pulsa "Copy alias" para copiar el tag al portapapeles.`
+    : `To send a DM: open Discord (app or web), use search or Friends, paste the alias ${DISCORD_ALIAS} and send a message explaining your request. Press "Copy alias" to copy the tag to clipboard.`;
+  const html = `<div style="display:grid;gap:12px"><div style="font-weight:800">${title}</div><div class="small">${message}</div>
+    <div style="display:flex;gap:8px"><button id="copy-discord" class="btn-sheet">Copy alias</button><a href="https://discord.com/channels/@me" target="_blank" class="btn-ghost">Open Discord (web)</a><button id="close-drawer" class="btn-ghost">Close</button></div></div>`;
+  showDrawer(title, html);
+  setTimeout(()=>{
+    $('#copy-discord')?.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(DISCORD_ALIAS); showToast(LANG==='es' ? 'Alias copiado al portapapeles' : 'Alias copied to clipboard'); }
+      catch(e){ showToast(LANG==='es' ? 'No se pudo copiar el alias' : 'Could not copy alias'); }
+    });
+    $('#close-drawer')?.addEventListener('click', closeDrawer);
+  }, 120);
+});
+
+/* Instructions drawer */
+$('#open-instructions').addEventListener('click', ()=>{
+  const title = TRANSLATIONS[LANG].instructions_title;
+  const steps = LANG === 'es'
+    ? `<ol style="padding-left:18px"><li><strong>Revisa y desarrolla los objetivos SMART:</strong> Define qué se medirá (específico) y cuál es el número objetivo.</li><li><strong>Elige la plantilla adecuada:</strong> Selecciona la categoría que mejor calza con tu evento/proyecto.</li><li><strong>Haz una copia en Google Sheets:</strong> Pulsa "Obtener Plantilla de Reporte" y crea una copia en tu Drive; modifica solo los números (objetivos).</li><li><strong>Registra la plantilla creada:</strong> Si personalizas la plantilla, pégala en "Registrar plantilla" para que el equipo pueda revisarla y conceder acceso.</li><li><strong>Publica y mide:</strong> Comparte la plantilla publicada para capturar métricas estandarizadas y facilitar reportes.</li></ol>`
+    : `<ol style="padding-left:18px"><li><strong>Review and develop SMART objectives:</strong> Define exactly what you'll measure and the numeric target.</li><li><strong>Choose the right template:</strong> Select the category that best fits your event/project.</li><li><strong>Make a copy in Google Sheets:</strong> Press "Get report template" and create a copy in your Drive; change only the target numbers.</li><li><strong>Register your created template:</strong> If you customize a template, paste it into "Register created template" so the team can review and grant access.</li><li><strong>Publish and measure:</strong> Share the published template to collect standardized metrics and reports.</li></ol>`;
+  const html = `<div style="display:grid;gap:12px"><div style="font-weight:800">${title}</div><div class="small">${TRANSLATIONS[LANG].instructions_text}</div><div style="background:var(--hive-light-gray);padding:12px;border-radius:10px">${steps}</div><div style="display:flex;gap:10px"><button id="inst-close" class="btn-ghost">Close</button></div></div>`;
+  showDrawer(title, html);
+  setTimeout(()=> { $('#inst-close')?.addEventListener('click', closeDrawer); }, 120);
+});
+
+/* Accessibility: Esc closes drawers/modals */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){ closeDrawer(); if(modalReg.style.display === 'flex') closeRegisterModal(); }
+});
+
+/* Initial render & translations */
+applyTranslations();
+if(document.querySelectorAll('.section.open').length > 0) heroCarousel.classList.add('pushed');
+
+/* Analytics placeholder */
+window.dataLayer = window.dataLayer || [];
+
+</script>
+</body>
+</html>
