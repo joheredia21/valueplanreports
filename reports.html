@@ -276,7 +276,7 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
       </div>
     </section>
 
-    <!-- TEMPLATES SECTION (unchanged layout) -->
+    <!-- TEMPLATES SECTION (unchanged layout, but removed DB button) -->
     <section id="templates-section" class="section hidden" aria-labelledby="tpl-h">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h2 id="tpl-h" data-i18n="templates_heading">Build your report — Templates</h2>
@@ -303,7 +303,6 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
 
             <div class="actions">
               <a id="preview-copy" class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener" data-i18n="templates_cta">Get report template</a>
-              <a id="preview-db" class="btn-db" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener">User Database Template</a>
               <button id="preview-example" class="btn-ghost" aria-label="View example details">Example</button>
             </div>
 
@@ -334,7 +333,7 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
       </div>
     </div>
 
-    <!-- Register modal (MODIFIED: single red register, public-note and help video link) -->
+    <!-- Register modal (MODIFIED: removed copy/open tracking sheet button and no manual tracking link) -->
     <div class="modal-backdrop" id="modal-reg" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-reg-title">
         <div style="display:flex;justify-content:space-between;align-items:center">
@@ -359,13 +358,10 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
           <div style="display:flex;gap:8px;margin-top:12px">
             <!-- Single red register button (primary action) -->
             <button id="register-template" class="btn-register" aria-label="Register template" data-i18n="reg_btn_register">Register</button>
-
-            <!-- fallback copy/open -->
-            <button id="copy-to-clipboard" class="btn-ghost" data-i18n="reg_btn_copyopen">Copy & Open tracking sheet</button>
           </div>
 
           <div style="margin-top:12px" class="small">
-            <a id="tracking-sheet-link" href="https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0" target="_blank" rel="noopener">Tracking sheet (public)</a>
+            
           </div>
         </div>
       </div>
@@ -393,23 +389,22 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
   - DEFAULT_COPY_SHEET: default Google Sheets copy link used by "Get report template".
   - APP_SCRIPT_ENDPOINT: set this to the deployed Apps Script Web App URL after deploy.https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec
   - APP_ORIGIN: the page origin / URL that will be sent to the Apps Script for auditing.
-  - TRACKING_SHEET_URL: public tracking sheet where manual paste can be done by user.
+  - NOTE: The manual tracking link and "copy & open tracking sheet" fallback were intentionally removed per request.
 */
 
 const APP_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec'; // <-- paste your Apps Script Web App URL here after deploy
 const DEFAULT_COPY_SHEET = 'https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy';
-const TRACKING_SHEET_URL = 'https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0';
+const TRACKING_SHEET_URL = 'https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0'; // kept for reference (not auto-shown)
 
-// The origin/page that will be sent to the Apps Script (helps auditing)
+/* The origin/page that will be sent to the Apps Script (helps auditing) */
 const APP_ORIGIN = 'https://valueplanreports.vercel.app/reports.html';
 
-// SMART video IDs (as before)
+/* SMART video IDs (as before) */
 const SMART_VIDEO_EN = 'https://www.youtube.com/embed/bUIhbXCfm0w?rel=0';
 const SMART_VIDEO_ES = 'https://www.youtube.com/embed/quQKyihbuzo?rel=0';
 
 /* =========================
    TRANSLATIONS (EN / ES)
-   Extended with new keys for register-note & video button text
    =========================
 */
 const TRANSLATIONS = {
@@ -700,10 +695,10 @@ function $all(sel, ctx=document){ return Array.from((ctx||document).querySelecto
 /* DOM refs */
 const carouselTrack = $('#carousel-track'), prevBtn = $('#prev'), nextBtn = $('#next'), heroCarousel = $('#hero-carousel');
 const tplListEl = $('#tpl-list'), previewTitleEl = $('#preview-title'), previewDescEl = $('#preview-desc'), previewImg = $('#preview-img');
-const previewCopy = $('#preview-copy'), previewDb = $('#preview-db'), previewExampleBtn = $('#preview-example');
+const previewCopy = $('#preview-copy'), previewExampleBtn = $('#preview-example');
 const smartSection = $('#smart-section'), templatesSection = $('#templates-section');
 const drawerBackdrop = $('#drawer'), drawerBody = $('#drawer-body');
-const modalReg = $('#modal-reg'), registerTemplateBtn = $('#register-template'), templateUrlInput = $('#template-url'), copyToClipboardBtn = $('#copy-to-clipboard');
+const modalReg = $('#modal-reg'), registerTemplateBtn = $('#register-template'), templateUrlInput = $('#template-url');
 const toastEl = $('#toast'), openSmartBtn = $('#open-smart'), openTemplatesBtn = $('#open-templates'), openInstructionsBtn = $('#open-instructions');
 const smartMedia = $('#smart-media'), requestAppBtn = $('#request-app'), shareHelpBtn = $('#share-help');
 
@@ -724,8 +719,8 @@ function applyTranslations(){
   $('#share-help').textContent = TRANSLATIONS[LANG].reg_video_btn;
   // set share-help link per language (YouTube search for "make sheet public")
   $('#share-help').href = LANG === 'es'
-    ? 'https://www.youtube.com/results?search_query=como+hacer+publica+hoja+google+sheets'
-    : 'https://www.youtube.com/results?search_query=how+to+make+google+sheets+public';
+    ? 'https://www.youtube.com/watch?v=SsequQoVNEE'
+    : 'https://www.youtube.com/watch?v=SsequQoVNEE';
   renderCategories();
   const activeKey = tplListEl.querySelector('.tpl-item.active')?.dataset.key || TRANSLATIONS[LANG].categories[0].key;
   setActiveCategory(activeKey);
@@ -784,7 +779,6 @@ function setActiveCategory(key){
   const sheet = el ? el.dataset.sheet : DEFAULT_COPY_SHEET;
   previewCopy.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
   previewCopy.dataset.cat = key;
-  previewDb.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
 }
 
 /* Drawer controls */
@@ -878,7 +872,7 @@ document.addEventListener('click', (e)=>{
   setTimeout(()=> { window.open(href,'_blank','noopener'); showToast(LANG==='es' ? 'Plantilla abierta — crea una copia en Drive.' : 'Template opened — create a copy in Drive.', 2600); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'template_copy', category: btn.dataset.cat || previewCopy.dataset.cat || 'unknown'}); }, 700);
 });
 
-/* Register template modal logic (UPDATED per your request) */
+/* Register template modal logic (UPDATED per request: removed copy/open tracking button and manual tracking link) */
 function openRegisterModal(){ modalReg.style.display = 'flex'; modalReg.setAttribute('aria-hidden','false'); templateUrlInput.value = ''; setTimeout(()=> modalReg.querySelector('.modal').classList.add('show'), 20); templateUrlInput.focus(); }
 function closeRegisterModal(){ modalReg.querySelector('.modal').classList.remove('show'); modalReg.setAttribute('aria-hidden','true'); setTimeout(()=> modalReg.style.display='none', 260); }
 $('#open-register').addEventListener('click', openRegisterModal);
@@ -911,10 +905,10 @@ async function tryRegisterTemplate(url, category){
   params.append('category', category || 'General');
   params.append('origin', window.location.origin || location.origin || '');
 
-  // If no endpoint configured, do not attempt server write; offer manual open
+  // If no endpoint configured, do not attempt server write; inform user (no tracking link auto-open)
   if(!APP_SCRIPT_ENDPOINT || APP_SCRIPT_ENDPOINT.length < 10){
     showToast(LANG==='es' ? 'No hay endpoint configurado. Copia y pega manualmente.' : 'No endpoint configured. Please copy & paste manually.', 4000);
-    showManualTrackingButton();
+    // manual fallback intentionally removed per request (no automatic tracking link)
     return { ok:false, reason: 'no-endpoint' };
   }
 
@@ -939,37 +933,18 @@ async function tryRegisterTemplate(url, category){
     } else {
       console.warn('Register server reply', resp.status, text);
       showToast(LANG==='es' ? 'Registro no confirmado. Revisa la consola o pega manualmente.' : 'Register not confirmed. Check console or paste manually.', 6000);
-      showManualTrackingButton();
+      // manual fallback intentionally removed per request
       return { ok:false, respText: text, status: resp.status };
     }
   } catch(err){
     console.error('Register request error', err);
     showToast(LANG==='es' ? 'Error de conexión. Intenta manualmente.' : 'Connection error. Try manual paste.', 5000);
-    showManualTrackingButton();
+    // manual fallback intentionally removed per request
     return { ok:false, error: err };
   }
 }
 
-function showManualTrackingButton(){
-  // add manual-open link inside modal (if not present)
-  const modalBody = modalReg.querySelector('.modal') || modalReg;
-  if(!modalBody) return;
-  if(document.getElementById('manual-open-tracking')) return; // already added
-
-  const btn = document.createElement('a');
-  btn.id = 'manual-open-tracking';
-  btn.href = TRACKING_SHEET_URL;
-  btn.target = '_blank';
-  btn.rel = 'noopener';
-  btn.className = 'btn-ghost';
-  btn.style.display = 'inline-flex';
-  btn.style.marginTop = '10px';
-  btn.textContent = (LANG === 'es') ? 'Abrir hoja de seguimiento (manual)' : 'Open tracking sheet (manual)';
-
-  modalBody.appendChild(btn);
-}
-
-/* Replace existing click handler */
+/* Replace existing click handler for register button (remove old listeners safely) */
 $('#register-template').replaceWith( $('#register-template').cloneNode(true) ); // remove old listeners
 document.getElementById('register-template').addEventListener('click', async ()=>{
   const url = templateUrlInput.value.trim();
@@ -983,27 +958,7 @@ document.getElementById('register-template').addEventListener('click', async ()=
   // Attempt server write (form-urlencoded -> avoids preflight)
   const result = await tryRegisterTemplate(url, category);
 
-  // Optional: if result failed for reasons, keep modal open for user to manually open tracking sheet
-  // (we already show manual open button in tryRegisterTemplate on failure)
-});
-
-/* Replace copy-to-clipboard handler: copy URL and show manual open button (no auto open) */
-$('#copy-to-clipboard').replaceWith( $('#copy-to-clipboard').cloneNode(true) );
-document.getElementById('copy-to-clipboard').addEventListener('click', async ()=>{
-  const url = templateUrlInput.value.trim();
-  if(!url){
-    showToast(LANG==='es' ? 'Pega la URL primero' : 'Paste the URL first', 2200);
-    return;
-  }
-  try{
-    await navigator.clipboard.writeText(url);
-    showToast(LANG==='es' ? 'URL copiada — abre la hoja de seguimiento si deseas pegarla.' : 'URL copied — open tracking sheet to paste it.', 2200);
-    showManualTrackingButton();
-  }catch(err){
-    console.warn('Clipboard failed', err);
-    showToast(LANG==='es' ? 'No se pudo acceder al portapapeles' : 'Clipboard not available', 2200);
-    showManualTrackingButton();
-  }
+  // Optional: if result failed for reasons, keep modal open for user to manually handle (we do not auto-create tracking link)
 });
 
 /* Request App (Discord DM copy) - unchanged */
