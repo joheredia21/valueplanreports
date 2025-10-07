@@ -248,7 +248,7 @@ async function loadTotalFunding(){
         }
         const row3 = splitCsvLine(lines[2]); // third row
         // Column N is 14th column => index 13
-        const valueN3 = row3[13] !== undefined ? row3[13] : row3[row3.length - 1] || '';
+        const valueN3 = row3[14] !== undefined ? row3[14] : row3[row3.length - 1] || '';
         if (valueN3 !== '') {
             // Try to format as currency (if numeric)
             const cleaned = String(valueN3).replace(/[^\d.-]/g, '');

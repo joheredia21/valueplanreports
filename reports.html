@@ -137,6 +137,9 @@ h1{ font-size:clamp(1.2rem,2vw,1.6rem); margin:0; font-weight:700; }
 .modal-backdrop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500; background:rgba(2,6,23,0.4); }
 .modal{ width:92%; max-width:620px; background:var(--bg-white); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
 
+/* language chooser modal (smaller) */
+.lang-modal{ width:360px; max-width:92%; padding:14px; display:grid; gap:12px; }
+
 /* toast */
 .toast{ position:fixed; left:50%; transform:translateX(-50%) translateY(12px); bottom:22px; background:#111; color:#fff; padding:10px 14px; border-radius:10px; opacity:0; transition:all .28s; z-index:1600; }
 .toast.visible{ opacity:1; transform:translateX(-50%) translateY(0) }
@@ -276,7 +279,7 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
       </div>
     </section>
 
-    <!-- TEMPLATES SECTION (unchanged layout, but removed DB button) -->
+    <!-- TEMPLATES SECTION (unchanged layout, with language chooser behavior for Get report template) -->
     <section id="templates-section" class="section hidden" aria-labelledby="tpl-h">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h2 id="tpl-h" data-i18n="templates_heading">Build your report — Templates</h2>
@@ -302,7 +305,8 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
             <div class="desc" id="preview-desc">Presence in events.</div>
 
             <div class="actions">
-              <a id="preview-copy" class="btn-sheet" href="https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy" target="_blank" rel="noopener" data-i18n="templates_cta">Get report template</a>
+              <!-- NOTE: This button now opens a language chooser modal and will download the category-specific template by language -->
+              <a id="preview-copy" class="btn-sheet" href="#" target="_blank" rel="noopener" data-i18n="templates_cta" aria-haspopup="dialog">Get report template</a>
               <button id="preview-example" class="btn-ghost" aria-label="View example details">Example</button>
             </div>
 
@@ -333,7 +337,7 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
       </div>
     </div>
 
-    <!-- Register modal (MODIFIED: removed copy/open tracking sheet button and no manual tracking link) -->
+    <!-- Register modal (unchanged: still only register button, manual tracking disabled) -->
     <div class="modal-backdrop" id="modal-reg" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-reg-title">
         <div style="display:flex;justify-content:space-between;align-items:center">
@@ -341,12 +345,8 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
           <button class="segment-btn" id="modal-reg-close" aria-label="Close register modal">Close</button>
         </div>
         <div style="margin-top:12px">
-          <!-- IMPORTANT NOTE about public sheet -->
-          <p class="small" id="reg-note" data-i18n="reg_note">
-            Important: The sheet you register must be <strong>publicly viewable</strong>. If it's not public the team won't be able to access it.
-          </p>
+          <p class="small" id="reg-note" data-i18n="reg_note">Important: The sheet you register must be <strong>publicly viewable</strong>. If it's not public the team won't be able to access it.</p>
 
-          <!-- Small help button to a YouTube tutorial (language-aware) -->
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
             <a id="share-help" class="btn-ghost" target="_blank" rel="noopener" data-i18n="reg_video_btn">How to make a sheet public (video)</a>
             <span class="small" style="color:var(--muted)">(opens YouTube)</span>
@@ -356,13 +356,29 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
           <input id="template-url" type="url" placeholder="https://docs.google.com/spreadsheets/..." style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--hive-light-gray);margin-top:6px" />
 
           <div style="display:flex;gap:8px;margin-top:12px">
-            <!-- Single red register button (primary action) -->
             <button id="register-template" class="btn-register" aria-label="Register template" data-i18n="reg_btn_register">Register</button>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div style="margin-top:12px" class="small">
-            
+    <!-- Language chooser modal (new) -->
+    <div class="modal-backdrop" id="modal-lang" aria-hidden="true">
+      <div class="modal lang-modal" role="dialog" aria-modal="true" aria-labelledby="modal-lang-title">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 id="modal-lang-title">Choose language</h3>
+          <button class="segment-btn" id="modal-lang-close" aria-label="Close language chooser">Close</button>
+        </div>
+
+        <div id="modal-lang-body" style="display:grid;gap:8px;margin-top:10px">
+          <div class="small" id="modal-lang-instruction">Choose the language for your template / Elige el idioma para tu plantilla</div>
+
+          <div style="display:flex;gap:10px;align-items:center">
+            <button id="lang-en" class="btn-sheet" aria-label="English template"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='14'><rect width='20' height='14' fill='%23b22234'/><g fill='%23fff'><rect y='1' width='20' height='1'/><rect y='3' width='20' height='1'/><rect y='5' width='20' height='1'/><rect y='7' width='20' height='1'/><rect y='9' width='20' height='1'/><rect y='11' width='20' height='1'/></g><rect width='8' height='5' fill='%233c3b6e'/></svg>" style="height:14px;margin-right:8px">English</button>
+            <button id="lang-es" class="btn-sheet" aria-label="Spanish template"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='14'><rect width='20' height='14' fill='%23c60b1e'/><rect y='3' width='20' height='8' fill='%23ffc400'/></svg>" style="height:14px;margin-right:8px">Español</button>
           </div>
+
+          <div class="small" id="modal-lang-note" style="color:var(--muted)">A new tab will open to create a copy in Google Drive.</div>
         </div>
       </div>
     </div>
@@ -385,28 +401,74 @@ footer{ margin-top:20px; color:var(--muted); font-size:13px; display:flex; justi
 
 <script>
 /*
-  EDITABLE VALUES & NOTES:
-  - DEFAULT_COPY_SHEET: default Google Sheets copy link used by "Get report template".
-  - APP_SCRIPT_ENDPOINT: set this to the deployed Apps Script Web App URL after deploy.https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec
-  - APP_ORIGIN: the page origin / URL that will be sent to the Apps Script for auditing.
-  - NOTE: The manual tracking link and "copy & open tracking sheet" fallback were intentionally removed per request.
+  IMPORTANT:
+  - This file adds per-category template links for English and Spanish.
+  - Edit the TEMPLATE_LINKS object below to place your real template URLs.
+  - For each category provide both .en and .es values (URLs). If you provide the normal edit URL
+    (e.g. https://docs.google.com/spreadsheets/d/ID/edit?gid=...), the code will convert it to the /copy variant
+    automatically before opening the new tab so the user is directed to "Make a copy".
+  - Example provided: Conferences (es) link (you gave this). It is already present as .es and converted to /copy automatically.
 */
 
-const APP_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec'; // <-- paste your Apps Script Web App URL here after deploy
+const APP_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxpvPco5tmr1SEMEao45AsCHuLm20m73gtDg8DkZEKUkiwrKsYiDnRkii5690hjLS02YA/exec';
 const DEFAULT_COPY_SHEET = 'https://docs.google.com/spreadsheets/d/1TEdXH_QQLH7wZub7QdsI9CdJOy8eAlyM0xY6h8I1me0/copy';
-const TRACKING_SHEET_URL = 'https://docs.google.com/spreadsheets/d/18uRqEFfy_lYaIB6hm4hliluIKiuOc3-s0aAn61QCZTc/edit#gid=0'; // kept for reference (not auto-shown)
 
-/* The origin/page that will be sent to the Apps Script (helps auditing) */
-const APP_ORIGIN = 'https://valueplanreports.vercel.app/reports.html';
+// ------------------------
+// TEMPLATE_LINKS - IMPORTANT
+// ------------------------
+// Replace the nulls below with your real sheet URLs. Provide two links per category: .en and .es
+// Examples:
+//  - If your editable link is:
+//      https://docs.google.com/spreadsheets/d/<<ID>>/edit#gid=...
+//    You can paste that link directly. The code will attempt to convert '/edit' -> '/copy'.
+//  - Alternatively you may paste an already prepared '/copy' link.
+// 
+// I have pre-filled Conferences.es with the link you provided (converted to /copy).
+// Locate this object and paste the rest of your real template URLs here.
 
-/* SMART video IDs (as before) */
-const SMART_VIDEO_EN = 'https://www.youtube.com/embed/bUIhbXCfm0w?rel=0';
-const SMART_VIDEO_ES = 'https://www.youtube.com/embed/quQKyihbuzo?rel=0';
+const TEMPLATE_LINKS = {
+  Conferences: {
+    // Example: Spanish provided by user — already prefilled and converted to /copy below when used.
+    // Original editable URL (example) provided:
+    // https://docs.google.com/spreadsheets/d/1OMVSeApaVVSMJ3N-psCgMwJ8RPtQ4Yu98BrYfjLjLKE/edit?gid=1773716822#gid=1773716822
+    // Paste the ORIGINAL editable link or the /copy variant below
+    en: null, // <-- PASTE conferences English template URL here (edit or /copy)
+    es: 'https://docs.google.com/spreadsheets/d/1OMVSeApaVVSMJ3N-psCgMwJ8RPtQ4Yu98BrYfjLjLKE/edit?gid=1773716822' // <-- conferences Spanish (you gave this)
+  },
+  HBD_B2B: { en: null, es: null },      // <-- REPLACE with real URLs
+  Technical: { en: null, es: null },    // <-- REPLACE with real URLs
+  Alliances: { en: null, es: null },    // <-- REPLACE with real URLs
+  Mass_Reach: { en: null, es: null },   // <-- REPLACE with real URLs
+  Arts: { en: null, es: null },         // <-- REPLACE with real URLs
+  Impact: { en: null, es: null },       // <-- REPLACE with real URLs
+  Marketing: { en: null, es: null }     // <-- REPLACE with real URLs
+};
+// ------------------------
+// End TEMPLATE_LINKS
+// ------------------------
 
-/* =========================
-   TRANSLATIONS (EN / ES)
-   =========================
-*/
+/* Utilities */
+function $(sel, ctx=document){ return ctx.querySelector(sel); }
+function $all(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)); }
+
+/* DOM refs */
+const carouselTrack = $('#carousel-track'), prevBtn = $('#prev'), nextBtn = $('#next'), heroCarousel = $('#hero-carousel');
+const tplListEl = $('#tpl-list'), previewTitleEl = $('#preview-title'), previewDescEl = $('#preview-desc'), previewImg = $('#preview-img');
+const previewCopy = $('#preview-copy'), previewExampleBtn = $('#preview-example');
+const smartSection = $('#smart-section'), templatesSection = $('#templates-section');
+const drawerBackdrop = $('#drawer'), drawerBody = $('#drawer-body');
+const modalReg = $('#modal-reg'), registerTemplateBtn = $('#register-template'), templateUrlInput = $('#template-url');
+const modalLang = $('#modal-lang'), modalLangClose = $('#modal-lang-close'), langEnBtn = $('#lang-en'), langEsBtn = $('#lang-es');
+const toastEl = $('#toast'), openSmartBtn = $('#open-smart',), openTemplatesBtn = $('#open-templates'), openInstructionsBtn = $('#open-instructions');
+const smartMedia = $('#smart-media'), requestAppBtn = $('#request-app'), shareHelpBtn = $('#share-help');
+
+/* Language init */
+let LANG = localStorage.getItem('lang') || (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en');
+if(!['en','es'].includes(LANG)) LANG = 'en';
+function markLangActive(){ $('#btn-en').style.opacity = LANG === 'en' ? '1' : '0.65'; $('#btn-es').style.opacity = LANG === 'es' ? '1' : '0.65'; }
+markLangActive();
+
+/* TRANSLATIONS */
 const TRANSLATIONS = {
   en: {
     title_main: "SMART Objectives & Reporting — Value Plan",
@@ -688,25 +750,11 @@ const IMAGE_MAP = {
   Marketing: "https://images.hive.blog/DQmVKZ1Aowm5381s4RRNMhf8VCKa3bcP1HvXZQJCw5rpQhE/image.png"
 };
 
-/* Utilities */
-function $(sel, ctx=document){ return ctx.querySelector(sel); }
-function $all(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)); }
+/* Utilities & small helpers */
+function $exists(sel, ctx=document){ return !!ctx.querySelector(sel); }
+function safeOpen(href){ try{ window.open(href, '_blank', 'noopener'); } catch(e){ window.location.href = href; } }
 
-/* DOM refs */
-const carouselTrack = $('#carousel-track'), prevBtn = $('#prev'), nextBtn = $('#next'), heroCarousel = $('#hero-carousel');
-const tplListEl = $('#tpl-list'), previewTitleEl = $('#preview-title'), previewDescEl = $('#preview-desc'), previewImg = $('#preview-img');
-const previewCopy = $('#preview-copy'), previewExampleBtn = $('#preview-example');
-const smartSection = $('#smart-section'), templatesSection = $('#templates-section');
-const drawerBackdrop = $('#drawer'), drawerBody = $('#drawer-body');
-const modalReg = $('#modal-reg'), registerTemplateBtn = $('#register-template'), templateUrlInput = $('#template-url');
-const toastEl = $('#toast'), openSmartBtn = $('#open-smart'), openTemplatesBtn = $('#open-templates'), openInstructionsBtn = $('#open-instructions');
-const smartMedia = $('#smart-media'), requestAppBtn = $('#request-app'), shareHelpBtn = $('#share-help');
-
-/* Language init */
-let LANG = localStorage.getItem('lang') || (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en');
-if(!['en','es'].includes(LANG)) LANG = 'en';
-function markLangActive(){ $('#btn-en').style.opacity = LANG === 'en' ? '1' : '0.65'; $('#btn-es').style.opacity = LANG === 'es' ? '1' : '0.65'; }
-markLangActive();
+/* DOM refs re-used (already defined above for clarity) */
 
 /* Apply translations to DOM & re-render categories */
 function applyTranslations(){
@@ -714,13 +762,9 @@ function applyTranslations(){
     const key = el.getAttribute('data-i18n');
     if(TRANSLATIONS[LANG][key] !== undefined) el.textContent = TRANSLATIONS[LANG][key];
   });
-  // update register note and video button specifically
   $('#reg-note').textContent = TRANSLATIONS[LANG].reg_note;
   $('#share-help').textContent = TRANSLATIONS[LANG].reg_video_btn;
-  // set share-help link per language (YouTube search for "make sheet public")
-  $('#share-help').href = LANG === 'es'
-    ? 'https://www.youtube.com/watch?v=SsequQoVNEE'
-    : 'https://www.youtube.com/watch?v=SsequQoVNEE';
+  $('#share-help').href = LANG === 'es' ? 'https://www.youtube.com/watch?v=SsequQoVNEE' : 'https://www.youtube.com/watch?v=SsequQoVNEE';
   renderCategories();
   const activeKey = tplListEl.querySelector('.tpl-item.active')?.dataset.key || TRANSLATIONS[LANG].categories[0].key;
   setActiveCategory(activeKey);
@@ -749,7 +793,7 @@ function renderCategories(){
     el.setAttribute('tabindex', '0');
     el.setAttribute('role', 'button');
     el.dataset.key = cat.key;
-    el.dataset.sheet = DEFAULT_COPY_SHEET; // default copy link for each category
+    el.dataset.sheet = DEFAULT_COPY_SHEET; // default copy link for each category (fallback)
     el.innerHTML = `
       <div class="glyph" aria-hidden="true">${cat.glyph}</div>
       <div class="cat-body"><div class="cat-title">${cat.title}</div><div class="cat-desc">${cat.desc}</div></div>
@@ -774,14 +818,14 @@ function setActiveCategory(key){
   previewImg.src = img;
   previewImg.alt = catObj.title + ' preview';
 
-  // set sheet link and category data
+  // set category data on preview copy button
   const el = tplListEl.querySelector(`.tpl-item[data-key="${key}"]`);
   const sheet = el ? el.dataset.sheet : DEFAULT_COPY_SHEET;
-  previewCopy.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
   previewCopy.dataset.cat = key;
+  previewCopy.setAttribute('href', sheet || DEFAULT_COPY_SHEET);
 }
 
-/* Drawer controls */
+/* Drawer (examples) */
 function showDrawer(title, html){
   $('#drawer-title').textContent = title;
   drawerBody.innerHTML = html;
@@ -831,6 +875,8 @@ $('#open-example').addEventListener('click', openExampleForActive);
 
 /* SMART video load */
 function loadSmartVideo(){
+  const SMART_VIDEO_EN = 'https://www.youtube.com/embed/bUIhbXCfm0w?rel=0';
+  const SMART_VIDEO_ES = 'https://www.youtube.com/embed/quQKyihbuzo?rel=0';
   const url = LANG === 'es' ? SMART_VIDEO_ES : SMART_VIDEO_EN;
   smartMedia.innerHTML = `<div style="width:100%;height:100%;min-height:180px;display:flex;align-items:center;justify-content:center">
     <iframe width="560" height="315" src="${url}" title="SMART Goals video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;min-height:180px;border-radius:10px"></iframe>
@@ -861,10 +907,77 @@ $('#tpl-close').addEventListener('click', ()=> closeSection('templates-section')
 /* Toast helper */
 function showToast(msg, time=3000){ toastEl.textContent = msg; toastEl.classList.add('visible'); setTimeout(()=> toastEl.classList.remove('visible'), time); }
 
-/* Delegated click for .btn-sheet behavior (opens new tab for copy) */
+/* ---------------------------
+   New: Language chooser flow
+   --------------------------- */
+
+/* Helpers to open modal and close */
+function openLangModal(){ modalLang.style.display = 'flex'; modalLang.setAttribute('aria-hidden','false'); setTimeout(()=> modalLang.querySelector('.modal').classList.add('show'), 20); modalLang.querySelector('.modal').focus(); }
+function closeLangModal(){ modalLang.querySelector('.modal').classList.remove('show'); modalLang.setAttribute('aria-hidden','true'); setTimeout(()=> modalLang.style.display='none', 260); }
+
+/* Ensure previewCopy click opens language modal instead of default delegated behavior */
+/* We modify the delegated handler below to skip preview-copy specifically. */
+previewCopy.addEventListener('click', (e)=>{
+  e.preventDefault();
+  openLangModal();
+});
+
+/* Modal close */
+modalLangClose.addEventListener('click', closeLangModal);
+modalLang.addEventListener('click', (e)=> { if(e.target === modalLang) closeLangModal(); });
+document.addEventListener('keydown', (e)=> { if(e.key === 'Escape'){ if(modalLang.style.display === 'flex') closeLangModal(); } });
+
+/* Build the final link (ensuring /copy variant) */
+function toCopyLink(original){
+  if(!original) return null;
+  // If already contains '/copy' return as-is
+  if(original.includes('/copy')) return original;
+  // If contains '/edit' replace first '/edit' with '/copy'
+  if(original.includes('/edit')) return original.replace('/edit', '/copy');
+  // If ends with /d/<id> then append '/copy'
+  if(/^https?:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+\/?$/.test(original)){
+    return original.replace(/\/?$/, '/copy');
+  }
+  // Default fallback: append '/copy'
+  return original.replace(/\/?$/, '/copy');
+}
+
+/* Open category template for selected language */
+function openCategoryTemplate(categoryKey, langCode){
+  const links = TEMPLATE_LINKS[categoryKey];
+  if(!links){ showToast(LANG==='es' ? 'Plantilla no disponible para esta categoría' : 'Template not available for this category', 3000); return; }
+  const original = (langCode === 'es') ? links.es : links.en;
+  if(!original){ showToast(LANG==='es' ? 'Plantilla no disponible para ese idioma' : 'Template not available for that language', 3000); return; }
+  const linkCopy = toCopyLink(original);
+  // analytics
+  window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event:'template_copy_by_lang', category: categoryKey, lang: langCode });
+  // open in new tab
+  safeOpen(linkCopy);
+  closeLangModal();
+}
+
+/* Language buttons */
+langEnBtn.addEventListener('click', ()=> {
+  const cat = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
+  openCategoryTemplate(cat, 'en');
+});
+langEsBtn.addEventListener('click', ()=> {
+  const cat = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
+  openCategoryTemplate(cat, 'es');
+});
+
+/* ---------------------------
+   End: Language chooser flow
+   --------------------------- */
+
+/* Delegated click for .btn-sheet behavior (opens new tab for copy)
+   NOTE: skip preview-copy because it has its own flow above.
+*/
 document.addEventListener('click', (e)=>{
   const btn = e.target.closest('.btn-sheet');
   if(!btn) return;
+  // Skip handler if this is the preview-copy button (we handle it separately)
+  if(btn.id === 'preview-copy') return;
   const href = btn.getAttribute('href');
   if(!href || href === '#'){ e.preventDefault(); showToast(LANG==='es' ? 'Plantilla no disponible' : 'Template not available'); return; }
   e.preventDefault();
@@ -872,7 +985,7 @@ document.addEventListener('click', (e)=>{
   setTimeout(()=> { window.open(href,'_blank','noopener'); showToast(LANG==='es' ? 'Plantilla abierta — crea una copia en Drive.' : 'Template opened — create a copy in Drive.', 2600); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'template_copy', category: btn.dataset.cat || previewCopy.dataset.cat || 'unknown'}); }, 700);
 });
 
-/* Register template modal logic (UPDATED per request: removed copy/open tracking button and manual tracking link) */
+/* Register template modal logic (unchanged: manual tracking removed) */
 function openRegisterModal(){ modalReg.style.display = 'flex'; modalReg.setAttribute('aria-hidden','false'); templateUrlInput.value = ''; setTimeout(()=> modalReg.querySelector('.modal').classList.add('show'), 20); templateUrlInput.focus(); }
 function closeRegisterModal(){ modalReg.querySelector('.modal').classList.remove('show'); modalReg.setAttribute('aria-hidden','true'); setTimeout(()=> modalReg.style.display='none', 260); }
 $('#open-register').addEventListener('click', openRegisterModal);
@@ -888,64 +1001,51 @@ function saveLocalTemplate(url, category){
 /* Validate spreadsheet URL */
 function isValidSpreadsheetUrl(u){
   if(!u || typeof u !== 'string') return false;
-  // basic check for google sheets url
   return /^https?:\/\/docs\.google\.com\/spreadsheets\/d\/[a-zA-Z0-9-_]+/.test(u);
 }
 
 async function tryRegisterTemplate(url, category){
-  // Save locally regardless
   saveLocalTemplate(url, category);
-
-  // small UX feedback
   showToast(LANG==='es' ? 'Registrando plantilla...' : 'Registering template...', 1200);
-
-  // Prepare payload as form data (URLSearchParams) -> avoids preflight OPTIONS
   const params = new URLSearchParams();
   params.append('url', url);
   params.append('category', category || 'General');
   params.append('origin', window.location.origin || location.origin || '');
 
-  // If no endpoint configured, do not attempt server write; inform user (no tracking link auto-open)
   if(!APP_SCRIPT_ENDPOINT || APP_SCRIPT_ENDPOINT.length < 10){
     showToast(LANG==='es' ? 'No hay endpoint configurado. Copia y pega manualmente.' : 'No endpoint configured. Please copy & paste manually.', 4000);
-    // manual fallback intentionally removed per request (no automatic tracking link)
     return { ok:false, reason: 'no-endpoint' };
   }
 
   try {
     const resp = await fetch(APP_SCRIPT_ENDPOINT, {
       method: 'POST',
-      body: params,          // application/x-www-form-urlencoded
-      mode: 'cors'           // keep default CORS mode
+      body: params,
+      mode: 'cors'
     });
     const text = await resp.text();
     let json = null;
     try{ json = JSON.parse(text); } catch(e){ /* not JSON */ }
 
     if(resp.ok && json && (json.status === 'success' || json.ok === true || json.row)){
-      // success
       showToast(LANG==='es' ? 'Plantilla registrada correctamente.' : 'Template registered successfully.', 3000);
-      // push analytics
       window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event:'register_template', category, row: json.row || null });
-      // close modal
       closeRegisterModal();
       return { ok:true, resp: json };
     } else {
       console.warn('Register server reply', resp.status, text);
       showToast(LANG==='es' ? 'Registro no confirmado. Revisa la consola o pega manualmente.' : 'Register not confirmed. Check console or paste manually.', 6000);
-      // manual fallback intentionally removed per request
       return { ok:false, respText: text, status: resp.status };
     }
   } catch(err){
     console.error('Register request error', err);
     showToast(LANG==='es' ? 'Error de conexión. Intenta manualmente.' : 'Connection error. Try manual paste.', 5000);
-    // manual fallback intentionally removed per request
     return { ok:false, error: err };
   }
 }
 
-/* Replace existing click handler for register button (remove old listeners safely) */
-$('#register-template').replaceWith( $('#register-template').cloneNode(true) ); // remove old listeners
+/* Register button handler */
+$('#register-template').replaceWith( $('#register-template').cloneNode(true) );
 document.getElementById('register-template').addEventListener('click', async ()=>{
   const url = templateUrlInput.value.trim();
   const category = previewCopy.dataset.cat || TRANSLATIONS[LANG].categories[0].key;
@@ -955,10 +1055,7 @@ document.getElementById('register-template').addEventListener('click', async ()=
     return;
   }
 
-  // Attempt server write (form-urlencoded -> avoids preflight)
   const result = await tryRegisterTemplate(url, category);
-
-  // Optional: if result failed for reasons, keep modal open for user to manually handle (we do not auto-create tracking link)
 });
 
 /* Request App (Discord DM copy) - unchanged */
@@ -993,7 +1090,7 @@ $('#open-instructions').addEventListener('click', ()=>{
 
 /* Accessibility: Esc closes drawers/modals */
 document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape'){ closeDrawer(); if(modalReg.style.display === 'flex') closeRegisterModal(); }
+  if(e.key === 'Escape'){ closeDrawer(); if(modalReg.style.display === 'flex') closeRegisterModal(); if(modalLang.style.display === 'flex') closeLangModal(); }
 });
 
 /* Initial render & translations */
