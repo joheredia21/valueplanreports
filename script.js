@@ -500,14 +500,10 @@ function onProjectReportsClick(){
   window.open(copyUrl, '_blank');
 }
 
-import { Analytics } from "@vercel/analytics"
-
 // Vincular el botón al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('project-reports-btn');
   if (btn) {
     btn.addEventListener('click', onProjectReportsClick);
-    
   }
-  
 });
