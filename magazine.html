@@ -1,0 +1,874 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Value Plan — Hive Magazine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Theme variables ===== */
+    :root{
+      --bg-light:#f6f8fa;
+      --bg-dark:#07121a;
+      --card-light:#ffffff;
+      --card-dark:#07131a;
+      --text-light:#eaf3fb;
+      --text-dark:#07121a;
+      --muted-light:#9fb0c8;
+      --muted-dark:#6b7785;
+      --hive-red:#e31337;
+      --hive-red-2:#c10c2c;
+      --video-red:#ff6b7a; /* lighter red for video strip */
+      --radius:12px;
+      --shadow:0 12px 40px rgba(2,6,23,0.12);
+      --maxw:1200px;
+      --modal-bg-light:#ffffff;
+      --modal-bg-dark:#07121a; /* solid dark background for modal (no transparency) */
+      --transition:220ms cubic-bezier(.2,.9,.2,1);
+      --carousel-interval:4500; /* ms autoplay interval */
+      --carousel-speed:700; /* ms transition time */
+    }
+
+    /* Light theme */
+    html.theme-light { background: linear-gradient(180deg,var(--bg-light), #eef2f6); color:var(--text-dark); }
+    html.theme-light .card { background:var(--card-light); color:var(--text-dark); box-shadow:var(--shadow); }
+    html.theme-light .muted { color:var(--muted-dark); }
+    html.theme-light { --modal-bg: var(--modal-bg-light); }
+
+    /* Dark theme */
+    html.theme-dark { background: linear-gradient(180deg,var(--bg-dark), #04101a); color:var(--text-light); }
+    html.theme-dark .card { background:var(--card-dark); color:var(--text-light); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+    html.theme-dark .muted { color:var(--muted-light); }
+    html.theme-dark { --modal-bg: var(--modal-bg-dark); }
+
+    /* Reset / base */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+    .container{max-width:var(--maxw);margin:0 auto;padding:18px}
+
+    /* Header */
+    .site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:10px;position:sticky;top:12px;z-index:60}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand img{width:50px;height:50px;border-radius:10px;object-fit:cover}
+    .brand h1{font-size:1.05rem;font-weight:800}
+    nav.main{display:flex;gap:10px;align-items:center}
+    .nav-link{font-weight:600;padding:8px 10px;border-radius:8px;color:inherit;opacity:0.95}
+    .nav-link:hover{transform:translateY(-3px)}
+    .theme-switch{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;cursor:pointer;border:1px solid rgba(0,0,0,0.06);background:transparent;user-select:none}
+    .theme-switch .icon{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
+    .theme-switch .label{font-weight:700;font-size:0.86rem}
+    .hamburger{display:none;border:0;background:transparent;padding:8px;border-radius:8px;cursor:pointer}
+
+    /* Ticker */
+    .ticker{display:flex;gap:12px;align-items:center;padding:8px;border-radius:10px;background:linear-gradient(90deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01));font-weight:700;color:var(--muted-dark);overflow:auto;margin-top:12px}
+    .ticker .item{min-width:100px}
+
+    /* Main feature */
+    .main-block{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:16px;align-items:start}
+    @media (max-width:980px){ .main-block{grid-template-columns:1fr;} .feature-right{order:2} }
+
+    .feature-card{position:relative;border-radius:14px;overflow:hidden;min-height:380px;display:flex;align-items:stretch}
+    .feature-media{flex:1;background-size:cover;background-position:center;position:relative;display:flex;align-items:flex-end;transition:transform var(--transition),filter var(--transition)}
+    .feature-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.44));pointer-events:none}
+    .feature-content{position:absolute;left:22px;bottom:22px;z-index:3;color:var(--text-light);max-width:64%}
+    .feature-kicker{background:linear-gradient(90deg,var(--hive-red),var(--hive-red-2));display:inline-block;padding:6px 10px;border-radius:10px;font-weight:800;font-size:0.8rem}
+    .feature-title{font-size:1.65rem;font-weight:900;margin-top:8px;line-height:1.06;text-shadow:0 6px 18px rgba(0,0,0,0.35)}
+    .feature-read{margin-top:12px;display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--hive-red),var(--hive-red-2));padding:10px 14px;border-radius:10px;color:white;border:none;cursor:pointer;box-shadow:0 8px 26px rgba(227,19,55,0.12)}
+
+    /* right list */
+    .feature-list{display:flex;flex-direction:column;gap:8px;padding:16px}
+    .feature-list .item{padding:12px;border-radius:10px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:background var(--transition),transform var(--transition);outline:none}
+    .feature-list .item:hover{background:rgba(0,0,0,0.03);transform:translateX(6px)}
+    .feature-list .item:focus{box-shadow:0 6px 18px rgba(0,0,0,0.08);transform:translateX(6px)}
+    .feature-list .title{font-weight:800}
+    .feature-list .meta{font-size:0.85rem;color:var(--muted-dark)}
+
+    /* decorative separator (SVG wave) */
+    .section-sep{width:100%;height:40px;margin:18px 0;overflow:hidden}
+    .section-sep svg{display:block;width:100%;height:100%}
+
+    /* Video carousel (new impl) */
+    .video-strip{border-radius:12px;padding:14px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));position:relative;overflow:visible}
+    .carousel-wrapper{position:relative;overflow:hidden;border-radius:10px}
+    .carousel-track{display:flex;gap:12px;transition:transform var(--carousel-speed) cubic-bezier(.2,.9,.2,1);will-change:transform;padding:12px}
+    .video-card{width:320px;flex:0 0 auto;background:var(--card-light);border-radius:12px;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+    html.theme-dark .video-card{background:var(--card-dark)}
+    .video-thumb{width:100%;height:180px;object-fit:cover;display:block}
+    .video-meta{padding:10px}
+    .video-title{font-weight:800;font-size:0.98rem;margin-bottom:6px}
+    .video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--video-red);border-radius:999px;padding:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 30px rgba(255,107,122,0.12)}
+    .video-play svg{width:28px;height:28px;fill:white}
+
+    /* hide scrollbar across browsers */
+    .carousel-wrapper::-webkit-scrollbar{display:none}
+    .carousel-wrapper{ -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* arrow controls: hidden by default; appear on hover of .video-strip */
+    .video-strip .arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:999px;background:rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity var(--transition)}
+    .video-strip:hover .arrow{opacity:1}
+    .video-strip .arrow.left{left:8px}
+    .video-strip .arrow.right{right:8px}
+
+    /* cards grid */
+    .cards-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:18px;margin-top:18px}
+    @media (min-width:900px){ .cards-grid{grid-template-columns:repeat(3,1fr)} }
+    .micro-card{border-radius:12px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform var(--transition),box-shadow var(--transition)}
+    .micro-card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(2,6,23,0.12)}
+    .thumb{height:180px;object-fit:cover;width:100%;display:block}
+    .card-body{padding:14px;display:flex;flex-direction:column;gap:8px}
+    .micro-title{font-weight:800;font-size:1rem}
+    .micro-meta{font-size:0.85rem;color:var(--muted-dark)}
+    .micro-actions{margin-top:auto;display:flex;gap:8px;align-items:center}
+
+    /* modal read view (increased margins and solid dark bg in dark mode) */
+    .modal-back{position:fixed;inset:0;background:rgba(2,6,23,0.62);display:flex;justify-content:center;align-items:flex-start;padding:28px;z-index:9999;overflow:auto}
+    .modal{width:100%;max-width:980px;border-radius:12px;padding:28px;background:var(--modal-bg);color:inherit;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+    .modal .meta{color:var(--muted-dark);font-size:0.9rem;margin-top:8px}
+    .article-content{line-height:1.9;margin-top:22px;max-width:820px;margin-left:auto;margin-right:auto;padding:0 18px}
+    .article-content p{margin:0 0 1rem}
+    .article-content h1,.article-content h2,.article-content h3{margin:1.4rem 0 0.6rem;font-weight:800}
+    .article-content img{display:block;margin:18px 0;border-radius:8px;max-width:100%;height:auto}
+    .article-content pre{background:rgba(0,0,0,0.06);padding:12px;border-radius:8px;overflow:auto}
+    .close-btn{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px;border-radius:8px;cursor:pointer}
+
+    /* mobile nav overlay */
+    .mobile-nav{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:80;justify-content:flex-start;align-items:flex-start}
+    .mobile-nav .panel{background:var(--card-light);width:260px;padding:18px;border-radius:0 0 8px 0;}
+    html.theme-dark .mobile-nav .panel{background:var(--card-dark)}
+
+    @media (max-width:760px){
+      .nav-link{display:none}
+      .hamburger{display:inline-block}
+      .ticker{font-size:0.92rem}
+      .feature-content{max-width:88%}
+      .cards-grid{gap:12px}
+      .thumb{height:160px}
+      .video-card{min-width:260px;width:260px}
+    }
+
+    /* small utilities */
+    .kicker{font-size:0.78rem;font-weight:800}
+    .muted{color:var(--muted-dark)}
+    .btn-red{background:linear-gradient(90deg,var(--hive-red),var(--hive-red-2));color:white;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:800}
+    a{color:inherit}
+    .show-more-wrap{display:flex;justify-content:center;margin-top:18px}
+
+    /* footer Hive black */
+    .footer {
+      background: var(--hive-dark, #0b0b0b);
+      color: var(--hive-light-gray, #e7e7f1);
+      padding: 18px;
+      border-radius: 8px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="site-header card" role="banner" aria-label="Header">
+      <div class="brand">
+        <img src="https://promote.hive.io/icons/hive-logo.png" alt="Hive logo">
+        <div>
+          <h1>Value Plan</h1>
+          <div class="muted">Hive Magazine · @<span id="follow-account">valueplan</span></div>
+        </div>
+      </div>
+
+      <nav class="main" role="navigation" aria-label="Main nav">
+        <a class="nav-link" href="#news">News</a>
+        <a class="nav-link" href="#analysis">Analysis</a>
+        <a class="nav-link" href="#tutorials">Tutorials</a>
+        <a class="nav-link" href="#community">Community</a>
+
+        <!-- theme switch -->
+        <button id="themeToggle" class="theme-switch" aria-label="Theme toggle" role="switch" aria-checked="true">
+          <span class="icon" id="themeIcon" aria-hidden="true">
+            <svg id="sun" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84L5 3.05 3.05 5 4.84 6.76l1.92-1.92zM1 13h3v-2H1v2zm10 9h2v-3h-2v3zm7.24-3.24l1.79 1.8 1.2-1.2-1.79-1.79-1.2 1.19zM17 13v-2h3v2h-3zM6.76 19.16l-1.8 1.79 1.2 1.2 1.79-1.79-1.19-1.2zM12 5a7 7 0 100 14 7 7 0 000-14z"/></svg>
+            <svg id="moon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          </span>
+          <span class="label" id="themeLabel">Light</span>
+        </button>
+
+        <!-- hamburger -->
+        <button id="hamburger" class="hamburger" aria-label="Open menu" title="Open menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Mobile nav panel -->
+    <div id="mobileNav" class="mobile-nav" style="display:none" aria-hidden="true">
+      <div class="panel" role="menu" aria-label="Mobile menu">
+        <button id="closeMobile" aria-label="Close menu" style="float:right;border:0;background:none;font-weight:800;cursor:pointer">✕</button>
+        <nav style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <a class="nav-link" href="#news">News</a>
+          <a class="nav-link" href="#analysis">Analysis</a>
+          <a class="nav-link" href="#tutorials">Tutorials</a>
+          <a class="nav-link" href="#community">Community</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker" id="ticker" aria-live="polite">
+      <div class="item"><div class="kicker">HIVE</div><div id="price-hive">$—</div></div>
+      <div class="item"><div class="kicker">HBD</div><div id="price-hbd">$—</div></div>
+      <div class="item"><div class="kicker">BTC</div><div id="price-btc">$—</div></div>
+      <div class="item"><div class="kicker">ETH</div><div id="price-eth">$—</div></div>
+    </div>
+
+    <!-- Main feature + list -->
+    <section class="main-block" aria-label="Featured section">
+      <div class="feature-card card" id="feature-card" role="region" aria-label="Main featured">
+        <div id="feature-media" class="feature-media" style="background-image:url('https://picsum.photos/1400/800?random=1');" role="img" aria-label="Featured image">
+          <div class="feature-content" id="feature-content">
+            <div class="feature-kicker">Latest</div>
+            <div class="feature-title" id="feature-title">Loading featured article...</div>
+            <button id="feature-read" class="feature-read" aria-label="Read featured article">Read article</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card feature-list feature-right" aria-label="Featured list" id="feature-list" tabindex="0">
+        <div class="kicker">Editor's picks</div>
+        <div id="feature-items" style="margin-top:12px"></div>
+      </aside>
+    </section>
+
+    <!-- separator SVG -->
+    <div class="section-sep" aria-hidden="true">
+      <svg viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 20 C 300 60 900 -20 1200 20 L1200 40 L0 40 Z" fill="currentColor" opacity="0.03"></path>
+      </svg>
+    </div>
+
+    <!-- Video carousel strip (improved) -->
+    <section id="video-strip" class="video-strip" aria-label="Video highlights" style="background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div class="kicker">Videos</div>
+          <div class="muted">Highlighted project videos — hover to reveal controls</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="prevVideo" class="arrow left" title="Previous" aria-label="Previous video" style="background:transparent;border:none">
+            <svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          </button>
+          <button id="nextVideo" class="arrow right" title="Next" aria-label="Next video" style="background:transparent;border:none">
+            <svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="carousel-wrapper" aria-hidden="false" role="region" aria-label="Video carousel">
+        <div class="carousel-track" id="carousel-track" tabindex="0" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- another separator -->
+    <div class="section-sep" aria-hidden="true" style="margin-top:16px">
+      <svg viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 20 C 300 -20 900 60 1200 20 L1200 40 L0 40 Z" fill="currentColor" opacity="0.03"></path>
+      </svg>
+    </div>
+
+    <!-- posts grid -->
+    <section class="cards-grid" id="cards-grid" aria-label="Article grid" style="margin-top:18px"></section>
+
+    <div class="show-more-wrap">
+      <button id="toggleMore" class="btn-red">Show more</button>
+    </div>
+
+    <!-- footer -->
+    <footer style="margin-top:28px;padding-top:18px;border-top:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="max-width:600px">
+        <div style="font-weight:800">Value Plan — Hive Magazine</div>
+        <div class="muted" style="margin-top:6px">Showcasing funded projects and verified impact around the world. Built on Hive.</div>
+      </div>
+      <div style="display:flex;gap:18px;align-items:flex-start">
+        <div>
+          <div style="font-weight:800;margin-bottom:6px">Explore</div>
+          <div class="muted" style="display:flex;flex-direction:column;gap:6px">
+            <a href="#news" class="muted">Projects</a>
+            <a href="#analysis" class="muted">Case studies</a>
+            <a href="#community" class="muted">Community</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:800;margin-bottom:6px">Contact</div>
+          <div class="muted" style="display:flex;flex-direction:column;gap:6px">
+            <a href="mailto:hello@valueplan.io" class="muted">hello@valueplan.io</a>
+            <a href="https://github.com/your-repo" target="_blank" class="muted">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- modal root -->
+  <div id="modal-root" aria-live="polite"></div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    /**********************
+     CONFIG
+    **********************/
+    let FOLLOW_ACCOUNT = 'valueplan'; // account to follow
+    const POSTS_LIMIT = 18;
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/190zYxu4kPDjMQcI8Sufv3pf6YiEKVxTWUJ07_fFLNPg/export?format=csv&gid=0';
+    document.getElementById('follow-account').textContent = FOLLOW_ACCOUNT;
+
+    /**********************
+     HELPERS
+    **********************/
+    function el(tag, attrs={}, children=[]){
+      const node = document.createElement(tag);
+      for (const k in attrs){
+        if (k === 'class') node.className = attrs[k];
+        else if (k === 'html') node.innerHTML = attrs[k];
+        else node.setAttribute(k, attrs[k]);
+      }
+      (Array.isArray(children)?children:[children]).forEach(c => { if (c==null) return; if (typeof c === 'string') node.appendChild(document.createTextNode(c)); else node.appendChild(c); });
+      return node;
+    }
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+    function splitCsvLine(line){
+      const result = []; let cur=''; let inQ=false;
+      for (let i=0;i<line.length;i++){
+        const ch = line[i];
+        if (ch === '"'){ inQ = !inQ; continue; }
+        if (ch === ',' && !inQ){ result.push(cur); cur=''; continue; }
+        cur += ch;
+      }
+      result.push(cur);
+      return result.map(s => s.trim());
+    }
+
+    /**********************
+     SANITIZER / FORMATTER
+    **********************/
+    function formatAndSanitizeBody(body){
+      if (!body) return '';
+      body = body.replace(/\r\n/g,'\n');
+
+      body = body.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+      body = body.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+      body = body.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+
+      body = body.replace(/```([\s\S]*?)```/g, function(_, code){ return '<pre><code>' + escapeHtml(code) + '</code></pre>'; });
+      body = body.replace(/`([^`]+)`/g, function(_, c){ return '<code>' + escapeHtml(c) + '</code>'; });
+
+      body = body.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/gi, function(_, alt, url){
+        if (url.startsWith('http:')) url = url.replace(/^http:/,'https:');
+        return `<img src="${escapeHtml(url)}" alt="${escapeHtml(alt||'')}" loading="lazy" />`;
+      });
+
+      body = body.replace(/(^|\s)(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp))(\s|$)/ig, function(_, pre, url, post){
+        if (url.startsWith('http:')) url = url.replace(/^http:/,'https:');
+        return pre + `<img src="${escapeHtml(url)}" alt="" loading="lazy" />` + post;
+      });
+
+      body = body.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi, function(_, text, url){
+        return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`;
+      });
+
+      const lines = body.split('\n');
+      let out = '', inUl=false;
+      for (let i=0;i<lines.length;i++){
+        const line = lines[i]; const m = /^\s*[-*]\s+(.*)$/.exec(line); const t = line.trim();
+        if (m){
+          if (!inUl){ out += '<ul>'; inUl = true; }
+          out += '<li>' + m[1] + '</li>';
+        } else {
+          if (inUl){ out += '</ul>'; inUl = false; }
+          if (t === '') { out += ''; }
+          else if (/^<h[1-6]>/.test(t) || /^<pre>/.test(t) || /^<img/.test(t) || /^<ul>/.test(t) || /^<p>/.test(t) || /^<a/.test(t)) {
+            out += t;
+          } else {
+            out += '<p>' + escapeHtml(t) + '</p>';
+          }
+        }
+      }
+      if (inUl) out += '</ul>';
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(out, 'text/html');
+      doc.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(n => n.remove());
+      const allowed = { 'IMG': ['src','alt','title','loading'], 'A': ['href','target','rel'], 'P': [], 'H1': [], 'H2': [], 'H3': [], 'UL': [], 'OL': [], 'LI': [], 'PRE': [], 'CODE': [] };
+      function clean(node){
+        if (node.nodeType === Node.TEXT_NODE) return;
+        const tag = node.tagName;
+        if (!allowed[tag]){
+          const frag = document.createDocumentFragment();
+          while (node.firstChild) frag.appendChild(node.removeChild(node.firstChild));
+          node.parentNode.replaceChild(frag, node);
+          return;
+        }
+        [...node.attributes].forEach(attr => {
+          const name = attr.name.toLowerCase(), val = attr.value;
+          if (!allowed[tag].includes(name)) node.removeAttribute(attr.name);
+          else {
+            if ((name === 'href' || name === 'src') && String(val).trim().toLowerCase().startsWith('javascript:')) node.removeAttribute(attr.name);
+            if (name === 'src' && String(val).startsWith('http:')) node.setAttribute('src', val.replace(/^http:/,'https:'));
+          }
+        });
+        for (const c of Array.from(node.childNodes)) clean(c);
+      }
+      for (const c of Array.from(doc.body.childNodes)) clean(c);
+      return doc.body.innerHTML;
+    }
+
+    /**********************
+     HIVE RPC wrapper (keeps previous working signature)
+    **********************/
+    async function hiveRpc(method, params){
+      try {
+        if (window.hive && typeof window.hive.call === 'function') return await window.hive.call(method, params);
+      } catch(e){}
+      const body = { jsonrpc:'2.0', method, params, id:1 };
+      const r = await fetch('https://api.hive.blog', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const j = await r.json();
+      if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
+      return j.result;
+    }
+
+    /**********************
+     FEATURED (from sheet B2..B6 OR fallback)
+    **********************/
+    const featureMedia = document.getElementById('feature-media');
+    const featureTitle = document.getElementById('feature-title');
+    const featureItemsRoot = document.getElementById('feature-items');
+    const featureReadBtn = document.getElementById('feature-read');
+    let featured = [], currentFeature = 0, autoRotateTimer = null;
+
+    async function loadFeaturedFromSheet(){
+      try {
+        const res = await fetch(SHEET_CSV);
+        if (!res.ok) throw new Error('sheet fetch failed');
+        const csv = await res.text();
+        const lines = csv.split(/\r?\n/).filter(Boolean);
+        const ids = [];
+        for (let i=1;i<=5 && i<lines.length;i++){
+          const cols = splitCsvLine(lines[i]);
+          if (cols[1]) ids.push(cols[1]);
+        }
+        return ids;
+      } catch(e){
+        console.warn('loadFeaturedFromSheet error', e);
+        return [];
+      }
+    }
+
+    async function fetchPostIdentifier(id){
+      if (!id) return null;
+      id = id.trim();
+      const urlMatch = id.match(/@([a-z0-9\-\_\.]+)\/([a-z0-9\-]+)(?:[\/\?#]|$)/i);
+      if (urlMatch){
+        const author = urlMatch[1], permlink = urlMatch[2];
+        try { const post = await hiveRpc('condenser_api.get_content', [author, permlink]); return post && post.title ? post : null; } catch(e){ return null; }
+      }
+      const atMatch = id.match(/^@?([a-z0-9\-\_\.]+)\/([a-z0-9\-]+)$/i);
+      if (atMatch){
+        const author = atMatch[1], permlink = atMatch[2];
+        try { const post = await hiveRpc('condenser_api.get_content', [author, permlink]); return post && post.title ? post : null; } catch(e){ return null; }
+      }
+      return null;
+    }
+
+    function extractImg(p){
+      try {
+        const meta = (typeof p.json_metadata === 'string') ? JSON.parse(p.json_metadata || '{}') : (p.json_metadata || {});
+        if (meta && meta.image && Array.isArray(meta.image) && meta.image[0]) return meta.image[0].replace(/^http:/,'https:');
+      } catch(e){}
+      const m = (p.body || '').match(/https?:\/\/[^\s'"]+\.(?:png|jpg|jpeg|gif|webp)/i);
+      if (m) return m[0].replace(/^http:/,'https:');
+      return null;
+    }
+
+    async function buildFeatured(){
+      featureItemsRoot.innerHTML = '<div class="muted">Loading featured...</div>';
+      const ids = await loadFeaturedFromSheet();
+      const posts = [];
+      for (const id of ids){
+        const p = await fetchPostIdentifier(id);
+        if (p) posts.push(p);
+        else posts.push({ title: id, body: '', author: FOLLOW_ACCOUNT, permlink: 'ph-'+Math.random().toString(36).slice(2), created: new Date().toISOString(), json_metadata:{} });
+      }
+
+      if (posts.length === 0){
+        try {
+          const latest = await hiveRpc('condenser_api.get_discussions_by_blog', [{ tag:FOLLOW_ACCOUNT, limit:5 }]);
+          posts.push(...(latest||[]));
+        } catch(e){ console.warn('fallback featured err', e); }
+      }
+
+      featured = await Promise.all(posts.map(p => ({ post:p, image: extractImg(p) || ('https://picsum.photos/1400/800?random=' + Math.floor(Math.random()*1000)) })));
+      featureItemsRoot.innerHTML = '';
+      featured.forEach((fp, idx) => {
+        const item = el('div',{class:'item', tabindex:0, role:'button', 'data-idx':idx});
+        item.appendChild(el('div',{class:'title'},[fp.post.title || 'Untitled']));
+        item.appendChild(el('div',{class:'meta muted'},[fp.post.author || '']));
+        item.addEventListener('mouseenter', ()=> showFeaturedIndex(idx, false));
+        item.addEventListener('focus', ()=> showFeaturedIndex(idx, false));
+        item.addEventListener('click', ()=> showFeaturedIndex(idx, true));
+        featureItemsRoot.appendChild(item);
+      });
+
+      showFeaturedIndex(0,false);
+      if (autoRotateTimer) clearInterval(autoRotateTimer);
+      autoRotateTimer = setInterval(()=> showFeaturedIndex((currentFeature+1)%featured.length,false), 7000);
+    }
+
+    function highlightFeature(idx){
+      featureItemsRoot.querySelectorAll('.item').forEach((it,i)=> it.style.background = i===idx ? (document.documentElement.classList.contains('theme-light') ? 'rgba(227,19,55,0.06)' : 'rgba(227,19,55,0.04)') : 'transparent');
+    }
+    function showFeaturedIndex(idx, openModal){
+      if (!featured.length) return;
+      currentFeature = idx;
+      const fp = featured[idx];
+      featureMedia.style.backgroundImage = `url("${fp.image}")`;
+      featureTitle.textContent = fp.post.title || 'Untitled';
+      highlightFeature(idx);
+      if (openModal) openArticleModal(fp.post);
+    }
+    featureReadBtn.addEventListener('click', ()=> showFeaturedIndex(currentFeature, true));
+
+    /**********************
+     VIDEO CAROUSEL (new)
+     - builds cards inside #carousel-track
+     - uses transform to move track
+     - autoplay with pause on hover/focus
+    **********************/
+    const carouselTrack = document.getElementById('carousel-track');
+    const prevBtn = document.getElementById('prevVideo');
+    const nextBtn = document.getElementById('nextVideo');
+    let carouselCards = [];
+    let carouselIndex = 0;
+    let carouselTimer = null;
+    let carouselPaused = false;
+
+    function youtubeIdFromUrl(url){
+      if (!url) return null;
+      const m = url.match(/[?&]v=([^&]+)/);
+      if (m) return m[1];
+      const short = url.match(/youtu\.be\/([^\?&]+)/);
+      if (short) return short[1];
+      const embed = url.match(/\/embed\/([^\?&]+)/);
+      if (embed) return embed[1];
+      return null;
+    }
+
+    async function loadVideosFromSheet(){
+      try {
+        const res = await fetch(SHEET_CSV);
+        if (!res.ok) throw new Error('sheet fetch failed');
+        const csv = await res.text();
+        const lines = csv.split(/\r?\n/).filter(Boolean);
+        const vids = [];
+        for (let i=1;i<lines.length && vids.length < 10;i++){
+          const cols = splitCsvLine(lines[i]);
+          if (cols[3]) vids.push(cols[3].trim()); // column D index 3
+        }
+        return vids;
+      } catch(e){
+        console.warn('loadVideosFromSheet error', e);
+        return [];
+      }
+    }
+
+    function createVideoCard(videoUrl){
+      const vidId = youtubeIdFromUrl(videoUrl);
+      const thumb = vidId ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg` : 'https://picsum.photos/640/360?random=' + Math.floor(Math.random()*1000);
+      const card = el('div',{class:'video-card', tabindex:0});
+      const img = el('img',{class:'video-thumb', src: thumb, alt: 'Video thumbnail', loading:'lazy'});
+      const play = el('div',{class:'video-play', role:'button', title:'Play video', tabindex:0});
+      play.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      const meta = el('div',{class:'video-meta'});
+      meta.appendChild(el('div',{class:'video-title'},[videoUrl]));
+      card.appendChild(img);
+      card.appendChild(play);
+      card.appendChild(meta);
+
+      function playVideo(){
+        if (!vidId) return window.open(videoUrl, '_blank');
+        const iframe = el('iframe',{width:'100%','height':'230', src:`https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0&modestbranding=1`, frameborder:0, allow:'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share', allowfullscreen:'true'});
+        img.replaceWith(iframe);
+        play.style.display = 'none';
+      }
+      play.addEventListener('click', playVideo);
+      play.addEventListener('keypress', function(e){ if (e.key === 'Enter') playVideo(); });
+      return card;
+    }
+
+    function renderCarouselCards(urls){
+      carouselTrack.innerHTML = '';
+      carouselCards = urls.map(u => createVideoCard(u));
+      carouselCards.forEach(c => carouselTrack.appendChild(c));
+      carouselIndex = 0;
+      updateCarouselTransform();
+      startCarouselAuto();
+    }
+
+    function calcCardWidth(){
+      const el = carouselCards[0];
+      if (!el) return 0;
+      const style = getComputedStyle(el);
+      const w = el.getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(carouselTrack).gap || 12);
+      return Math.round(w + gap);
+    }
+
+    function updateCarouselTransform(){
+      const width = calcCardWidth();
+      const x = -carouselIndex * width;
+      carouselTrack.style.transform = `translateX(${x}px)`;
+    }
+
+    function startCarouselAuto(){
+      stopCarouselAuto();
+      carouselTimer = setInterval(()=> {
+        if (carouselPaused) return;
+        if (!carouselCards.length) return;
+        carouselIndex = (carouselIndex + 1) % carouselCards.length;
+        updateCarouselTransform();
+      }, Number(getComputedStyle(document.documentElement).getPropertyValue('--carousel-interval')) || 4500);
+    }
+
+    function stopCarouselAuto(){ if (carouselTimer) clearInterval(carouselTimer); carouselTimer = null; }
+
+    // events
+    prevBtn.addEventListener('click', ()=> {
+      if (!carouselCards.length) return;
+      carouselIndex = (carouselIndex - 1 + carouselCards.length) % carouselCards.length;
+      updateCarouselTransform();
+    });
+    nextBtn.addEventListener('click', ()=> {
+      if (!carouselCards.length) return;
+      carouselIndex = (carouselIndex + 1) % carouselCards.length;
+      updateCarouselTransform();
+    });
+
+    // pause on hover/focus
+    const videoStrip = document.getElementById('video-strip');
+    videoStrip.addEventListener('mouseenter', ()=> carouselPaused = true);
+    videoStrip.addEventListener('mouseleave', ()=> carouselPaused = false);
+    carouselTrack.addEventListener('focusin', ()=> carouselPaused = true);
+    carouselTrack.addEventListener('focusout', ()=> carouselPaused = false);
+
+    /**********************
+     POSTS GRID (9 per page with show more)
+    **********************/
+    const gridRoot = document.getElementById('cards-grid');
+    const toggleBtn = document.getElementById('toggleMore');
+    let allPosts = [];
+    let showingAll = false;
+
+    async function loadFollowedPosts(){
+      gridRoot.innerHTML = '<div class="muted">Loading posts...</div>';
+      try {
+        const posts = await hiveRpc('condenser_api.get_discussions_by_blog', [{ tag: FOLLOW_ACCOUNT, limit: POSTS_LIMIT }]);
+        allPosts = posts || [];
+        renderPosts();
+      } catch(e){
+        console.error('loadFollowedPosts', e);
+        gridRoot.innerHTML = '<div class="muted card">Error loading posts.</div>';
+      }
+    }
+
+    function renderPosts(){
+      gridRoot.innerHTML = '';
+      const toShow = showingAll ? allPosts : allPosts.slice(0,9);
+      if (!toShow.length) { gridRoot.appendChild(el('div',{class:'muted card'},['No posts found.'])); return; }
+      toShow.forEach(p => {
+        const card = el('article',{class:'micro-card card', tabindex:0});
+        const thumbUrl = extractImg(p) || ('https://picsum.photos/800/500?random=' + Math.floor(Math.random()*1000));
+        const img = el('img',{class:'thumb', src: thumbUrl, alt: p.title || '', loading:'lazy'});
+        const body = el('div',{class:'card-body'});
+        body.appendChild(el('div',{class:'micro-title'},[p.title || 'Untitled']));
+        body.appendChild(el('div',{class:'micro-meta muted'},[p.author + ' · ' + new Date(p.created).toLocaleDateString()]));
+        const actions = el('div',{class:'micro-actions'});
+        const readBtn = el('button',{class:'btn-red', type:'button'},['Read']);
+        const openLink = el('a',{class:'nav-link', href:`https://peakd.com/@${p.author}/${p.permlink}`, target:'_blank', rel:'noopener'},['Open']);
+        actions.appendChild(readBtn); actions.appendChild(openLink);
+        body.appendChild(actions);
+        card.appendChild(img); card.appendChild(body);
+
+        card.addEventListener('click', function(e){
+          const anchor = e.target.closest('a');
+          if (anchor) return;
+          openArticleModal(p);
+        });
+        card.addEventListener('keypress', function(e){ if (e.key === 'Enter') openArticleModal(p); });
+        readBtn.addEventListener('click', function(e){ e.stopPropagation(); openArticleModal(p); });
+
+        gridRoot.appendChild(card);
+      });
+
+      toggleBtn.style.display = allPosts.length > 9 ? 'inline-block' : 'none';
+      toggleBtn.textContent = showingAll ? 'Show less' : 'Show more';
+    }
+
+    toggleBtn.addEventListener('click', function(){
+      showingAll = !showingAll;
+      renderPosts();
+      if (showingAll) setTimeout(()=> window.scrollTo({ top: gridRoot.offsetTop - 80, behavior:'smooth' }), 200);
+    });
+
+    /**********************
+     ARTICLE MODAL (improved: scroll to TOP; remove Tip button; Close works)
+    **********************/
+    const modalRoot = document.getElementById('modal-root');
+    function openArticleModal(post){
+      const raw = post.body || '';
+      const html = formatAndSanitizeBody(raw);
+      const backdrop = el('div',{class:'modal-back'});
+      const modal = el('div',{class:'modal card', role:'dialog', 'aria-label': post.title || 'Article'});
+      modal.appendChild(el('div',{class:'kicker'},[`@${post.author}`]));
+      modal.appendChild(el('div',{class:'article-title'},[post.title || 'Untitled']));
+      modal.appendChild(el('div',{class:'meta muted'},[new Date(post.created).toLocaleString()]));
+      const contentWrap = el('div',{class:'article-content', html: html});
+      modal.appendChild(contentWrap);
+
+      // actions: only Open on Hive and Close (removed Tip button)
+      const actions = el('div',{style:'margin-top:18px;display:flex;gap:8px;align-items:center'});
+      const openHive = el('a',{class:'nav-link', href:`https://peakd.com/@${post.author}/${post.permlink}`, target:'_blank', rel:'noopener'},['Open on Hive']);
+      const closeBtn = el('button',{class:'close-btn', type:'button'},['Close']);
+      actions.appendChild(openHive); actions.appendChild(closeBtn);
+      modal.appendChild(actions);
+
+      backdrop.appendChild(modal);
+      modalRoot.innerHTML = '';
+      modalRoot.appendChild(backdrop);
+
+      // ensure reader sees the article from the top
+      // set scroll positions and focus. Also handle images that load later.
+      try {
+        // force top
+        backdrop.scrollTop = 0;
+        modal.scrollTop = 0;
+        contentWrap.scrollTop = 0;
+        modal.focus();
+        // ensure visible
+        modal.scrollIntoView({ behavior: 'auto', block: 'start' });
+        // when images load, keep at top
+        const imgs = contentWrap.querySelectorAll('img');
+        imgs.forEach(img => {
+          if (!img.complete) {
+            img.addEventListener('load', function(){ try { modal.scrollTop = 0; contentWrap.scrollTop = 0; } catch(e){} });
+          }
+        });
+      } catch(e){ /* ignore */ }
+
+      backdrop.addEventListener('click', (e)=> { if (e.target === backdrop) closeModal(); });
+      document.addEventListener('keydown', onEsc);
+      closeBtn.focus();
+      closeBtn.addEventListener('click', function(){ closeModal(); });
+
+      markReadLocal(post);
+    }
+    function closeModal(){ modalRoot.innerHTML = ''; document.removeEventListener('keydown', onEsc); }
+    function onEsc(e){ if (e.key === 'Escape') closeModal(); }
+
+    function markReadLocal(post){
+      const key = `${post.author}/${post.permlink}`;
+      let h = JSON.parse(localStorage.getItem('vp_history_v2') || '[]');
+      h = h.filter(x=> x !== key); h.push(key);
+      if (h.length > 100) h.shift();
+      localStorage.setItem('vp_history_v2', JSON.stringify(h));
+    }
+
+    /**********************
+     TICKER (Coingecko) — uses hive & hive-dollars (HBD) ids
+    **********************/
+    async function updateTicker(){
+      try {
+        // Using CoinGecko API; hive-dollars is HBD.
+        const url = 'https://api.coingecko.com/api/v3/simple/price?ids=hive,hive-dollars,bitcoin,ethereum&vs_currencies=usd';
+        const r = await fetch(url);
+        const j = await r.json();
+        const hive = j['hive']?.usd, hive_dollar = j['hive_dollar']?.usd, btc = j['bitcoin']?.usd, eth = j['ethereum']?.usd;
+        document.getElementById('price-hive').textContent = hive !== undefined ? `$${Number(hive).toLocaleString(undefined,{minimumFractionDigits:3,maximumFractionDigits:3})}` : '$—';
+        document.getElementById('price-hbd').textContent = hive_dollar !== undefined ? `$${Number(hbd).toLocaleString(undefined,{minimumFractionDigits:3,maximumFractionDigits:3})}` : '$—';
+        document.getElementById('price-btc').textContent = btc !== undefined ? `$${Number(btc).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : '$—';
+        document.getElementById('price-eth').textContent = eth !== undefined ? `$${Number(eth).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` : '$—';
+      } catch(e){ console.warn('ticker error', e); }
+    }
+
+    /**********************
+     THEME & MOBILE NAV
+    **********************/
+    (function initThemeAndNav(){
+      const root = document.documentElement;
+      const saved = localStorage.getItem('vp_theme') || 'light';
+      root.classList.remove('theme-light','theme-dark');
+      root.classList.add(saved === 'light' ? 'theme-light' : 'theme-dark');
+      const labelEl = document.getElementById('themeLabel');
+      const sun = document.getElementById('sun'), moon = document.getElementById('moon');
+      function apply(t){ if (t === 'light'){ sun.style.display='inline'; moon.style.display='none'; labelEl.textContent='Light'; document.getElementById('themeToggle').setAttribute('aria-checked','true'); } else { sun.style.display='none'; moon.style.display='inline'; labelEl.textContent='Dark'; document.getElementById('themeToggle').setAttribute('aria-checked','false'); } }
+      apply(saved);
+      document.getElementById('themeToggle').addEventListener('click', ()=>{
+        const cur = document.documentElement.classList.contains('theme-light') ? 'light' : 'dark';
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.classList.remove('theme-light','theme-dark');
+        document.documentElement.classList.add(next === 'light' ? 'theme-light' : 'theme-dark');
+        localStorage.setItem('vp_theme', next);
+        apply(next);
+      });
+
+      const hamburger = document.getElementById('hamburger');
+      const mobileNav = document.getElementById('mobileNav');
+      const closeMobile = document.getElementById('closeMobile');
+      hamburger.addEventListener('click', ()=> { mobileNav.style.display='flex'; mobileNav.setAttribute('aria-hidden','false'); });
+      closeMobile.addEventListener('click', ()=> { mobileNav.style.display='none'; mobileNav.setAttribute('aria-hidden','true'); });
+      mobileNav.addEventListener('click', (e)=> { if (e.target === mobileNav) { mobileNav.style.display='none'; } });
+    })();
+
+    /**********************
+     BOOT sequence
+    **********************/
+    (async function boot(){
+      updateTicker(); setInterval(updateTicker, 15000);
+      await buildFeatured();
+
+      // load videos from sheet then build carousel
+      const videoUrls = await loadVideosFromSheet();
+      const fallback = ['https://www.youtube.com/watch?v=e-M7CiCl30k','https://www.youtube.com/watch?v=y2rStZmhzOI','https://www.youtube.com/watch?v=7OSsRB1DYyA&t=49s'];
+      const vids = (videoUrls.length > 0 ? videoUrls : fallback).slice(0,10);
+      renderCarouselCards(vids);
+
+      // ensure arrows color uses current text color
+      document.querySelectorAll('.video-strip .arrow svg path').forEach(p => p.style.fill = 'currentColor');
+
+      // load posts
+      await loadFollowedPosts();
+
+      // responsive: recalc carousel transform on resize
+      window.addEventListener('resize', ()=> { setTimeout(updateCarouselTransform, 120); });
+
+    })();
+
+    // Expose small API
+    window.ValuePlan = {
+      setFollow: async function(account){
+        if (!account) return;
+        FOLLOW_ACCOUNT = account;
+        document.getElementById('follow-account').textContent = account;
+        await buildFeatured();
+        await loadFollowedPosts();
+      },
+      refresh: async function(){ await buildFeatured(); await loadFollowedPosts(); updateTicker(); }
+    };
+
+    // cleanup on unload
+    window.addEventListener('beforeunload', function(){ try { stopCarouselAuto(); } catch(e){} });
+
+    // helper to stop carousel interval on unload
+    function stopCarouselAuto(){ if (carouselTimer) clearInterval(carouselTimer); carouselTimer = null; }
+  })();
+  </script>
+</body>
+</html>
