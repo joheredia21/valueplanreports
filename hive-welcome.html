@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hive · Bienvenido a la Blockchain del Futuro</title>
+  <meta name="description" content="Hive — Bienvenido a la Blockchain del Futuro. Onboarding guiado, rápido y sin comisiones. Crea tu cuenta y únete gratis a la comunidad." />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* =============================
+       VARIABLES DE DISEÑO (HIVE)
+       ============================= */
+    :root{
+      --hive-black: #212529;
+      --hive-red: #e31337;
+      --hive-red-hover: #c10c2c;
+      --text-primary: #f4f6f8;
+      --text-secondary: rgba(244,246,248,0.78);
+      --muted-2: rgba(244,246,248,0.6);
+      --bg-dark: #050607;
+      --panel: #0c0d0f;
+      --card-bg: rgba(255,255,255,0.02);
+      --shadow: 0 12px 40px rgba(0,0,0,0.6);
+      --border-radius: 14px;
+      --transition: all 0.36s cubic-bezier(.2,.9,.28,1);
+      --max-width: 1100px;
+      --container-padding: 16px;
+    }
+
+    /* Light theme overrides */
+    :root[data-theme="light"]{
+      --text-primary: #0f1720;
+      --text-secondary: rgba(33,37,41,0.85);
+      --muted-2: rgba(33,37,41,0.6);
+      --bg-dark: #f7f8fb;
+      --panel: #ffffff;
+      --card-bg: #ffffff;
+      --shadow: 0 10px 28px rgba(5,7,9,0.06);
+    }
+
+    /* Base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--bg-dark);
+      color:var(--text-primary);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    a{ color:var(--hive-red); text-decoration:none }
+    img{ display:block; max-width:100%; height:auto; border-radius:10px }
+
+    /* Container */
+    .wrap{ max-width:var(--max-width); margin:0 auto; padding:18px var(--container-padding) 80px; }
+
+    /* Header */
+    header.site-header{
+      position:sticky; top:12px; z-index:90; display:flex; justify-content:center; pointer-events:auto;
+    }
+    .nav{
+      width:100%; max-width:var(--max-width); display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      padding:10px 14px; border-radius:16px; border:1px solid rgba(255,255,255,0.02);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .brand .logo{
+      width:48px; height:48px; border-radius:12px; display:grid; place-items:center;
+      background:linear-gradient(135deg,#17181a,#0f1113);
+      box-shadow: 0 8px 26px rgba(0,0,0,0.6);
+      color:#fff; font-weight:800; font-size:18px;
+      flex: 0 0 48px;
+    }
+    .brand .title{ font-weight:800; color:var(--text-primary); font-size:16px; letter-spacing:0.2px; }
+    .brand .subtitle{ font-size:12px; color:var(--muted-2); margin-top:2px; }
+
+    .controls{ display:flex; gap:10px; align-items:center; }
+    .btn {
+      display:inline-flex; align-items:center; gap:8px; padding:12px 16px; border-radius:12px;
+      font-weight:800; cursor:pointer; border:0; transition:var(--transition);
+      background:transparent; color:var(--text-secondary);
+      font-size:15px;
+    }
+    .btn.ghost{ border:1px solid rgba(255,255,255,0.03); padding:10px 12px; }
+    .btn.primary{
+      background:var(--hive-red); color:#fff; box-shadow: 0 12px 30px rgba(227,19,55,0.12);
+      border: 1px solid rgba(0,0,0,0.05);
+      font-size:15px;
+      padding:12px 18px;
+    }
+    .btn.primary:hover{ background:var(--hive-red-hover); transform:translateY(-3px) }
+
+    /* Small primary (benefit buttons) - same style but smaller */
+    .btn.small-primary{
+      background:var(--hive-red); color:#fff; padding:10px 12px; font-size:14px; border-radius:10px; font-weight:700;
+      box-shadow: 0 8px 20px rgba(227,19,55,0.09);
+    }
+    .btn.small-primary:hover{ background:var(--hive-red-hover); transform:translateY(-2px) }
+
+    /* Transparent info group button style */
+    .btn.info-ghost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.04);
+      color:var(--text-secondary);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:700;
+      transition:var(--transition);
+    }
+    .btn.info-ghost:hover{ transform:translateY(-2px); background:rgba(255,255,255,0.02); }
+
+    /* Theme toggle */
+    .toggle { display:inline-flex; align-items:center; gap:8px; padding:6px; border-radius:999px; background:transparent; border:1px solid rgba(255,255,255,0.03); color:var(--text-secondary) }
+    .toggle svg{ opacity:0.95 }
+
+    /* HERO - Large & minimal */
+    .hero{ margin-top:18px; display:flex; flex-direction:column; gap:12px; align-items:flex-start }
+    .eyebrow{ font-weight:700; color:var(--muted-2); font-size:12px; letter-spacing:0.6px; text-transform:uppercase; }
+    .hero h1{
+      margin:0; color:var(--text-primary); font-size:32px; line-height:1.02; font-weight:900; letter-spacing:-0.6px;
+    }
+    @media(min-width:900px){ .hero h1{ font-size:48px } }
+    .hero p.lead{ margin:0; color:var(--muted-2); font-size:15px; max-width:920px; }
+    .hero .ctas{ display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
+
+    /* Minimal card */
+    .card {
+      background:var(--card-bg); border-radius:16px; padding:14px; box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,0.02);
+      transition: transform 0.36s ease, box-shadow 0.36s ease;
+    }
+
+    /* Elegant feature icons (red) */
+    .features { display:grid; gap:10px; grid-template-columns:repeat(1,1fr); }
+    @media(min-width:760px){ .features{ grid-template-columns:repeat(3,1fr) } }
+    .feature {
+      display:flex; gap:12px; align-items:flex-start; padding:10px; border-radius:12px;
+      background: transparent;
+    }
+    .feature .icon {
+      width:64px; height:64px; border-radius:12px; display:grid; place-items:center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      flex: 0 0 64px;
+    }
+    .feature svg { width:40px; height:40px; fill:var(--hive-red); }
+
+    .feature h4{ margin:0; color:var(--text-primary); font-size:16px }
+    .feature p{ margin:6px 0 0; color:var(--muted-2); font-size:14px }
+
+    /* Carousel */
+    .carousel { margin-top:18px; position:relative; overflow:hidden; border-radius:16px; }
+    .slides { display:flex; transition:transform 0.7s cubic-bezier(.2,.9,.28,1); will-change:transform; }
+    .slide { min-width:100%; padding:16px; display:flex; gap:16px; align-items:center; flex-direction:column; }
+    .slide .visual{ width:100%; min-height:160px; border-radius:12px; overflow:hidden; display:grid; place-items:center; }
+    .slide .text { width:100%; padding-top:12px; }
+    .indicators{ position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:8px; }
+
+    /* --- Improved indicator contrast for both themes --- */
+    .indicators button{
+      width:12px; height:12px; border-radius:999px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.06); cursor:pointer;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+    .indicators button.active{ background:var(--hive-red); transform:scale(1.12); box-shadow:0 6px 18px rgba(227,19,55,0.12); }
+
+    /* Light theme: make unselected dots darker so they contrast on light background */
+    :root[data-theme="light"] .indicators button{
+      background: rgba(33,37,41,0.14);
+      border: 1px solid rgba(33,37,41,0.06);
+    }
+    :root[data-theme="light"] .indicators button.active{
+      background:var(--hive-red);
+      box-shadow:0 6px 18px rgba(193,12,44,0.12);
+    }
+
+    /* Segmented buttons (red small primary) */
+    .segmented { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; justify-content:center; }
+    .segmented .seg-btn { background:var(--hive-red); color:#fff; border:0; padding:10px 12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:14px; transition:var(--transition) }
+    .segmented .seg-btn:hover{ background:var(--hive-red-hover) }
+
+    /* Panels with image below text for mobile-friendly; image to the side on desktop */
+    .panel { margin-top:12px; overflow:hidden; max-height:0; transition: max-height 0.54s cubic-bezier(.2,.9,.28,1), padding 0.36s; border-radius:12px; border:1px solid rgba(255,255,255,0.02); background:var(--panel); }
+    .panel-inner { padding:0 16px; display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+    .panel.open { max-height:1000px; padding:16px; }
+    .panel .panel-copy { color:var(--muted-2) }
+    .panel .panel-image { width:100%; border-radius:12px; overflow:hidden; }
+
+    @media(min-width:980px){
+      .slide { flex-direction:row; }
+      .slide .visual { width:44%; }
+      .slide .text { width:56%; padding-left:12px; }
+      .panel-inner { flex-direction:row; }
+      .panel .panel-image { width:44%; flex:0 0 44%; }
+      .panel .panel-copy { width:56%; }
+    }
+
+    /* Community big logos */
+    .community-strip {
+      margin-top:26px; display:flex; flex-direction:column; gap:16px; align-items:center; justify-content:center; padding:22px;
+      border-radius:16px; background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .community-logos { display:flex; gap:18px; align-items:center; justify-content:center; }
+    .community-logos a{ display:grid; place-items:center; width:120px; height:120px; border-radius:20px; background:var(--panel); border:1px solid rgba(255,255,255,0.03); box-shadow:var(--shadow); transition: var(--transition); }
+    .community-logos a svg{ width:66px; height:66px; }
+    .community-copy { color:var(--muted-2); text-align:center; max-width:720px }
+
+    /* reveal animations */
+    .reveal { transform: translateY(18px); opacity:0; transition: transform 700ms cubic-bezier(.2,.9,.28,1), opacity 700ms ease; will-change:transform,opacity; }
+    .reveal.in-view { transform: translateY(0); opacity:1; }
+
+    /* Utilities */
+    .accent { color:var(--hive-red); font-weight:900 }
+    .small { font-size:13px; color:var(--muted-2) }
+
+    /* Mobile-first tweaks */
+    @media (max-width:420px){
+      .brand .title{ font-size:14px }
+      .brand .subtitle{ font-size:11px }
+      .hero h1{ font-size:24px }
+      .btn { font-size:14px; padding:10px 12px }
+      .btn.primary { padding:10px 12px }
+      .community-logos a{ width:96px; height:96px }
+    }
+
+    /* ================================
+       BEEBOT (chat) - UI tweaks & fixes
+       ================================ */
+
+    /* Chat panel base adjustments (override to enforce solid background) */
+    #beebot-panel {
+      background: var(--panel) !important;
+      border: 1px solid rgba(255,255,255,0.03) !important;
+      backdrop-filter: none !important;
+    }
+    #beebot-messages { background: transparent !important; }
+
+    /* Option chips / buttons styling */
+    #beebot-options .option-chip {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-primary);
+      font-weight:700;
+      cursor:pointer;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+    #beebot-options .option-chip:hover {
+      background: var(--hive-red);
+      color: #fff;
+      transform: translateY(-4px);
+    }
+    :root[data-theme="light"] #beebot-options .option-chip {
+      background: rgba(0,0,0,0.04);
+      color: var(--text-primary);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    :root[data-theme="light"] #beebot-options .option-chip:hover {
+      background: var(--hive-red);
+      color: #fff;
+    }
+
+    #beebot-input {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-primary);
+    }
+    :root[data-theme="light"] #beebot-input {
+      background: rgba(0,0,0,0.03);
+      color: var(--text-primary);
+    }
+
+    /* Floating button adjustments */
+    #beebot-toggle {
+      width:56px;
+      height:56px;
+      right:16px;
+      bottom:18px;
+      box-shadow: 0 14px 34px rgba(227,19,55,0.14);
+      transition: transform 180ms ease;
+    }
+    #beebot-toggle:hover { transform: translateY(-3px) scale(1.02); }
+    #beebot-toggle svg { width:28px; height:28px; }
+
+    /* Message bubbles style */
+    #beebot-messages .msg.agent { background: rgba(255,255,255,0.02); color: var(--text-primary); border-radius:12px; padding:10px 12px; }
+    #beebot-messages .msg.user { background: var(--hive-red); color: #fff; border-radius:12px; padding:10px 12px; align-self:flex-end; }
+
+  </style>
+</head>
+<body data-theme="dark">
+  <!--
+    DESARROLLO:
+    - Reemplaza WHATSAPP_INVITE y TELEGRAM_INVITE en el script final por tus URLs de invitación reales.
+    - Las imágenes de referencia están en Unsplash y se marcan con REPLACE IMAGE en la parte donde aparecen.
+    - El botón "Solicitar una Cuenta Gratuita" (id="request-free-account") enlaza al invite de WhatsApp por defecto (configurable).
+    - El botón "Unirme a un grupo para más Información" (id="join-info-group") abre el modal de ayuda.
+  -->
+
+  <header class="site-header">
+    <div class="nav wrap" role="navigation" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">H</div>
+        <div>
+          <div class="title">Hive</div>
+          <div class="subtitle small">Onboarding · Comunidad</div>
+        </div>
+      </div>
+
+      <div class="controls" role="toolbar" aria-label="Controles">
+        <button id="theme-toggle" class="toggle" title="Cambiar modo" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="#fff" opacity="0.95"/></svg>
+          <span class="small">Modo</span>
+        </button>
+
+        <!-- This remains the top-nav Create Account link -->
+        <a class="btn primary" href="https://signup.hive.io" target="_blank" rel="noopener noreferrer">Crear cuenta</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+    <!-- HERO -->
+    <section class="hero reveal" aria-labelledby="hero-title">
+      <div class="eyebrow">Onboarding guiado</div>
+      <h1 id="hero-title">Bienvenido a la <span style="color:var(--hive-red); font-weight:900">Blockchain</span> del Futuro</h1>
+      <p class="lead">Publica, conecta y <span class="accent">gana recompensas</span>. Hive es rápida, social y gobernada por su comunidad. La ayuda para crear tu cuenta es <strong>gratuita</strong>.</p>
+      <div class="ctas">
+        <a id="request-free-account" class="btn primary" href="#" rel="noopener">Solicitar una Cuenta Gratuita</a>
+        <button id="join-info-group" class="btn info-ghost" type="button">Unirme a un grupo para más Información</button>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="reveal" aria-labelledby="features-title" style="margin-top:18px">
+      <div class="card">
+        <div class="features">
+          <div class="feature">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2a9 9 0 100 18 9 9 0 000-18zm1 13h-2v-1h2v1zm1.07-7.75c-.2.34-.7.6-1.57.77-1.07.2-1.47.46-1.47 1.02 0 .59.5.95 1.7 1.22 1.9.4 2.64 1.15 2.64 2.7 0 1.62-1.34 2.9-4.2 3.1v1H9v-1c-1.9-.1-3.4-1-3.4-2.9 0-1.8 1.33-2.6 4.4-2.9 1.1-.14 1.7-.43 1.7-.96 0-.5-.5-.9-1.65-1.2-1.8-.44-2.7-1.18-2.7-2.6 0-1.5 1.2-2.64 3.9-2.79V6h2v1.25c1.6.15 2.3.9 2.3 1.99 0 1.03-.6 1.74-1.73 2.01z" fill="var(--hive-red)"/></svg>
+            </div>
+            <div>
+              <h4>Incentivos por Contenido</h4>
+              <p>Publica contenido original y de calidad, participa y gana HIVE y HBD.</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill="var(--hive-red)"/></svg>
+            </div>
+            <div>
+              <h4>Transacciones ultrarrápidas</h4>
+              <p>Confirmaciones casi instantáneas (bloques ~3s) y sin tarifas por transacción.</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 12l5 5 14-14-3-3-11 11L2 12z" fill="var(--hive-red)"/></svg>
+            </div>
+            <div>
+              <h4>Comunidad que decide</h4>
+              <p>Hive se gobierna entre sus usuarios: participa y ayuda a construir funciones y normas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAROUSEL -->
+    <section class="carousel reveal" aria-roledescription="carousel" aria-label="Galería highlight" style="margin-top:18px">
+      <div class="slides" id="slides">
+        <div class="slide" data-key="creators">
+          <div class="visual" role="img" aria-label="Creadores y monetización">
+            <!-- REPLACE IMAGE: Carousel image for Creators -->
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" alt="Creadores en Hive - Monetiza tu contenido">
+          </div>
+          <div class="text">
+            <h3 style="margin:0;color:var(--text-primary)">Monetiza tu trabajo creativo</h3>
+            <p class="small" style="margin-top:8px;color:var(--muted-2)">Convierte tu contenido en ingresos reales: artículos, fotos y videos reciben recompensas por calidad y participación. Hive premia contenido original y la comunidad que lo apoya.</p>
+            <ul class="small" style="margin-top:8px;color:var(--muted-2)">
+              <li>Pagos directos en HIVE/HBD.</li>
+              <li>Visibilidad por comunidades y etiquetas.</li>
+              <li>Herramientas para medir engagement y crecimiento.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide" data-key="gaming">
+          <div class="visual" role="img" aria-label="Juegos y economía">
+            <!-- REPLACE IMAGE: Carousel image for Gaming -->
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=80" alt="Juegos y apps en Hive">
+          </div>
+          <div class="text">
+            <h3 style="margin:0;color:var(--text-primary)">Juega, gana y negocia activos</h3>
+            <p class="small" style="margin-top:8px;color:var(--muted-2)">Ecosistema con juegos y marketplaces integrados: adquiere, intercambia y monetiza activos dentro del juego sin comisiones que frenen tu experiencia.</p>
+            <ul class="small" style="margin-top:8px;color:var(--muted-2)">
+              <li>Microtransacciones rápidas y baratas.</li>
+              <li>Mercado para NFTs y objetos del juego.</li>
+              <li>Economías sostenibles construidas por desarrolladores y jugadores.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide" data-key="finance">
+          <div class="visual" role="img" aria-label="Finanzas y stablecoin">
+            <!-- REPLACE IMAGE: Carousel image for Finance -->
+            <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1200&q=80" alt="Finanzas y HBD">
+          </div>
+          <div class="text">
+            <h3 style="margin:0;color:var(--text-primary)">Ahorra e invierte con HBD</h3>
+            <p class="small" style="margin-top:8px;color:var(--muted-2)">HBD es la stablecoin integrada de Hive: usos de ahorro, pagos y oportunidades de retorno. Ideal para usuarios que buscan estabilidad en su ecosistema cripto.</p>
+            <ul class="small" style="margin-top:8px;color:var(--muted-2)">
+              <li>Instrumentos de ahorro con rendimiento.</li>
+              <li>Transacciones rápidas para gestión activa.</li>
+              <li>Participación en proyectos con economía real.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indicators: dots -->
+      <div class="indicators" id="indicators" role="tablist" aria-label="Controles del carrusel">
+        <button aria-label="Slide 1" data-slide="0" class="active" title="Creadores"></button>
+        <button aria-label="Slide 2" data-slide="1" title="Jugadores"></button>
+        <button aria-label="Slide 3" data-slide="2" title="Finanzas"></button>
+      </div>
+    </section>
+
+    <!-- SEGMENTED BENEFITS -->
+    <section class="reveal" aria-labelledby="benefits-title" style="margin-top:18px">
+      <div class="card">
+        <h3 id="benefits-title" style="margin:0 0 8px;color:var(--text-primary)">Beneficios según tu perfil</h3>
+        <p class="small" style="margin:0 0 12px;color:var(--muted-2)">Selecciona una categoría para ver cómo Hive potencia tus metas: monetización, inversión, juego o desarrollo.</p>
+
+        <div class="segmented" role="tablist" aria-label="Beneficios por perfil">
+          <button class="seg-btn" data-target="creadores" aria-controls="creadores" aria-expanded="false">Creadores de Contenido</button>
+          <button class="seg-btn" data-target="inversores" aria-controls="inversores" aria-expanded="false">Inversores</button>
+          <button class="seg-btn" data-target="jugadores" aria-controls="jugadores" aria-expanded="false">Jugadores</button>
+          <button class="seg-btn" data-target="devs" aria-controls="devs" aria-expanded="false">Desarrolladores</button>
+        </div>
+
+        <!-- Panels -->
+        <div id="creadores" class="panel" role="region" aria-hidden="true">
+          <div class="panel-inner">
+            <div class="panel-copy">
+              <h4 style="margin:0 0 8px;color:var(--text-primary)">Creadores de Contenido — Gana por crear</h4>
+              <p class="small">En Hive <strong>tu voz tiene valor</strong>. Publica contenido original y de alta calidad: tu trabajo es recompensado en HIVE y HBD según la interacción y la valoración de la comunidad.</p>
+              <p class="small" style="margin-top:8px;color:var(--muted-2)">
+                Beneficios clave:
+              </p>
+              <ul class="small" style="margin-top:6px;color:var(--muted-2)">
+                <li>Monetización nativa desde el primer post.</li>
+                <li>Mayor visibilidad al participar en comunidades y curación.</li>
+                <li>Soporte gratuito para crear tu primer artículo o publicación multimedia.</li>
+              </ul>
+            </div>
+
+            <div class="panel-image">
+              <!-- REPLACE IMAGE: Creadores reference image -->
+              <img src="https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1200&q=80" alt="Creadores - Monetiza">
+            </div>
+          </div>
+        </div>
+
+        <div id="inversores" class="panel" role="region" aria-hidden="true">
+          <div class="panel-inner">
+            <div class="panel-copy">
+              <h4 style="margin:0 0 8px;color:var(--text-primary)">Inversores — Herramientas y estabilidad</h4>
+              <p class="small">HBD te ofrece una vía para conservar valor con menor volatilidad y opciones de ahorro. Hive facilita la participación en proyectos con economías reales y comunidad activa.</p>
+              <p class="small" style="margin-top:8px;color:var(--muted-2)">Ventajas:</p>
+              <ul class="small" style="margin-top:6px;color:var(--muted-2)">
+                <li>Instrumentos de ahorro con HBD.</li>
+                <li>Transacciones instantáneas y sin gas para mover activos con rapidez.</li>
+                <li>Acceso a proyectos tokenizados y oportunidades de crecimiento.</li>
+              </ul>
+            </div>
+
+            <div class="panel-image">
+              <!-- REPLACE IMAGE: Inversores reference image -->
+              <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1200&q=80" alt="Inversores - Oportunidades">
+            </div>
+          </div>
+        </div>
+
+        <div id="jugadores" class="panel" role="region" aria-hidden="true">
+          <div class="panel-inner">
+            <div class="panel-copy">
+              <h4 style="margin:0 0 8px;color:var(--text-primary)">Jugadores — Play-to-earn y marketplaces</h4>
+              <p class="small">Participa en juegos integrados con economía real, intercambia activos y gana recompensas por tu habilidad y participación.</p>
+              <p class="small" style="margin-top:8px;color:var(--muted-2)">Lo que te interesa:</p>
+              <ul class="small" style="margin-top:6px;color:var(--muted-2)">
+                <li>Microtransacciones sin comisiones que mejoran UX.</li>
+                <li>Mercados para comprar/vender activos de juego.</li>
+                <li>Comunidad activa de jugadores y creadores de contenido gaming.</li>
+              </ul>
+            </div>
+
+            <div class="panel-image">
+              <!-- REPLACE IMAGE: Jugadores reference image -->
+              <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80" alt="Jugadores - Play to earn">
+            </div>
+          </div>
+        </div>
+
+        <div id="devs" class="panel" role="region" aria-hidden="true">
+          <div class="panel-inner">
+            <div class="panel-copy">
+              <h4 style="margin:0 0 8px;color:var(--text-primary)">Desarrolladores — Construye en Hive</h4>
+              <p class="small">APIs, SDKs y una comunidad dispuesta a probar tus dApps. Hive es ideal para construir aplicaciones sociales y de contenido con economías propias.</p>
+              <p class="small" style="margin-top:8px;color:var(--muted-2)">Por qué desarrollar aquí:</p>
+              <ul class="small" style="margin-top:6px;color:var(--muted-2)">
+                <li>APIs públicas y documentación para integrar funciones rápidas.</li>
+                <li>Usuarios reales y dApps maduras para integración.</li>
+                <li>Modelos de monetización comunitaria y soporte técnico.</li>
+              </ul>
+            </div>
+
+            <div class="panel-image">
+              <!-- REPLACE IMAGE: Developers reference image -->
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" alt="Desarrolladores - APIs">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- COMMUNITY big center with big icons and persuasive copy -->
+    <section class="community-strip reveal" aria-labelledby="community-title" style="margin-top:20px">
+      <strong id="community-title" style="font-size:18px;color:var(--text-primary)">Únete a nuestros grupos de soporte — ayuda en vivo y gratuita</strong>
+      <p class="community-copy small">La creación de cuentas y las guías que ofrecemos son completamente <strong>gratuitas</strong>. Si alguien solicita pago por este servicio, repórtalo. Queremos facilitar tu acceso sin costos ocultos.</p>
+
+      <div class="community-logos" role="group" aria-label="Enlaces a Whatsapp y Telegram">
+        <a id="whatsapp-join" href="#" title="Unirse por WhatsApp" aria-label="Unirse por WhatsApp">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#25D366"/><path d="M17.4 6.6L8 14.8l-.9 3.1 3.1-.9L17.4 7.6z" fill="#fff" opacity="0.95"/></svg>
+        </a>
+
+        <a id="telegram-join" href="#" title="Unirse por Telegram" aria-label="Unirse por Telegram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2AABEE"/><path d="M20 4L6.8 12.2c-.5.3-.5.9-.2 1.3.2.3.6.4.9.3l2.7-.9 1.1 3.4c.1.3.4.5.7.5.2 0 .4 0 .6-.1L20 5.4c.3-.6-.2-1.3-.7-.9z" fill="#fff"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Beebot info (small card) -->
+    <section id="beebot-info" class="reveal" style="margin-top:20px">
+      <div class="card" style="display:flex; gap:14px; align-items:center;">
+        <div style="flex:0 0 72px; width:72px; height:72px; border-radius:14px; display:grid; place-items:center; background: linear-gradient(180deg, rgba(227,19,55,0.08), rgba(227,19,55,0.04));">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#fff"/>
+            <text x="12" y="15" font-size="10" text-anchor="middle" fill="#e31337" font-weight="800">B</text>
+          </svg>
+        </div>
+        <div style="flex:1">
+          <h4 style="margin:0 0 6px;color:var(--text-primary)">Beebot — Asistente para nuevos usuarios</h4>
+          <p class="small" style="margin:0;color:var(--muted-2)">
+            Beebot es un chat interactivo que te guía paso a paso para crear tu cuenta, entender cómo ganar en Hive, reglas de la comunidad y tips para crecer. 
+            Pulsa el botón naranja que verás en la esquina inferior para abrirlo — es gratuito y está optimizado para móviles.
+          </p>
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button id="beebot-info-open" class="btn small-primary">Abrir Beebot</button>
+            <button id="beebot-info-join" class="btn info-ghost">Unirme al grupo</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top:26px; text-align:center; color:var(--muted-2);">
+      <div>© <span id="year"></span> Hive Community · <a href="https://hive.io" target="_blank" rel="noopener" style="color:var(--muted-2)">hive.io</a></div>
+    </footer>
+  </main>
+
+  <!-- HELP modal hidden -->
+  <div id="help-modal" aria-hidden="true" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:200; align-items:center; justify-content:center; padding:20px;">
+    <div style="width:100%; max-width:720px; background:var(--panel); border-radius:16px; padding:20px; box-shadow:var(--shadow);">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:var(--text-primary)">Acompañamiento gratuito para crear tu cuenta</strong>
+        <button id="close-help-modal" style="background:transparent;border:0;color:var(--muted-2);font-weight:700;cursor:pointer">Cerrar</button>
+      </div>
+      <p class="small" style="margin-top:12px;color:var(--muted-2)">Entra a uno de nuestros grupos y recibe soporte paso a paso: elección de nombre, seguridad y publicación de tu primer contenido. Todo <strong>sin costo</strong>.</p>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <a id="modal-whatsapp" class="btn primary" href="#" target="_blank" rel="noopener">Unirme por WhatsApp</a>
+        <a id="modal-telegram" class="btn ghost" href="#" target="_blank" rel="noopener">Unirme por Telegram</a>
+        <a class="btn" href="https://signup.hive.io" target="_blank" rel="noopener">Crear cuenta ahora</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================
+       SCRIPT PRINCIPAL (único bloque, consolidado)
+       ========================================= -->
+  <script>
+  (function(){
+    /*****************************************
+     * CONFIG (edítalas con tus invites reales)
+     *****************************************/
+    // Reemplaza con tus invites reales antes de publicar:
+    const WHATSAPP_INVITE = "#"; // ejemplo: "https://chat.whatsapp.com/TU_INVITE"
+    const TELEGRAM_INVITE = "#"; // ejemplo: "https://t.me/joinchat/TU_INVITE"
+
+    /*****************************************
+     * Carousel logic (dots + click + autoplay)
+     *****************************************/
+    const slidesEl = document.getElementById('slides');
+    const indicators = document.getElementById('indicators').children;
+    let currentSlide = 0;
+    let autoplay = true;
+    const totalSlides = slidesEl.children.length;
+
+    function goToSlide(i){
+      currentSlide = (i + totalSlides) % totalSlides;
+      slidesEl.style.transform = `translateX(-${currentSlide * 100}%)`;
+      for(let b of indicators) b.classList.remove('active');
+      indicators[currentSlide].classList.add('active');
+    }
+    let slideInterval = setInterval(()=>{ if(autoplay) goToSlide(currentSlide+1); }, 4800);
+
+    const carousel = document.querySelector('.carousel');
+    carousel.addEventListener('mouseenter', ()=> autoplay = false);
+    carousel.addEventListener('mouseleave', ()=> autoplay = true);
+
+    for(let i=0;i<indicators.length;i++){
+      indicators[i].addEventListener('click', ()=> { goToSlide(i); });
+    }
+    goToSlide(0);
+
+    /*****************************************
+     * Reveal on scroll (slide up)
+     *****************************************/
+    const revealEls = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting) entry.target.classList.add('in-view');
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => { obs.observe(el); });
+
+    /*****************************************
+     * Panels expand/collapse (mobile-first)
+     *****************************************/
+    const segButtons = document.querySelectorAll('.seg-btn');
+    segButtons.forEach(btn => {
+      btn.addEventListener('click', ()=>{
+        const target = btn.dataset.target;
+        const panel = document.getElementById(target);
+        const isOpen = panel.classList.contains('open');
+        // close all panels
+        document.querySelectorAll('.panel').forEach(p=> p.classList.remove('open'));
+        document.querySelectorAll('.seg-btn').forEach(b=> b.setAttribute('aria-expanded','false'));
+        if(!isOpen){
+          panel.classList.add('open');
+          panel.setAttribute('aria-hidden','false');
+          btn.setAttribute('aria-expanded','true');
+          setTimeout(()=> panel.scrollIntoView({behavior:'smooth', block:'center'}), 200);
+        } else {
+          panel.classList.remove('open');
+          panel.setAttribute('aria-hidden','true');
+          btn.setAttribute('aria-expanded','false');
+        }
+      });
+    });
+
+    /*****************************************
+     * Theme toggle (dark default)
+     *****************************************/
+    const root = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const storedTheme = localStorage.getItem('hive_theme');
+    if(storedTheme) root.setAttribute('data-theme', storedTheme);
+    else root.setAttribute('data-theme','dark');
+
+    function toggleTheme(){
+      const current = root.getAttribute('data-theme');
+      const next = (current === 'dark') ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('hive_theme', next);
+      themeToggle.setAttribute('aria-pressed', next === 'dark' ? 'false' : 'true');
+    }
+    themeToggle.addEventListener('click', toggleTheme);
+
+    /*****************************************
+     * Help modal + community links + request button
+     *****************************************/
+    const helpModal = document.getElementById('help-modal');
+    const openHelpButtons = [document.getElementById('join-info-group')];
+    openHelpButtons.forEach(b => { if(b) b.addEventListener('click', ()=> { helpModal.style.display = 'flex'; helpModal.setAttribute('aria-hidden','false'); }); });
+    const closeBtn = document.getElementById('close-help-modal');
+    closeBtn && closeBtn.addEventListener('click', ()=> { helpModal.style.display = 'none'; helpModal.setAttribute('aria-hidden','true'); });
+
+    // Assign invite links safely (replace constants above with real URLs)
+    document.getElementById('whatsapp-join').href = WHATSAPP_INVITE;
+    document.getElementById('telegram-join').href = TELEGRAM_INVITE;
+    document.getElementById('modal-whatsapp').href = WHATSAPP_INVITE;
+    document.getElementById('modal-telegram').href = TELEGRAM_INVITE;
+
+    // Request free account button -> WhatsApp invite by default
+    document.getElementById('request-free-account').href = WHATSAPP_INVITE;
+
+    // Help buttons in Beebot info card
+    const beebotInfoOpen = document.getElementById('beebot-info-open');
+    const beebotInfoJoin = document.getElementById('beebot-info-join');
+    beebotInfoOpen && beebotInfoOpen.addEventListener('click', ()=> {
+      // trigger beebot toggle later (there is a script at bottom that wires toggle)
+      const toggleBtn = document.getElementById('beebot-toggle');
+      toggleBtn && toggleBtn.click();
+    });
+    beebotInfoJoin && beebotInfoJoin.addEventListener('click', ()=> { window.open(WHATSAPP_INVITE || '#','_blank'); });
+
+    // Request modal close on backdrop or ESC
+    helpModal.addEventListener('click', (e)=> { if(e.target === helpModal){ helpModal.style.display='none'; helpModal.setAttribute('aria-hidden','true'); } });
+    window.addEventListener('keydown', (e)=> { if(e.key === 'Escape'){ helpModal.style.display='none'; helpModal.setAttribute('aria-hidden','true'); } });
+
+    /*****************************************
+     * Misc
+     *****************************************/
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+    // Accessibility: show focus outlines on Tab
+    document.addEventListener('keyup', (e)=>{ if(e.key === 'Tab') document.body.classList.add('show-focus'); });
+
+    /*****************************************
+     * EXPORT minimal config for bot lazy-loader
+     *****************************************/
+    // provide invites to bot loader via a safe property on window
+    window.__HIVE_SITE_CONFIG = {
+      WHATSAPP_INVITE: WHATSAPP_INVITE,
+      TELEGRAM_INVITE: TELEGRAM_INVITE,
+      HIVE_ECO: 'https://hive.io/eco'
+    };
+
+  })();
+  </script>
+
+  <!-- =========================================
+       NUEVO: Beebot UI (botón flotante + panel)
+       (este bloque NO redeclara variables globales)
+       ========================================= -->
+  <!-- Floating button -->
+  <button id="beebot-toggle" aria-label="Abrir Beebot" title="Beebot — Ayuda" style="position:fixed; right:16px; bottom:18px; width:56px; height:56px; border-radius:999px; background:linear-gradient(180deg,var(--hive-red),var(--hive-red-hover)); display:grid; place-items:center; box-shadow: 0 14px 34px rgba(227,19,55,0.14); z-index:999; border:3px solid rgba(0,0,0,0.12); cursor:pointer;">
+    <!-- chat bubble icon -->
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4 4h16v10H7l-3 3V4z" fill="#fff"/>
+      <circle cx="8.8" cy="9.2" r="0.9" fill="#e31337"/>
+      <circle cx="12" cy="9.2" r="0.9" fill="#e31337"/>
+      <circle cx="15.2" cy="9.2" r="0.9" fill="#e31337"/>
+    </svg>
+  </button>
+
+  <!-- Chat panel (hidden until open) -->
+  <aside id="beebot-panel" role="dialog" aria-modal="true" aria-labelledby="beebot-title" aria-hidden="true" style="position:fixed; right:16px; bottom:86px; width:min(420px,94vw); max-height:82vh; border-radius:16px; background:var(--panel); box-shadow: 0 28px 70px rgba(0,0,0,0.6); z-index:998; overflow:hidden; display:flex; flex-direction:column; transform: translateY(10px) scale(0.995); opacity:0; pointer-events:none; transition: all 260ms cubic-bezier(.2,.9,.28,1); border:1px solid rgba(255,255,255,0.03);">
+    <div class="header" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.02);">
+      <div class="avatar" aria-hidden="true" style="width:48px; height:48px; border-radius:12px; display:grid; place-items:center; background:#fff; color:var(--hive-red); font-weight:900; box-shadow: 0 8px 26px rgba(0,0,0,0.4); flex:0 0 48px;">
+        <span style="font-size:18px;color:var(--hive-red)">B</span>
+      </div>
+      <div>
+        <div id="beebot-title" style="font-weight:800; color:var(--text-primary); font-size:15px;">Beebot</div>
+        <div style="font-size:12px; color:var(--muted-2);">Tu guía en Hive · Preguntas frecuentes y onboarding</div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+        <button id="beebot-minimize" class="btn ghost" aria-label="Minimizar chat" title="Minimizar" style="background:transparent;border:0;color:var(--muted-2);font-weight:700;cursor:pointer">—</button>
+        <button id="beebot-close" class="btn ghost" aria-label="Cerrar chat" title="Cerrar" style="background:transparent;border:0;color:var(--muted-2);font-weight:700;cursor:pointer">✕</button>
+      </div>
+    </div>
+
+    <div id="beebot-messages" aria-live="polite" aria-atomic="false" style="padding:12px; display:flex; flex-direction:column; gap:12px; overflow:auto; flex:1; background: transparent;">
+      <div class="msg agent" style="max-width:86%; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,0.02); color:var(--text-primary); align-self:flex-start; border:1px solid rgba(255,255,255,0.02);">Beebot listo para ayudarte. Pulsa una opción o escribe tu pregunta.</div>
+    </div>
+
+    <div id="beebot-options" aria-hidden="false" style="display:flex; gap:8px; padding:10px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,0.02); background:transparent;">
+      <button class="option-chip" data-opt="start">¿Cómo creo mi cuenta?</button>
+      <button class="option-chip" data-opt="rules">Reglas y buenas prácticas</button>
+      <button class="option-chip" data-opt="tips">Tips para crecer</button>
+      <button class="option-chip" data-opt="videos">Ver videos</button>
+    </div>
+
+    <div id="beebot-input-row" aria-hidden="false" style="display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,0.02);">
+      <input id="beebot-input" placeholder="Escribe una pregunta (o elige una opción)" aria-label="Escribe una pregunta" style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text-primary); outline:none;" />
+      <button id="beebot-send" aria-label="Enviar" style="background:var(--hive-red); color:#fff; border:0; padding:10px 12px; border-radius:10px; font-weight:800; cursor:pointer;">Enviar</button>
+    </div>
+  </aside>
+
+  <!-- =========================================
+       BEEBOT LAZY-LOADER (no redeclara globales)
+       - carga chatbot.js la primera vez que se abre el panel
+       ========================================= -->
+  <script>
+  (function(){
+    const toggle = document.getElementById('beebot-toggle');
+    const panel = document.getElementById('beebot-panel');
+    const closeBtn = document.getElementById('beebot-close');
+    const minimizeBtn = document.getElementById('beebot-minimize');
+    const infoOpen = document.getElementById('beebot-info-open');
+    const infoJoin = document.getElementById('beebot-info-join');
+
+    let loaded = false;
+    let openState = false;
+
+    function openPanel(){
+  // first make it visible to AT
+  panel.removeAttribute('inert');               // if browser supports inert, make sure it's active
+  panel.setAttribute('aria-hidden','false');    // visible to assistive tech
+  panel.classList.add('open');
+  panel.style.transform = 'translateY(0) scale(1)';
+  panel.style.opacity = '1';
+  panel.style.pointerEvents = 'auto';
+  openState = true;
+
+  // focus the first focusable element inside the panel (close button ideally)
+  setTimeout(()=>{
+    const focusable = panel.querySelector('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])');
+    if(focusable) {
+      try { focusable.focus(); } catch(e){}
+    }
+  }, 60);
+
+  if(!loaded) loadChatbot();
+}
+
+function closePanel(){
+  // Move focus back to the toggle BEFORE hiding the panel
+  try { toggle.focus(); } catch(e){
+    // ignore if focus fails
+  }
+
+  // start hide animation
+  panel.classList.remove('open');
+  panel.style.transform = 'translateY(10px) scale(0.995)';
+  panel.style.opacity = '0';
+  panel.style.pointerEvents = 'none';
+  openState = false;
+
+  // AFTER animation ends, mark as hidden for AT and optionally inert
+  // animation duration in your CSS/JS is ~260ms; use slightly longer timeout
+  setTimeout(()=>{
+    panel.setAttribute('aria-hidden','true');
+    // add inert if desired (no error if not supported)
+    try { panel.setAttribute('inert',''); } catch(e){}
+  }, 320);
+}
+
+
+    toggle.addEventListener('click', ()=> openState ? closePanel() : openPanel() );
+    closeBtn.addEventListener('click', closePanel);
+    minimizeBtn.addEventListener('click', closePanel);
+    infoOpen && infoOpen.addEventListener('click', openPanel);
+    infoJoin && infoJoin.addEventListener('click', ()=> { 
+      // use window.__HIVE_SITE_CONFIG if available
+      const link = (window.__HIVE_SITE_CONFIG && window.__HIVE_SITE_CONFIG.WHATSAPP_INVITE) || '#';
+      window.open(link,'_blank');
+    });
+
+    // lazy load function
+    function loadChatbot(){
+      const s = document.createElement('script');
+      s.src = 'chatbot.js';
+      s.defer = true;
+      s.onload = function(){
+        if(window.BeebotCore && typeof window.BeebotCore.init === 'function'){
+          window.BeebotCore.init({
+            containerMessages: document.getElementById('beebot-messages'),
+            containerOptions: document.getElementById('beebot-options'),
+            inputEl: document.getElementById('beebot-input'),
+            sendBtn: document.getElementById('beebot-send'),
+            openModalHelp: function(){
+              const helpModal = document.getElementById('help-modal');
+              if(helpModal){
+                helpModal.style.display = 'flex';
+                helpModal.setAttribute('aria-hidden','false');
+              }
+            },
+            links: (window.__HIVE_SITE_CONFIG) ? window.__HIVE_SITE_CONFIG : {
+              whatsapp: '#', telegram: '#', hiveEco: 'https://hive.io/eco'
+            }
+          });
+        } else {
+          console.error('Beebot: no se cargó correctamente chatbot.js');
+        }
+      };
+      s.onerror = function(){
+        console.error('Beebot: error cargando chatbot.js');
+        const m = document.createElement('div');
+        m.className = 'msg agent';
+        m.textContent = 'Lo siento — Beebot no pudo cargarse. Intenta recargar la página.';
+        document.getElementById('beebot-messages').appendChild(m);
+      };
+      document.body.appendChild(s);
+      loaded = true;
+    }
+
+    // keyboard shortcut to open (optional)
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'b' || e.key === 'B'){ openPanel(); } });
+  })();
+  </script>
+
+</body>
+</html>
