@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Value Plan — Project Reports</title>
   <meta name="description" content="Elegant interface to browse and copy Project Reports (connected to Google Sheets 'Project Reports' sheet)." />
-  <link rel="icon" href="/mnt/data/fe099547-3c91-4c7a-99d3-48c7ca4b3fb5.png" type="image/png">
+  <!-- Use hosted Hive logo as favicon to avoid local 404 -->
+  <link rel="icon" href="https://promote.hive.io/icons/hive-logo.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* BRAND / THEME VARIABLES */
@@ -60,7 +61,7 @@
     .carousel-content{position:relative;z-index:2;max-width:66%}
     .carousel-title{font-size:1.45rem;font-weight:900;margin-top:8px;color:var(--hive-light-gray);line-height:1.06}
     .carousel-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
-    .carousel-btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:800;display:inline-flex;align-items:center;gap:8px}
+    .carousel-btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:800;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
     .btn-primary{background:linear-gradient(90deg,var(--hive-red),var(--hive-red-hover));color:white}
     .btn-secondary{background:transparent;border:1px solid rgba(255,255,255,0.12);color:white}
     .carousel-nav{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;pointer-events:none}
@@ -80,7 +81,7 @@
     .meta{font-size:0.9rem;color:var(--muted)}
     .budget{font-weight:700;color:var(--hive-red);}
     .card-actions{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
-    .btn{padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+    .btn{padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
     .btn-ghost{background:transparent;border:1px solid var(--btn-ghost-border);color:var(--btn-ghost-text)}
     .btn-download{background:linear-gradient(90deg,var(--hive-red),var(--hive-red-hover));color:white}
 
@@ -202,6 +203,7 @@
       <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;position:relative;z-index:2">
         <div class="brand-compact">
           <div style="font-weight:900;font-size:1.05rem" class="hive-mark">
+            <!-- footer logo requested by you -->
             <img src="https://promote.hive.io/icons/hive-logo.png" alt="Hive logo" style="width:42px;height:42px;border-radius:6px;object-fit:cover" />
             <span>Value Plan</span>
           </div>
@@ -297,101 +299,61 @@
       return result.map(s => s.trim());
     }
 
-    // simple, safe markdown-like to HTML sanitizer (keeps imgs and links)
-    function formatAndSanitizeBody(body){
-      if (!body) return '';
-      body = String(body).replace(/\r\n/g,'\n');
-      // code fences ``` -> <pre><code>
-      body = body.replace(/```([\s\S]*?)```/g, function(_, code){ return '<pre><code>' + escapeHtml(code) + '</code></pre>'; });
-      // headings
-      body = body.replace(/^### (.*)$/gm, '<h3>$1</h3>');
-      body = body.replace(/^## (.*)$/gm, '<h2>$1</h2>');
-      body = body.replace(/^# (.*)$/gm, '<h1>$1</h1>');
-      // images ![alt](url)
-      body = body.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/gi, function(_, alt, url){ url = url.replace(/^http:/,'https:'); return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(alt||'') + '" loading="lazy" />'; });
-      // urls alone (images) -> keep
-      body = body.replace(/(^|\s)(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp))(\s|$)/ig, function(_, pre, url, post){ url = url.replace(/^http:/,'https:'); return pre + '<img src="' + escapeHtml(url) + '" alt="" loading="lazy" />' + post; });
-      // links [text](url)
-      body = body.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi, function(_, text, url){ return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(text) + '</a>'; });
+    // Build a PeakD/reader link from the hivepost column (accepts full URL or @user/permlink or user/permlink)
+    function buildPeakdUrl(hivepost){
+      if (!hivepost) return null;
+      const s = String(hivepost).trim();
+      if (!s) return null;
+      if (s.startsWith('http://') || s.startsWith('https://')) return s;
+      // remove leading @ if present
+      const cleaned = s.startsWith('@') ? s.slice(1) : s;
+      // if it already looks like user/permlink, use it:
+      if (/^[a-z0-9\-\_\.]+\/[a-z0-9\-\_\.]+$/i.test(cleaned)) return 'https://peakd.com/' + cleaned;
+      // fallback
+      return 'https://peakd.com/' + encodeURIComponent(cleaned);
+    }
 
-      // paragraphs & lists (basic)
-      const lines = body.split('\n');
-      let out = '';
-      let inUl = false;
-      for (let i=0;i<lines.length;i++){
-        const line = lines[i];
-        const m = /^\s*[-*]\s+(.*)$/.exec(line);
-        const t = line.trim();
-        if (m){ if (!inUl){ out += '<ul>'; inUl = true; } out += '<li>' + m[1] + '</li>'; }
-        else { if (inUl){ out += '</ul>'; inUl = false; } if (t === '') { out += ''; } else if (/^<h[1-6]>/.test(t) || /^<pre>/.test(t) || /^<img/.test(t) || /^<ul>/.test(t) || /^<a/.test(t) || /^<p>/.test(t)) { out += t; } else { out += '<p>' + escapeHtml(t) + '</p>'; } }
-      }
-      if (inUl) out += '</ul>';
-
-      // sanitize: allow only certain tags and attributes
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(out, 'text/html');
-      doc.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(n => n.remove());
-      const allowed = { 'IMG': ['src','alt','title','loading'], 'A': ['href','target','rel'], 'P': [], 'H1': [], 'H2': [], 'H3': [], 'UL': [], 'OL': [], 'LI': [], 'PRE': [], 'CODE': [] };
-      function clean(node){
-        if (node.nodeType === Node.TEXT_NODE) return;
-        const tag = node.tagName;
-        if (!allowed[tag]){
-          const frag = document.createDocumentFragment();
-          while (node.firstChild) frag.appendChild(node.removeChild(node.firstChild));
-          node.parentNode.replaceChild(frag, node);
-          return;
+    // Restore makeCopyUrl so copy button works: handles Google Docs/Drive and /edit links
+    function makeCopyUrl(url){
+      if (!url) return url;
+      try {
+        const s = String(url).trim();
+        // if it's a Google Docs editing link, convert to the "copy" flow
+        if (s.includes('/edit')) {
+          // Best effort: replace trailing /edit... with /copy
+          return s.replace(/\/edit.*$/,'/copy');
         }
-        [...node.attributes].forEach(attr => {
-          const name = attr.name.toLowerCase(), val = attr.value;
-          if (!allowed[tag].includes(name)) node.removeAttribute(attr.name);
-          else {
-            if ((name === 'href' || name === 'src') && String(val).trim().toLowerCase().startsWith('javascript:')) node.removeAttribute(attr.name);
-            if (name === 'src' && String(val).startsWith('http:')) node.setAttribute('src', val.replace(/^http:/,'https:'));
-          }
-        });
-        for (const c of Array.from(node.childNodes)) clean(c);
+        // If it's a docs.google.com or drive.google.com share link, append a copy=true param
+        if (s.includes('docs.google.com') || s.includes('drive.google.com')) {
+          return s + (s.includes('?') ? '&' : '?') + 'copy=true';
+        }
+        // otherwise just return as-is
+        return s;
+      } catch(e){
+        return url;
       }
-      for (const c of Array.from(doc.body.childNodes)) clean(c);
-      return doc.body.innerHTML;
     }
 
-    async function hiveRpc(method, params){
-      try { if (window.hive && typeof window.hive.call === 'function') return await window.hive.call(method, params); } catch(e){}
-      const body = { jsonrpc:'2.0', method, params, id:1 };
-      const r = await fetch('https://api.hive.blog', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-      const j = await r.json();
-      if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
-      return j.result;
+    // simple helper to create <svg><use href="#id"></use></svg>
+    function iconNode(name){
+      const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('width','16');
+      svg.setAttribute('height','16');
+      svg.setAttribute('viewBox','0 0 24 24');
+      const use = document.createElementNS('http://www.w3.org/2000/svg','use');
+      // set both href attributes for broad compatibility
+      use.setAttributeNS('http://www.w3.org/1999/xlink','href','#' + name);
+      use.setAttribute('href','#' + name);
+      svg.appendChild(use);
+      svg.classList.add('icon-svg');
+      return svg;
     }
-
-    function parseHiveIdentifier(id){
-      if (!id) return null; id = id.trim();
-      const urlMatch = id.match(/@([a-z0-9\-\_\.]+)\/([a-z0-9\-]+)/i);
-      if (urlMatch) return { author: urlMatch[1], permlink: urlMatch[2] };
-      const short = id.match(/^@?([a-z0-9\-\_\.]+)\/([a-z0-9\-]+)$/i);
-      if (short) return { author: short[1], permlink: short[2] };
-      return null;
-    }
-
-    function extractImgFromPost(p){
-      try { const meta = (typeof p.json_metadata === 'string') ? JSON.parse(p.json_metadata || '{}') : (p.json_metadata || {});
-        if (meta && meta.image && Array.isArray(meta.image) && meta.image[0]) return meta.image[0].replace(/^http:/,'https:');
-      } catch(e){}
-      const m = (p.body || '').match(/https?:\/\/[^\s'"]+\.(?:png|jpg|jpeg|gif|webp)/i);
-      if (m) return m[0].replace(/^http:/,'https:');
-      return null;
-    }
-
-    function makeCopyUrl(url){ if (!url) return url; try { if (url.includes('/edit')) return url.replace(/\/edit.*$/,'/copy'); if (url.includes('docs.google.com') || url.includes('drive.google.com')) return url + (url.includes('?') ? '&' : '?') + 'copy=true'; return url; } catch(e){ return url; } }
 
     /* state */
     let reports = [];
     let filtered = [];
     let carouselIndex = 0;
     let carouselAutoplay = null;
-
-    /* small helper to create icon node */
-    function iconNode(name){ const svg = document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('width','16'); svg.setAttribute('height','16'); svg.setAttribute('viewBox','0 0 24 24'); const use = document.createElementNS('http://www.w3.org/2000/svg','use'); use.setAttributeNS('http://www.w3.org/1999/xlink','href','#' + name); svg.appendChild(use); svg.classList.add('icon-svg'); return svg; }
 
     /* render functions */
     function renderCarousel(entries){
@@ -413,15 +375,24 @@
         wrap.appendChild(el('div',{class:'carousel-title'},[r.event || r.project || 'Untitled']));
         const actions = el('div',{class:'carousel-actions'});
 
-        const btnView = el('button',{class:'carousel-btn btn-primary', title:'View on Hive'},[]);
+        // View on PeakD - anchor that goes directly to the PeakD link from the sheet
+        const viewHref = buildPeakdUrl(r.hivepost);
+        const btnView = el('a',{
+          class:'carousel-btn btn-primary',
+          title: viewHref ? 'Open post on PeakD' : 'No PeakD link',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          href: viewHref || '#'
+        },[]);
         btnView.appendChild(iconNode('icon-eye'));
-        btnView.appendChild(document.createTextNode('View Official Post on Hive'));
+        btnView.appendChild(document.createTextNode('View Official Post on PeakD'));
+        if (!viewHref) btnView.style.opacity = '0.6';
 
+        // Copy action remains as before
         const btnCopy = el('button',{class:'carousel-btn btn-secondary', title:'Get a copy'},[]);
         btnCopy.appendChild(iconNode('icon-download'));
         btnCopy.appendChild(document.createTextNode('Get a Copy of the Report'));
 
-        btnView.addEventListener('click', (e)=> { e.stopPropagation(); openReportWithChoice(r,'view'); });
         btnCopy.addEventListener('click', (e)=> { e.stopPropagation(); openReportWithChoice(r,'copy'); });
 
         actions.appendChild(btnView);
@@ -463,16 +434,26 @@
         if (r.budget) body.appendChild(el('div',{class:'budget'},['Budget: ' + r.budget]));
         const actions = el('div',{class:'card-actions'});
 
+        // Copy button
         const btnCopy = el('button',{class:'btn btn-download', title:'Get a copy of the report (opens copy link)'},[]);
         btnCopy.appendChild(iconNode('icon-download'));
         btnCopy.appendChild(document.createTextNode('Get a Copy'));
 
-        const btnHive = el('button',{class:'btn btn-ghost', title:'Open original Hive post'},[]);
+        // View on PeakD - implemented as anchor that uses hivepost column
+        const viewHref = buildPeakdUrl(r.hivepost);
+        const btnHive = el('a',{
+          class:'btn btn-ghost',
+          title: viewHref ? 'Open on PeakD' : 'No PeakD link',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          href: viewHref || '#'
+        },[]);
         btnHive.appendChild(iconNode('icon-external'));
-        btnHive.appendChild(document.createTextNode('View on Hive'));
+        btnHive.appendChild(document.createTextNode('View on PeakD'));
+        if (!viewHref) btnHive.style.opacity = '0.6';
 
         btnCopy.addEventListener('click', (ev)=> { ev.stopPropagation(); handleCopyAction(r); });
-        btnHive.addEventListener('click', (ev)=> { ev.stopPropagation(); handleViewAction(r); });
+        // anchor will handle opening the link, no extra handler needed
 
         actions.appendChild(btnCopy);
         actions.appendChild(btnHive);
@@ -501,18 +482,33 @@
       return { close };
     }
 
+    // open modal with choices; "View" is now an anchor pointing to PeakD (if available)
     async function openReportWithChoice(report, actionIfGiven){
-      if (actionIfGiven === 'view') return handleViewAction(report);
       if (actionIfGiven === 'copy') return handleCopyAction(report);
+      if (actionIfGiven === 'view') {
+        const href = buildPeakdUrl(report.hivepost);
+        if (href) window.open(href, '_blank', 'noopener');
+        else alert('No PeakD/Hive link available in the sheet for this report.');
+        return;
+      }
+
       const wrap = el('div',{});
       wrap.appendChild(el('h3',{},[ report.event || 'Report' ]));
       wrap.appendChild(el('div',{class:'muted', style:'margin-bottom:12px'},[ (report.project ? report.project + ' · ' : '') + (report.date || '') ]));
       if (report.budget) wrap.appendChild(el('div',{class:'budget', style:'margin-bottom:8px'},['Budget: ' + report.budget]));
       const choice = el('div',{class:'choice'});
 
-      const btnView = el('button',{class:'btn btn-primary'},[]);
+      const viewHref = buildPeakdUrl(report.hivepost);
+      const btnView = el('a',{
+        class:'btn btn-primary',
+        title: viewHref ? 'Open on PeakD' : 'No PeakD link',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        href: viewHref || '#'
+      },[]);
       btnView.appendChild(iconNode('icon-eye'));
-      btnView.appendChild(document.createTextNode('View Official Post on Hive'));
+      btnView.appendChild(document.createTextNode('View Official Post on PeakD'));
+      if (!viewHref) btnView.style.opacity = '0.6';
 
       const btnCopy = el('button',{class:'btn btn-download'},[]);
       btnCopy.appendChild(iconNode('icon-download'));
@@ -527,62 +523,18 @@
       choice.appendChild(btnCancel);
       wrap.appendChild(choice);
       const m = showModal(wrap);
+      // focus the primary action
       btnView.focus();
-      btnView.addEventListener('click', ()=> { m.close(); handleViewAction(report); });
+
       btnCopy.addEventListener('click', ()=> { m.close(); handleCopyAction(report); });
       btnCancel.addEventListener('click', ()=> { m.close(); });
-    }
-
-    async function handleViewAction(report){
-      const wrap = el('div',{});
-      wrap.appendChild(el('h3',{},[ report.event || 'Report' ]));
-      wrap.appendChild(el('div',{class:'muted', style:'margin-bottom:8px'},[ (report.project ? report.project + ' · ' : '') + (report.date || '') ]));
-      if (report.budget) wrap.appendChild(el('div',{class:'budget', style:'margin-bottom:8px'},['Budget: ' + report.budget]));
-      const content = el('div',{class:'modal-body'});
-      content.innerHTML = '<div class="muted">Loading content...</div>';
-      wrap.appendChild(content);
-      const actions = el('div',{style:'display:flex;gap:8px;margin-top:12px'});
-      const openBtn = el('a',{class:'btn btn-primary', target:'_blank', rel:'noopener noreferrer'},['Open on Hive']);
-      const closeBtn = el('button',{class:'btn btn-ghost'},[]);
-      closeBtn.appendChild(iconNode('icon-close'));
-      closeBtn.appendChild(document.createTextNode('Close'));
-      actions.appendChild(openBtn);
-      actions.appendChild(closeBtn);
-      wrap.appendChild(actions);
-      const m = showModal(wrap);
-      closeBtn.addEventListener('click', ()=> m.close());
-
-      if (report.hivepost && report.hivepost.trim()){
-        openBtn.href = report.hivepost.startsWith('http') ? report.hivepost : ('https://peakd.com/' + (report.hivepost.startsWith('@') ? report.hivepost.slice(1) : report.hivepost));
-        try {
-          const id = parseHiveIdentifier(report.hivepost);
-          if (id){
-            const post = await hiveRpc('condenser_api.get_content', [id.author, id.permlink]);
-            if (post && post.body){
-              content.innerHTML = '';
-              const hero = extractImgFromPost(post);
-              if (hero) content.appendChild(el('img',{src:hero, alt:post.title||'', style:'max-width:100%;border-radius:8px;margin-bottom:10px'}));
-              content.appendChild(el('div',{html: formatAndSanitizeBody(post.body || '')}));
-              return;
-            }
-          }
-          content.innerHTML = '<p class="muted">Unable to load the Hive post. You can open it on Hive.</p><p><a href="' + escapeHtml(openBtn.href) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(openBtn.href) + '</a></p>';
-        } catch(e){
-          content.innerHTML = '<p class="muted">Error fetching from Hive: ' + escapeHtml(String(e.message || e)) + '</p><p><a href="' + escapeHtml(openBtn.href) + '" target="_blank" rel="noopener noreferrer">Open on Hive</a></p>';
-        }
-      } else if (report.link && report.link.trim()){
-        openBtn.href = report.link;
-        content.innerHTML = '<p class="muted">This report does not have an official Hive post. Open the link below to view the report.</p><p><a href="' + escapeHtml(report.link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(report.link) + '</a></p>';
-      } else {
-        content.innerHTML = '<p class="muted">No Hive post or report link is available for this entry.</p>';
-        openBtn.style.display = 'none';
-      }
     }
 
     function handleCopyAction(report){
       if (!report.link || !report.link.trim()){ alert('No link available to copy (column F is empty).'); return; }
       const copyUrl = makeCopyUrl(report.link);
-      window.open(copyUrl, '_blank');
+      // open in a new tab; this should handle google docs copy flows and generic urls
+      window.open(copyUrl, '_blank', 'noopener');
     }
 
     function openAllReportsModal(){
