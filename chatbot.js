@@ -1,7 +1,6 @@
-// chatbot.js
+// chatbot.js (versión final corregida - comillas y auditado)
 // Beebot - conversación simulada para onboarding (ES).
 // Uso: window.BeebotCore.init({ containerMessages, containerOptions, inputEl, sendBtn, openModalHelp, links })
-// Archivo auditado: entrega de enlaces, no duplicate "clear chat", expansión de reglas, auto-open de links cuando procede.
 
 (function(){
   'use strict';
@@ -27,6 +26,22 @@
     try{ window.open(url, '_blank', 'noopener'); } catch(e){ console.error('Beebot: open failed', e); }
   }
   function isEmptyStr(s){ return !s || String(s).trim().length === 0; }
+  function copyToClipboard(text){
+    if(!text) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(text).catch(()=> {
+        const t = document.createElement('textarea');
+        t.value = text; document.body.appendChild(t); t.select();
+        try{ document.execCommand('copy'); }catch(e){}
+        t.remove();
+      });
+    } else {
+      const t = document.createElement('textarea');
+      t.value = text; document.body.appendChild(t); t.select();
+      try{ document.execCommand('copy'); }catch(e){}
+      t.remove();
+    }
+  }
 
   /* =========================================
      DEFAULT LINKS (pueden sobrescribirse al init)
@@ -45,31 +60,34 @@
     video_peakd_publish: 'https://www.youtube.com/watch?v=XQzDjf5K1p4',
     video_masterclass: 'https://www.youtube.com/watch?v=9dlEvvYAQsk',
     hive_eco: 'https://hive.io/eco',
+    hive_games: 'https://hive.io/eco?t=game',
     hive_official: 'https://hive.io',
+    signup: 'https://holahive.com/', // usar solo holahive.com según indicación
     whatsapp: '#',
     telegram: '#'
   };
 
   /* ============================
      ÁRBOL CONVERSACIONAL (estructurado)
+     - Mantener menú inicial sencillo.
+     - Añadir nodos faltantes y contenido ampliado.
      ============================ */
-  // Observa que 'create_account' no aparece en el menú principal por decisión tuya.
   const defaultTree = {
     start: {
-      text: "¡Hola! Soy **Beebot** 🤖 — tu asistente para empezar en Hive. ¿Qué quieres hacer ahora?",
+      text: "¡Hola! Soy **Beebot** 🤖 — tu guía para entrar a Hive. Puedo ayudarte a crear tu cuenta (holahive.com), preparar tu presentación larga (600+ palabras), y acompañarte a publicar paso a paso. ¿Qué te interesa ahora?",
       options: [
         { id:'how_is_hive', label:'¿Qué es Hive?' },
-        { id:'presentation', label:'Hacer mi presentación (plantilla)' },
-        { id:'rules', label:'Reglas y buenas prácticas' },
-        { id:'audience', label:'Soy: Creador / Jugador / Inversor / Dev' },
-        { id:'videos', label:'Ver videos y tutoriales' },
-        { id:'resources', label:'Ver guías (posts)' },
-        { id:'clear_chat', label:'Limpiar chat' }
+        { id:'create_account', label:'Crear cuenta (ayuda)' },
+        { id:'presentation_start', label:'Crear mi presentación' },
+        { id:'publish_first', label:'Publicar mi primer post' },
+        { id:'resources', label:'Videos y guías' },
+        { id:'faq', label:'Preguntas frecuentes' }
       ]
     },
 
+    /* ¿Qué es Hive? - ampliado y cuidadoso en ganancias */
     how_is_hive: {
-      text: "Hive es una blockchain orientada a comunidades y creadores: publica, conecta y gana. Es rápida, sin comisiones por transacción y gobernada por su comunidad. ¿Quieres ver beneficios para un perfil en particular?",
+      text: "Hive es una blockchain y una comunidad para crear y compartir contenido. Aquí las personas publican, participan en comunidades y, si su contenido es original y aporta valor, **existe la posibilidad** de recibir criptomonedas del ecosistema (HIVE y HBD). No es una garantía: la visibilidad y las recompensas dependen de la calidad, la interacción y las normas de la comunidad.\n\nAdemás de recompensas momentáneas, Hive ofrece beneficios a largo plazo para creadores: participar en comunidades de nicho que te interesan, conectar con personas alrededor del mundo, colaborar en proyectos y construir una reputación como creador. ¿Quieres ver beneficios para un perfil en particular?",
       options:[
         { id:'benefits_creators', label:'Para creadores' },
         { id:'benefits_gamers', label:'Para jugadores' },
@@ -78,143 +96,130 @@
       ]
     },
 
+    /* Beneficios para creadores: ampliar copy y añadir checklist node */
     benefits_creators: {
-      text: "Creador: publica artículos, fotos y videos. Ganas HIVE/HBD cuando la comunidad valora tu trabajo. Tu nombre de usuario es tu wallet. ¿Quieres una plantilla para presentarte o un checklist para crecer?",
+      text: "Para creadores: Hive no solo permite monetizar contenido (cuando la comunidad lo valora), sino que también ofrece otras ventajas importantes:\n\n• **Comunidades de nicho:** Encuentra grupos que comparten tus intereses (ej. educación, arte, tecnología, deporte) para hacer crecer una audiencia real.\n• **Conexiones globales:** Colabora y conecta con personas de distintas regiones, descubriendo oportunidades y sinergias.\n• **Visibilidad sostenida:** Participar activamente (comentando y curando) ayuda a construir reputación a largo plazo.\n• **Herramientas creativas:** soporta multimedia, NFTs y economías propias (para proyectos y juegos).\n\n¿Quieres una plantilla para presentarte o un checklist práctico para crecer y planificar tu contenido?",
       options:[
-        { id:'template_short', label:'Plantilla corta' },
-        { id:'tips_more', label:'Checklist para crecer' },
+        { id:'template_short', label:'Plantilla reestructurada (subtítulos)' },
+        { id:'tips_more', label:'Checklist para crecer (pauta)' },
         { id:'back', label:'Volver' }
       ]
     },
 
+    /* Checklist para crecer - ahora con contenido */
+    tips_more: {
+      text:
+        "Checklist práctico para crecer en Hive (resumen accionable):\n\n1) **Publica con regularidad:** fija un ritmo realista (ej. 1 post semanal) y define un calendario editorial.\n2) **Céntrate en valor:** cada publicación debe responder una pregunta, enseñar algo o compartir una experiencia útil.\n3) **Participa en comunidades de tu nicho:** comenta en posts relevantes y únete a comunidades (spaces) afines.\n4) **Usa etiquetas estratégicas:** elige 3-5 etiquetas relevantes y una etiqueta de introducción (#introduceyourself #hivetalkproject). Evita etiquetas irrelevantes.\n5) **Interacción:** responde comentarios y agradece a quienes te apoyen; la conversación genera visibilidad.\n6) **Portadas y formato:** usa una buena imagen de portada y estructura (título claro, subtítulos, listas). Revisa la guía de Markdown si dudas.\n7) **Evita spam/plagio:** publica original; si citas, referencia la fuente.\n8) **Mide y ajusta:** revisa métricas de vistas y comentarios; ajusta el contenido según lo que funcione.\n\nSi quieres, puedo ayudarte a crear un plan semanal o una publicación ahora mismo.",
+      options:[ { id:'plan_week', label:'Ayúdame con un plan semanal' }, { id:'start_post_builder', label:'Crear post ahora' }, { id:'back', label:'Volver' } ]
+    },
+
+    /* Juegos: enlazar a hive.io eco con copy persuasivo */
     benefits_gamers: {
-      text: "Jugador: Hive aloja juegos con economías (assets, NFTs). Las microtransacciones son rápidas y sin comisiones, lo que mejora la experiencia. ¿Quieres ver comunidades de juegos?",
-      options:[
-        { id:'games_more', label:'Comunidades de juegos' },
-        { id:'back', label:'Volver' }
-      ]
+      text: "En Hive hay un ecosistema creciente de juegos con economías reales: NFTs, mercados y activos que los jugadores pueden poseer e intercambiar. Esto permite jugar y participar en economías propias sin las fricciones (altas comisiones) de otras redes. ¿Quieres ver el ecosistema de juegos y marketplaces?",
+      options:[ { id:'games_more', label:'Ver juegos y ecosistema' }, { id:'back', label:'Volver' } ]
+    },
+    games_more: {
+      text: "Abriendo ecosistema de juegos en Hive... (se abrirá en una nueva pestaña).",
+      action: "open_link:hive_games"
     },
 
+    /* Inversores: HBD y HP ampliado (hbd_more) */
     benefits_investors: {
-      text: "Inversor: HBD es la stablecoin del ecosistema; existen formas de ahorro y utilidades dentro del ecosistema. Investiga riesgos y usa wallets seguras.",
-      options:[
-        { id:'hbd_more', label:'Más sobre HBD' },
-        { id:'back', label:'Volver' }
-      ]
+      text: "Información para inversores: Hive ofrece activos como HIVE (token) y HBD (stablecoin interna). Además existe **Hive Power (HP)**: es HIVE bloqueado en stake que otorga influencia en curación y Resource Credits. Antes de participar, infórmate sobre riesgos y la diferencia entre liquidez y stake.",
+      options:[ { id:'hbd_more', label:'Más sobre HBD y HP' }, { id:'back', label:'Volver' } ]
     },
 
-    // Crear cuenta sigue existiendo como nodo pero no en el inicio principal:
+    hbd_more: {
+      text: "HBD y Hive Power (HP) — explicación simple:\n\n• **HBD (Hive Backed Dollar):** es la stablecoin dentro del ecosistema que busca estabilidad para usos de ahorro y pagos dentro de Hive. Tiene mecanismos internos que intentan mantener su valor.\n• **HIVE:** token principal de la red, con precio fluctuante en mercados.\n• **HP (Hive Power):** es HIVE 'bloqueado' en stake. Al convertir HIVE a HP obtienes mayor influencia en la red (curación/votos) y Resource Credits para operar más sin pagar comisiones. HP no es 100% líquido: para recuperar HIVE se necesita hacer un proceso de 'power down' gradual.\n\nConsejos para inversores principiantes:\n1) Infórmate antes de usar HBD como ahorro.\n2) Considera el horizonte: convertir HIVE a HP es útil si quieres participar y curar contenido; si necesitas liquidez, mantener HIVE es mejor.\n3) Usa wallets seguras y evita compartir claves. ¿Quieres recursos técnicos y guías oficiales?",
+      options:[ { id:'open_hive_eco', label:'Ver docs / Ecosistema' }, { id:'back', label:'Volver' } ]
+    },
+    open_hive_eco: { text: "Abriendo documentación y ecosistema Hive.", action: "open_link:hive_eco" },
+
+    /* Crear cuenta (flujo) */
     create_account: {
-      text: "Guía rápida para crear cuenta:\n1) Abre signup.hive.io\n2) Escoge un nombre único\n3) Guarda tus claves con seguridad\n4) Considera usar Hive Keychain para gestionar claves.",
+      text: "Te guío paso a paso para crear tu cuenta en holahive.com (solo ese sitio). Te ayudaré con la elección de nombre y la seguridad de claves. ¿Comenzamos?",
       options:[
-        { id:'open_signup', label:'Abrir signup.hive.io' },
-        { id:'keychain', label:'Ver tutorial Keychain' },
-        { id:'connect_group', label:'Conectarme al grupo (WhatsApp)' },
+        { id:'open_signup', label:'Abrir holahive.com' },
+        { id:'account_steps', label:'Ver pasos rápidos' },
+        { id:'keychain', label:'Usar Hive Keychain (recomendado)' },
         { id:'back', label:'Volver' }
       ]
     },
+    open_signup: { text: "Abriendo holahive.com...", action: "open_link:signup" },
+    account_steps: { text: "Pasos rápidos para crear tu cuenta:\n1) Entra a holahive.com\n2) Elige un nombre único\n3) Guarda tus claves (apunta en un lugar seguro)\n4) Instala Hive Keychain para manejar claves desde el navegador. ¿Quieres ver la checklist de seguridad?", options:[ { id:'security_checklist', label:'Checklist de seguridad' }, { id:'back', label:'Volver' } ] },
 
-    open_signup: { text: "Abriendo signup.hive.io...", action: "open_link:signup" },
-
+    /* Claves ampliadas y explicación sencilla */
+    security_checklist: {
+      text:
+        "Checklist de seguridad (explicación clara):\n\n• **Tipos de claves:**\n  - *Owner / Master:* la más poderosa. Permite cambiar otras claves. Guárdala offline y no la uses para publicar.\n  - *Active:* para operaciones financieras (transferencias). Manténla segura y no la uses para publicar diariamente.\n  - *Posting:* usada para publicar y comentar. Es la clave que usarás más seguido; es la que puedes usar en aplicaciones públicas con menor riesgo.\n  - *Memo:* para leer/descifrar mensajes privados.\n\n• **Consejos prácticos:**\n  1) Guarda la *owner/master* en un lugar offline (papel físico o dispositivo seguro).\n  2) Usa *posting* para publicar; instala Hive Keychain para firmar desde el navegador sin exponer claves.\n  3) Nunca pegues tus claves en chats ni las compartas con desconocidos.\n  4) Haz copias físicas seguras y anota el orden de palabras si es una frase de recuperación.\n  5) Si sospechas que te robaron una clave, usa la *owner/master* para cambiar las demás claves y recuperar control.\n\nSi quieres, te dejo el tutorial para instalar Hive Keychain.",
+      options:[ { id:'keychain_video', label:'Ver tutorial Keychain' }, { id:'keychain_peakd', label:'Guía escrita Keychain' }, { id:'back', label:'Volver' } ]
+    },
     keychain: {
-      text: "Keychain ayuda a firmar transacciones desde tu navegador. Te dejo recursos.",
+      text: "Hive Keychain facilita firmar transacciones desde el navegador sin exponer tus claves. Recomendado para quienes usan PeakD u otras interfaces web.",
       options:[
         { id:'keychain_video', label:'Ver tutorial (video)' },
         { id:'keychain_peakd', label:'Guía escrita (PeakD)' },
         { id:'back', label:'Volver' }
       ]
     },
-
     keychain_video: { text: "Abriendo tutorial para instalar Keychain en Chrome.", action: "open_link:video_keychain_chrome" },
     keychain_peakd: { text: "Abriendo guía para añadir tu cuenta a Hive Keychain.", action: "open_link:keychain_tutorial" },
 
-    connect_group: { text: "Te conectaré al grupo (WhatsApp) para soporte humano gratuito.", action: "open_whatsapp" },
-
-    presentation: {
-      text: "¿Quieres una plantilla corta o una detallada para presentarte dentro de Hive?",
+    /* Presentaciones (flow interactivo ampliado) */
+    presentation_start: {
+      text: "¿Quieres que te ayude a construir una presentación larga (600+ palabras) para tu primer post? Te haré preguntas sencillas y generaré el texto listo para pegar en PeakD/Ecency. ¿Comenzamos?",
       options:[
-        { id:'template_short', label:'Plantilla corta' },
-        { id:'template_detailed', label:'Plantilla detallada' },
+        { id:'presentation_interactive', label:'Sí — Comenzar guía' },
+        { id:'template_short', label:'Plantilla reestructurada (subtítulos)' },
         { id:'present_examples', label:'Ejemplos / Guía' },
         { id:'back', label:'Volver' }
       ]
     },
 
+    presentation_interactive: { text: "Abriendo asistente interactivo para la presentación...", action: "start_presentation" },
+
+    /* Plantilla corta reestructurada: subtítulos sugeridos (no es la presentación final de 600 palabras) */
     template_short: {
-      text: "Plantilla rápida:\n\nHola, soy **[Tu nombre]** — creador(a) de **[tu nicho]**. Compartiré contenido sobre **[tema]**. ¡Encantado(a) de conocer esta comunidad! #introduccion",
-      options:[ { id:'copy_preset', label:'Cómo publico esto?' }, { id:'back', label:'Volver' } ]
+      text: "Plantilla estructurada — subtítulos para el post de presentación (útil si te piden 600+ palabras):\n\n1) **Quién eres** — breve biografía y contexto (2-3 párrafos).\n2) **A qué te dedicas** — explica tu ocupación o enfoque principal.\n3) **Cómo conociste Hive** — brevemente, el porqué decidiste unirte.\n4) **Hobbies / tiempo libre** — humaniza tu presentación con intereses personales.\n5) **Expectativas en la blockchain de Hive** — qué esperas aprender o compartir.\n6) **Qué te gusta de Hive** — menciona elementos concretos (comunidad, herramientas, posibilidades).\n\nConsejo: desarrolla cada subtítulo en 2-4 párrafos para alcanzar las ~600 palabras. Usa #introduceyourself #hivetalkproject como tags.",
+      options:[ { id:'present_examples', label:'Ver ejemplos' }, { id:'back', label:'Volver' } ]
     },
-
-    template_detailed: {
-      text: "Plantilla detallada:\nTítulo: Hola, soy [Tu nombre] — Me presento\nCuerpo: (2-3 párrafos) quién eres, qué harás y por qué. Añade portada, 3-5 etiquetas relevantes y pide feedback.\n¿Quieres ver un tutorial en video sobre presentación?",
-      options:[ { id:'open_present_video', label:'Ver video de presentación' }, { id:'open_present_guide', label:'Ver guía escrita' }, { id:'back', label:'Volver' } ]
-    },
-
-    copy_preset: {
-      text: "Para publicar: usa PeakD o Ecency, pega el texto, añade una portada y etiquetas. ¿Quieres el tutorial para publicar desde PeakD (video)?",
-      options:[ { id:'open_peakd_video', label:'Sí, tutorial PeakD' }, { id:'back', label:'Volver' } ]
-    },
-
-    open_peakd_video: { text: "Abriendo tutorial para publicar desde PeakD (video).", action: "open_link:video_peakd_publish" },
 
     present_examples: {
-      text: "Ejemplos: posts bien formateados tienen título claro, introducción, cuerpo con subtítulos y una conclusión. Evita posts sin contenido útil.",
-      options:[
-        { id:'open_present_guide', label:'Leer guía de presentación' },
-        { id:'open_present_video', label:'Ver tutorial de presentación' },
-        { id:'back', label:'Volver' }
-      ]
+      text: "Ejemplo de estructura y guía: desarrolla cada subtítulo con detalles y anécdotas para llegar a 600+ palabras. ¿Quieres que te guíe ahora con preguntas para generar la presentación completa?",
+      options:[ { id:'presentation_interactive', label:'Sí — Comenzar guía' }, { id:'open_present_guide', label:'Leer guía de presentación' }, { id:'back', label:'Volver' } ]
     },
 
     open_present_guide: { text: "Abriendo guía de presentación (PeakD).", action: "open_link:presentacion_guide" },
     open_present_video: { text: "Abriendo tutorial de presentación en video.", action: "open_link:video_presentation" },
 
-    rules: {
-      text: "Reglas y buenas prácticas — resumen extendido:\n\n1) **Originalidad**: Publica contenido original. No copies textos enteros de otros autores.\n2) **Plagio y IA**: Si usas IA como ayuda, sé transparente (ej.: “Asistido por IA”); evita publicar contenido generado íntegramente como propio cuando las comunidades lo prohíban.\n3) **Citas**: Si te inspiras en otro autor, cita la fuente (nombre y link) y añade tu aportación personal.\n4) **Respeto y convivencia**: No ataques, no spam, no autopromoción excesiva.\n5) **Calidad**: Cuida formato, imágenes de portada y etiquetas relevantes.\n6) **Seguridad**: Nunca compartas claves privadas; usa extensiones como Hive Keychain.\n\n¿Quieres ejemplos prácticos y un checklist corto?",
+    /* Publicar primer post: builder simple */
+    publish_first: {
+      text: "Publicar tu primer post — pasos simples:\n1) Título claro\n2) Introducción breve\n3) Subtítulos para cada sección\n4) 3-5 etiquetas relevantes\n5) Imagen de portada\n¿Te ayudo a estructurarlo ahora o prefieres usar la plantilla de presentación?",
       options:[
-        { id:'rules_examples', label:'Sí, ejemplos prácticos' },
-        { id:'rules_checklist', label:'Checklist corto' },
-        { id:'ai_policy', label:'Política sobre IA y plagio (ej.)' },
+        { id:'guide_markdown', label:'Ver guía de Markdown' },
+        { id:'publish_help', label:'Construir post ahora' },
         { id:'back', label:'Volver' }
       ]
     },
+    guide_markdown: { text: "Abriendo guía de Markdown y formato.", action: "open_link:markdown_guide" },
+    publish_help: { text: "Dime si quieres 'plantilla' o escribe el título para empezar.", options:[ { id:'start_post_builder', label:'Construir post ahora' }, { id:'template_short', label:'Usar plantilla' }, { id:'back', label:'Volver' } ] },
 
-    rules_examples: {
-      text: "Ejemplos:\n• Mal: copiar y pegar un artículo sin citar.\n• Bien: resumir la idea, añadir tu opinión, y dejar enlace a la fuente.\n• Cuando uses parte de un texto, pon comillas y referencia.\n\n¿Quieres ver una plantilla para citar?",
-      options:[ { id:'how_cite', label:'Mostrar plantilla de cita' }, { id:'back', label:'Volver' } ]
-    },
+    start_post_builder: { text: "Iniciando asistente para construir tu post. Escribe el título o 'plantilla' para usar una base.", options:[ { id:'back', label:'Volver' } ] },
 
-    how_cite: {
-      text: "Plantilla de cita:\n“Basado en el artículo de @autor — [enlace]. Aporto: (tus comentarios/experiencias).”",
-      options:[ { id:'back', label:'Volver' } ]
-    },
-
-    rules_checklist: {
-      text: "Checklist rápido:\n• ¿Es original?\n• ¿Cito mis fuentes si corresponde?\n• ¿La publicación aporta valor propio?\n• ¿Las imágenes son de mi autoría o con licencia?\n• ¿No estoy spameando enlaces repetidamente?\n\nSi respondiste sí a todo, ¡estás listo para publicar!",
-      options:[ { id:'back', label:'Volver' } ]
-    },
-
-    ai_policy: {
-      text: "Política de uso de IA — recomendación práctica:\n• Si usas IA para generar ideas o borradores, edita y añade tu valor.\n• Indica claramente el uso de IA: “Este post fue asistido/ayudado por IA; mi aporte: ...”.\n• Algunas comunidades piden 100% contenido humano: respeta reglas específicas de cada comunidad.",
-      options:[ { id:'back', label:'Volver' } ]
-    },
-
-    audience: {
-      text: "Selecciona tu perfil:",
+    /* Recursos (guías y videos) */
+    resources: {
+      text: "Recursos recomendados: guías y videos para principiantes. ¿Qué prefieres?",
       options:[
-        { id:'profile_creator', label:'Creador de contenido' },
-        { id:'profile_player', label:'Jugador' },
-        { id:'profile_investor', label:'Inversor / Ahorrista' },
-        { id:'profile_dev', label:'Desarrollador' },
+        { id:'open_guide_aliento', label:'Primeros pasos (Aliento)' },
+        { id:'open_guide_victoria', label:'Guía completa (Victoria)' },
+        { id:'open_guide_markdown', label:'Guía de Markdown' },
+        { id:'videos', label:'Videos y shorts' },
         { id:'back', label:'Volver' }
       ]
     },
-
-    profile_creator: { text: "Creador: publica con regularidad, usa comunidades y responde comentarios. ¿Quieres plantillas o checklist?", options:[ { id:'template_short', label:'Plantillas' }, { id:'tips_more', label:'Checklist para crecer' }, { id:'back', label:'Volver' } ] },
-    profile_player: { text: "Jugador: explora juegos y marketplaces. Busca comunidades de tu juego favorito.", options:[ { id:'games_more', label:'Comunidades' }, { id:'back', label:'Volver' } ] },
-    profile_investor: { text: "Inversor: infórmate sobre HBD y riesgos, usa wallets seguras.", options:[ { id:'hbd_more', label:'Más sobre HBD' }, { id:'back', label:'Volver' } ] },
-    profile_dev: { text: "Dev: revisa hive.io/eco y la documentación. ¿Quieres enlaces a docs?", options:[ { id:'dev_docs', label:'Enlaces y docs' }, { id:'back', label:'Volver' } ] },
-    dev_docs: { text: "Abriendo ecosistema Hive en la web.", action: "open_link:hive_eco" },
+    open_guide_aliento: { text: "Abriendo guía Aliento (PeakD).", action: "open_link:guide_aliento" },
+    open_guide_victoria: { text: "Abriendo guía completa para nuevos usuarios.", action: "open_link:guide_complete" },
+    open_guide_markdown: { text: "Abriendo guía de Markdown / HTML5.", action: "open_link:markdown_guide" },
 
     videos: {
       text: "¿Qué video quieres ver?",
@@ -229,30 +234,40 @@
     video_masterclass: { text: "Abriendo masterclass largo (YouTube).", action: "open_link:video_masterclass" },
     video_short: { text: "Abriendo short explicativo.", action: "open_link:video_short" },
 
-    resources: {
-      text: "Guías recomendadas:",
+    /* FAQ ampliadas */
+    faq: {
+      text: "Preguntas frecuentes — elige una:",
       options:[
-        { id:'open_guide_aliento', label:'Primeros pasos (Aliento)' },
-        { id:'open_guide_victoria', label:'Guía completa (Victoria)' },
-        { id:'open_guide_markdown', label:'Guía de Markdown' },
+        { id:'faq_earnings', label:'¿Voy a ganar dinero publicando?' },
+        { id:'faq_hbd', label:'¿Qué es HBD?' },
+        { id:'faq_cost', label:'¿Cuesta crear cuenta?' },
+        { id:'faq_keys', label:'¿Qué son las claves y cómo cuidarlas?' },
+        { id:'faq_support', label:'Necesito ayuda humana' },
         { id:'back', label:'Volver' }
       ]
     },
-    open_guide_aliento: { text: "Abriendo guía Aliento (PeakD).", action: "open_link:guide_aliento" },
-    open_guide_victoria: { text: "Abriendo guía completa para nuevos usuarios.", action: "open_link:guide_complete" },
-    open_guide_markdown: { text: "Abriendo guía de Markdown / HTML5.", action: "open_link:markdown_guide" },
 
-    tips_more: { text: "Checklist: 1) Publica 2 veces/semana; 2) Participa en 3 comunidades; 3) Comenta en posts afines; 4) Revisa métricas; 5) Mejora portadas.", options:[ { id:'back', label:'Volver' } ] },
-    games_more: { text: "Para juegos, busca Splinterlands y comunidades relacionadas. Usa links de ecosystem para más info.", options:[ { id:'back', label:'Volver' } ] },
-    hbd_more: { text: "HBD: stablecoin integrada en Hive. Investiga usos y riesgos antes de usarla.", options:[ { id:'back', label:'Volver' } ] },
+    faq_earnings: { text: "¿Vas a ganar solo por publicar? No necesariamente. En Hive **existe la posibilidad** de obtener HIVE o HBD por contenido original y de calidad que la comunidad valora, pero no es automático. La visibilidad depende de etiquetas, comunidades, curación y frecuencia. Enfócate en aportar valor y construir comunidad.", options:[ { id:'back', label:'Volver' } ] },
 
+    faq_hbd: { text: "HBD es la stablecoin del ecosistema Hive. Busca estabilidad relativa para usos de ahorro o pagos dentro de la red, pero informáte sobre su funcionamiento y riesgos antes de usarla.", options:[ { id:'back', label:'Volver' } ] },
+
+    faq_cost: { text: "Crear una cuenta en holahive.com es gratis. Evita servicios que cobren por crear tu cuenta o digan que te garantizan ganancias.", options:[ { id:'open_signup', label:'Abrir holahive.com' }, { id:'back', label:'Volver' } ] },
+
+    faq_keys: { text: "Las claves en Hive son varios tipos. Guarda la owner/master offline, usa posting para publicar y activa Hive Keychain para mayor seguridad. No compartas claves ni las pegues en chats.", options:[ { id:'security_checklist', label:'Ver cómo cuidarlas' }, { id:'back', label:'Volver' } ] },
+
+    faq_support: { text: "Si necesitas ayuda humana, únete a nuestros grupos de soporte. Recuerda: los administradores legítimos no pedirán dinero por abrir tu cuenta.", options:[ { id:'open_whatsapp', label:'Unirme por WhatsApp' }, { id:'open_telegram', label:'Unirme por Telegram' }, { id:'back', label:'Volver' } ] },
+
+    open_whatsapp: { text: "Abriendo WhatsApp...", action: "open_whatsapp" },
+    open_telegram: { text: "Abriendo Telegram...", action: "open_telegram" },
+
+    /* back and clear */
     back: { text: "¿En qué más puedo ayudarte?", options:[ { id:'start', label:'Menú principal' } ] },
-
     clear_chat: { text: "Limpiando el chat... (la conversación local se reiniciará)", action: "clear_chat" }
   };
 
   /* ===========================
      CORE: BeebotCore (expuesto en window)
+     - flows: presentation interactive ampliado
      =========================== */
   const BeebotCore = {
     init: function(opts){
@@ -276,13 +291,16 @@
       let isProcessing = false;
       let messageCount = 0;
 
+      // Pending flow state (for interactive features)
+      let pending = null;
+      let pendingData = {};
+
       function scrollToBottom(){
         try{ containers.messages.scrollTop = containers.messages.scrollHeight; }catch(e){}
       }
 
       function createMsgNode(kind, textHTML){
         const m = el('div', { class: 'msg ' + kind });
-        // innerHTML usage: we sanitize minimal patterns (we assume controlled content)
         m.innerHTML = textHTML;
         return m;
       }
@@ -294,7 +312,6 @@
         scrollToBottom();
         const d = typeof delay === 'number' ? delay : Math.min(1200, 350 + Math.max(0, String(text).length * 8));
         await sleep(d);
-        // convert markdown-like **bold** to <strong>, newline to <br>, and keep links if already HTML
         let t = String(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         t = t.replace(/\n/g, '<br>');
         placeholder.replaceWith(createMsgNode('agent', t));
@@ -311,7 +328,10 @@
 
       function clearChat(){
         containers.messages.innerHTML = '';
+        containers.options && (containers.options.innerHTML = '');
         messageCount = 0;
+        pending = null;
+        pendingData = {};
         processNode('start', { autoOpen: false }).catch(()=>{});
       }
 
@@ -324,7 +344,6 @@
           b.addEventListener('click', ()=> handleOption(opt.id));
           containers.options.appendChild(b);
         });
-        // NOTE: No auto-added "Limpiar chat" to avoid duplicates.
       }
 
       function findOptionLabel(optionId){
@@ -337,17 +356,134 @@
         const fallback = {
           'open_whatsapp': 'Abrir WhatsApp',
           'open_telegram': 'Abrir Telegram',
-          'open_signup': 'Abrir signup.hive.io'
+          'open_signup': 'Abrir holahive.com'
         };
         return fallback[optionId] || optionId;
       }
 
-      // handleOption: invoked by user click -> allow immediate window.open for link actions
+      /* =======================
+         Presentation interactive flow (ampliado)
+         Steps collected:
+         1) name
+         2) what do you do (niche)
+         3) main topic
+         4) how discovered Hive
+         5) hobbies / free time
+         6) expectations
+         7) what they like most (optional)
+         Then generate full ~600+ word presentation.
+         ======================= */
+
+      async function startPresentationFlow(){
+        pending = 'presentation';
+        pendingData = { step: 1, collected: {} };
+        await appendAgentMessage("Perfecto — empecemos. Responde con frases simples. ¿Cuál es tu nombre (o cómo te gustaría que te nombren en la presentación)?");
+        if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+      }
+
+      function _safeText(s){
+        return String(s || '').trim();
+      }
+
+      function _generateLongPresentation(data){
+        const name = _safeText(data.name) || 'Tu nombre';
+        const niche = _safeText(data.niche) || 'tu área o tema principal';
+        const topic = _safeText(data.topic) || 'temas que compartirás';
+        const discovered = _safeText(data.discovered) || 'cómo descubriste Hive';
+        const hobbies = _safeText(data.hobbies) || 'tus hobbies o intereses';
+        const expectations = _safeText(data.expectations) || 'lo que esperas en Hive';
+        const likeMost = _safeText(data.likeMost) || 'lo que más te motiva de Hive';
+
+        const paragraphs = [];
+
+        paragraphs.push(`**Quién soy**\nHola, soy ${name}. A través de mi trabajo y mis experiencias he aprendido a valorar compartir conocimiento y conectar con personas que tienen intereses similares. Vengo de un entorno donde valorar la práctica y la constancia es importante, y por eso decidí empezar a crear contenido: para documentar aprendizajes, ayudar a otros y construir un portafolio de ideas y proyectos. En este espacio quiero presentarme con claridad y ofrecer un panorama honesto sobre mis motivaciones, habilidades y metas.`);
+
+        paragraphs.push(`**A qué me dedico**\nMe dedico a ${niche}. Mi trabajo/iniciativa consiste en generar soluciones y contenidos prácticos que ayuden a otras personas a resolver problemas o mejorar procesos. A lo largo de mi trayectoria he desarrollado actividades relacionadas con ${niche}, creando materiales, ejemplos y pasos concretos que pueden ser replicados por la audiencia. Esta experiencia me permite compartir desde un enfoque práctico y cercano, con ejemplos aplicables en la vida diaria o profesional.`);
+
+        paragraphs.push(`**Cómo conocí Hive**\nConocí Hive mientras buscaba plataformas que recompensaran el contenido original y permitieran una interacción abierta con comunidades. Al investigar, me llamó la atención que Hive combine redes sociales, economía y herramientas para desarrolladores en un solo ecosistema. Decidí unirme porque quería experimentar publicar en un entorno donde el contenido de calidad puede encontrar visibilidad y participar en comunidades que valoran la colaboración.`);
+
+        paragraphs.push(`**Hobbies y tiempo libre**\nEn mi tiempo libre disfruto ${hobbies}. Creo que mostrar lo que hacemos fuera del trabajo ayuda a humanizar nuestras publicaciones y a crear puntos de conexión con la audiencia. En mis publicaciones compartiré tanto temas técnicos como anécdotas personales y ejercicios prácticos que espero resulten útiles y entretenidos.`);
+
+        paragraphs.push(`**Expectativas en Hive**\nMi expectativa al unirme a Hive es aprender y aportar. Busco conectar con personas que compartan intereses similares, recibir retroalimentación sobre lo que publico y colaborar en proyectos concretos. También me interesa descubrir oportunidades para aplicar lo que produzco de forma que otros se beneficien y podamos crecer en comunidad. Entiendo que el crecimiento es gradual y que la consistencia y la calidad son claves.`);
+
+        paragraphs.push(`**Qué me gusta de Hive**\nLo que más valoro de Hive es su mezcla entre comunidad y libertad creativa. La posibilidad de participar en nichos concretos, de experimentar con formatos multimedia y de interactuar directamente con otras personas hace que la plataforma sea un lugar ideal para quienes desean construir una voz propia. Además, las herramientas que permiten integrar economía (como HBD, HP y NFTs) ofrecen alternativas interesantes para quienes quieren explorar formas sostenibles de apoyar la creación de contenido.`);
+
+        paragraphs.push(`**Cierre y llamado a la interacción**\nSi llegaste hasta aquí, gracias por leer. En mis próximas publicaciones compartiré contenido enfocado en ${topic}, con ejemplos prácticos, listas de verificación y pasos claros para que puedas replicar lo que explico. Me encantaría recibir tu feedback: ¿qué temas te gustaría que aborde primero? Puedes comentar, sugerir o invitarme a colaborar. ¡Nos vemos en los comentarios!`);
+
+        return paragraphs.join('\n\n');
+      }
+
+      async function finishPresentationFlow(){
+        const collected = pendingData.collected || {};
+        const presentation = _generateLongPresentation(collected);
+
+        await appendAgentMessage("Listo — he generado una presentación completa (600+ palabras aprox.). Puedes copiarla y pegarla en PeakD o Ecency. Te recomiendo revisar las etiquetas: #introduceyourself #hivetalkproject.");
+        await appendAgentMessage(presentation);
+        if(containers.options){
+          renderOptions([
+            { id:'copy_presentation', label:'Copiar presentación' },
+            { id:'refine_presentation', label:'Hacer ajustes (tono)' },
+            { id:'start_post_builder', label:'Crear post ahora' },
+            { id:'start', label:'Menú principal' }
+          ]);
+        }
+        console.log('Beebot:event','presentation_generated',{ collected: pendingData.collected });
+        pending = null;
+        pendingData = {};
+      }
+
+      async function cancelPending(){
+        pending = null;
+        pendingData = {};
+        await appendAgentMessage('He cancelado el asistente interactivo. Volviendo al menú principal.');
+        await processNode('start', { autoOpen: false });
+      }
+
+      /* =========================
+         handleOption: click handlers
+         ========================= */
       async function handleOption(optionId){
         if(isProcessing) return;
         isProcessing = true;
 
-        // if option maps to node with an immediate action that opens links, do immediate open so it's considered user gesture
+        if(optionId === 'cancel_pending'){
+          await appendUserMessage('Cancelar');
+          await cancelPending();
+          isProcessing = false;
+          return;
+        }
+
+        if(pending === 'presentation'){
+          if(optionId === 'copy_presentation'){
+            const agents = containers.messages.querySelectorAll('.msg.agent');
+            let lastPresentation = '';
+            if(agents && agents.length){
+              for(let i = agents.length -1; i >=0; i--){
+                const t = agents[i].innerText || '';
+                if(t.toLowerCase().includes('**quién soy**') || t.toLowerCase().includes('quién soy')){
+                  lastPresentation = agents[i].innerText;
+                  break;
+                }
+              }
+            }
+            if(!lastPresentation){
+              lastPresentation = _generateLongPresentation(pendingData.collected || {});
+            }
+            copyToClipboard(lastPresentation);
+            await appendUserMessage('Copiar presentación');
+            await appendAgentMessage('Presentación copiada al portapapeles. Pégala en PeakD o Ecency para publicar.');
+            isProcessing = false;
+            return;
+          }
+          if(optionId === 'refine_presentation'){
+            await appendUserMessage('Refinar presentación');
+            await appendAgentMessage('¿Qué tono prefieres? (responde: "formal", "más breve", "más amigable")');
+            renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            isProcessing = false;
+            return;
+          }
+        }
+
         const mappedNode = defaultTree[optionId];
         if(mappedNode && mappedNode.action){
           const act = mappedNode.action;
@@ -359,42 +495,42 @@
             safeOpen(url);
           } else if(act.startsWith('open_link:')){
             const key = act.split(':')[1];
-            // some action keys used (video_presentation etc.)
             const url = links[key] || '#';
-            // open immediately (user click)
             safeOpen(url);
+          } else if(act === 'start_presentation'){
+            appendUserMessage(findOptionLabel(optionId) || optionId);
+            await startPresentationFlow();
+            isProcessing = false;
+            return;
           } else if(act === 'clear_chat'){
-            // clear immediately
             clearChat();
             isProcessing = false;
             return;
           }
         }
 
-        // show user selection
         appendUserMessage(findOptionLabel(optionId) || optionId);
-        await sleep(240);
+        await sleep(220);
         await processNode(optionId, { autoOpen: true });
         isProcessing = false;
       }
 
-      // processNode: show node text, handle action, render options
+      /* =========================
+         processNode: show messages, handle actions, render options
+         ========================= */
       async function processNode(nodeId, opts){
         const node = defaultTree[nodeId] || defaultTree['start'];
         currentNode = nodeId;
         opts = opts || { autoOpen: false };
 
         if(node.text){
-          // provide links inline for certain nodes: if node has action open_link, we will still show text
           await appendAgentMessage(node.text);
         }
 
-        // action
         if(node.action){
           await handleAction(node.action, { autoOpen: !!opts.autoOpen });
         }
 
-        // options or fallback to start options
         if(node.options && node.options.length){
           renderOptions(node.options);
         } else {
@@ -402,15 +538,15 @@
         }
       }
 
-      // handleAction: open links or append link message; if autoOpen true, we assume this was from a click handler
+      /* =========================
+         handleAction: open links etc.
+         ========================= */
       async function handleAction(action, opts){
         opts = opts || { autoOpen: false };
 
         if(action === 'open_whatsapp'){
           const url = links.whatsapp || '#';
-          // append clickable message
           await appendAgentMessage(`<a href="${url}" target="_blank" rel="noopener">Abrir grupo de WhatsApp</a>`);
-          // if allowed, open (handled earlier in handleOption for clicks), but attempt if autoOpen true
           if(opts.autoOpen) safeOpen(url);
         } else if(action === 'open_telegram'){
           const url = links.telegram || '#';
@@ -418,15 +554,14 @@
           if(opts.autoOpen) safeOpen(url);
         } else if(action.startsWith('open_link:')){
           const key = action.split(':')[1];
-          // translate specific keys: 'signup' maps to 'https://signup.hive.io' (not in DEFAULT_LINKS by key)
           let url = '#';
-          if(key === 'signup') url = 'https://signup.hive.io';
+          if(key === 'signup') url = links.signup || DEFAULT_LINKS.signup;
           else url = links[key] || links[key.replace(/-/g,'_')] || '#';
-          // show clickable link in chat
           const label = (key.indexOf('video') !== -1) ? 'Ver video' : 'Abrir enlace';
           await appendAgentMessage(`${label}: <a href="${url}" target="_blank" rel="noopener">${url}</a>`);
-          // if autoOpen (click), try to open too (may already have been opened)
           if(opts.autoOpen) safeOpen(url);
+        } else if(action === 'start_presentation'){
+          await startPresentationFlow();
         } else if(action === 'clear_chat'){
           clearChat();
         } else if(action === 'open_modal_help'){
@@ -437,26 +572,70 @@
         }
       }
 
-      /* ===========================
-         Entrada libre: parsing básico
-         =========================== */
+      /* =========================
+         Entrada libre: parsing básico y manejo de pending flow
+         ========================= */
       async function handleUserText(text){
-        const t = String(text).toLowerCase();
-        if(/(crear|registro|signup|cuenta)/.test(t)){
-          // user typed "crear cuenta" -> show create_account node but DON'T auto-open signup (no direct click)
+        const raw = String(text || '').trim();
+        const t = raw.toLowerCase();
+
+        if(pending === 'presentation'){
+          if(pendingData.step === 1){
+            pendingData.collected.name = raw;
+            pendingData.step = 2;
+            await appendAgentMessage("Perfecto. ¿A qué te dedicas o cuál es tu enfoque principal? (ej. educación, creación, servicios, proyectos personales)");
+            if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            return;
+          } else if(pendingData.step === 2){
+            pendingData.collected.niche = raw;
+            pendingData.step = 3;
+            await appendAgentMessage("Excelente. ¿Cuál será el tema principal o el primer tema que te interesa compartir? (ej. consejos prácticos, guías paso a paso, análisis sencillo)");
+            if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            return;
+          } else if(pendingData.step === 3){
+            pendingData.collected.topic = raw;
+            pendingData.step = 4;
+            await appendAgentMessage("¿Cómo conociste Hive o por qué decidiste unirte? (puede ser en una frase)");
+            if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            return;
+          } else if(pendingData.step === 4){
+            pendingData.collected.discovered = raw;
+            pendingData.step = 5;
+            await appendAgentMessage("¿Qué sueles hacer en tu tiempo libre? Menciona hobbies o intereses personales.");
+            if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            return;
+          } else if(pendingData.step === 5){
+            pendingData.collected.hobbies = raw;
+            pendingData.step = 6;
+            await appendAgentMessage("¿Qué esperas lograr en Hive en los próximos meses (ej. aprender, colaborar, compartir recursos)?");
+            if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            return;
+          } else if(pendingData.step === 6){
+            pendingData.collected.expectations = raw;
+            pendingData.step = 7;
+            await appendAgentMessage("Por último: ¿qué es lo que más te gusta o te atrajo de Hive? (puedes responder en una frase)");
+            if(containers.options) renderOptions([{ id:'cancel_pending', label:'Cancelar' }]);
+            return;
+          } else if(pendingData.step === 7){
+            pendingData.collected.likeMost = raw;
+            await finishPresentationFlow();
+            return;
+          }
+        }
+
+        if(/^(crear|registro|signup|cuenta)/.test(t)){
           return processNode('create_account', { autoOpen: false });
         }
         if(/(present(a|ar)|introducci|presentación)/.test(t)){
-          return processNode('presentation', { autoOpen: false });
+          return processNode('presentation_start', { autoOpen: false });
         }
         if(/(regla|norma|práctica|plagio|ia|inteligencia)/.test(t)){
-          return processNode('rules', { autoOpen: false });
+          return processNode('faq', { autoOpen: false });
         }
         if(/(video|youtube|ver video|tutorial)/.test(t)){
           return processNode('videos', { autoOpen: false });
         }
         if(/(whatsapp|grupo|telegram)/.test(t)){
-          // give link rather than trying to open (no direct click)
           const url = links.whatsapp || '#';
           await appendAgentMessage(`Puedes unirte aquí: <a href="${url}" target="_blank" rel="noopener">${url}</a>`);
           return;
@@ -465,14 +644,17 @@
           clearChat();
           return;
         }
-        // fallback
-        await appendAgentMessage("Buena pregunta — puedo ayudarte con pasos guiados. ¿Quieres ver opciones rápidas?");
+        if(/(publicar|post|peakd|ecency)/.test(t)){
+          return processNode('publish_first', { autoOpen: false });
+        }
+
+        await appendAgentMessage("Buena pregunta — puedo guiarte paso a paso. ¿Quieres ver las opciones rápidas?");
         renderOptions(defaultTree.start.options);
       }
 
-      /* ===========================
+      /* =========================
          Bind input & start
-         =========================== */
+         ========================= */
       if(containers.input && containers.sendBtn){
         containers.sendBtn.addEventListener('click', ()=>{
           const v = (containers.input.value || '').trim();
@@ -511,4 +693,4 @@
   // publish single global
   window.BeebotCore = BeebotCore;
 
-})(); 
+})();
