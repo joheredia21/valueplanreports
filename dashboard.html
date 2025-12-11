@@ -3,19 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hive — Project Spend Dashboard</title>
-
-  <!-- favicon -->
+  <title>Hive — Project Spend Dashboard (Final)</title>
   <link rel="icon" type="image/png" href="https://promote.hive.io/icons/hive-logo.png">
-
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
   <style>
@@ -33,77 +25,63 @@
       --radius: 12px;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-
     html[data-theme='light'] { background: var(--bg-light); color: var(--text-primary); }
     html[data-theme='dark']  { background: linear-gradient(180deg,#050607,#030304); color: #f4f6f8; }
 
     body { margin:0; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
     .container { max-width:1220px; margin:20px auto; padding:18px; }
 
-    /* Topbar */
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
-    .brand { display:flex; gap:14px; align-items:center; }
-    .logo { width:72px; height:72px; object-fit:contain; border-radius:10px; }
+    .logo { width:56px; height:56px; object-fit:contain; border-radius:8px; }
     .title h1 { margin:0; font-size:1.05rem; font-weight:700; }
     .title p { margin:0; color:var(--text-secondary); font-size:0.92rem; }
 
-    /* Nav */
     .nav-menu { display:flex; gap:10px; align-items:center; }
     .nav-link { text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:600; color:inherit; }
-    .nav-link:hover { background: rgba(0,0,0,0.04); transform:translateY(-2px); transition:all .12s ease; }
-
-    /* theme switch */
-    .theme-switch { display:flex; align-items:center; gap:10px; }
     .switch { width:46px; height:26px; border-radius:20px; padding:3px; display:flex; align-items:center; cursor:pointer; background:rgba(0,0,0,0.06); border:0; }
-    .knob { width:20px; height:20px; border-radius:50%; background:#fff; transition: transform .22s cubic-bezier(.2,.9,.3,1); box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    .knob { width:20px; height:20px; border-radius:50%; background:#fff; transition: transform .22s ease; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
 
-    /* Metrics */
     .metrics { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin:16px 0; }
-    .card { border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); background:var(--panel); border:1px solid rgba(15,23,32,0.04); }
-    html[data-theme='dark'] .card { background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); box-shadow: 0 12px 40px rgba(0,0,0,0.55); }
+    .card { border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); background:var(--panel); border:1px solid rgba(15,23,32,0.04); opacity:0; transform:translateY(8px); transition: all .42s ease; }
+    .card.revealed { opacity:1; transform:none; }
     .metric-title { font-size:0.85rem; color:var(--muted-2); }
     .metric-value { margin-top:8px; font-size:1.6rem; font-weight:800; }
 
-    /* layout */
     .grid { display:grid; grid-template-columns: 1fr 380px; gap:18px; }
     @media (max-width:1000px){ .grid { grid-template-columns: 1fr; } }
 
-    .panel { border-radius:12px; padding:12px; background:var(--panel); border:1px solid rgba(15,23,32,0.04); box-shadow:var(--shadow); }
-    html[data-theme='dark'] .panel { background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); box-shadow: 0 12px 40px rgba(0,0,0,0.55); }
-
+    .panel { border-radius:12px; padding:12px; background:var(--panel); border:1px solid rgba(15,23,32,0.04); box-shadow:var(--shadow); opacity:0; transform:translateY(10px); transition:all .42s ease; }
+    .panel.revealed { opacity:1; transform:none; }
     .panel-header { display:flex; justify-content:space-between; gap:8px; align-items:center; margin-bottom:8px; }
     .panel-header h3 { margin:0; font-size:1rem; }
     .muted { color:var(--text-secondary); }
 
-    /* filters */
     .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:6px; }
-    .filters input, .filters select { padding:8px 10px; border-radius:8px; border:1px solid rgba(15,23,32,0.06); background:transparent; color:inherit; }
+    .filters input, .filters select { padding:8px 10px; border-radius:8px; border:1px solid rgba(15,23,32,0.06); background:transparent; color:inherit; min-width:120px; }
     .filters button { background:var(--hive-red); color:#fff; padding:8px 10px; border-radius:8px; border:0; cursor:pointer; }
 
-    /* charts */
-    canvas { width:100% !important; height:320px !important; display:block; }
+    .chart-wrap { position:relative; width:100%; border-radius:10px; overflow:hidden; background:transparent; }
+    .chart-wrap.large { height:420px; }
+    .chart-wrap.medium { height:320px; }
+    .chart-wrap.small { height:260px; }
+    .chart-empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.02); color:var(--text-secondary); font-weight:600; font-size:14px; z-index:5; }
 
-    /* map */
     #mapchart { height:420px; border-radius:10px; overflow:hidden; background:transparent; }
-    @media (max-width:640px){ #mapchart { height:320px; } }
-
-    /* table */
     .table-wrap { overflow:auto; max-height:360px; border-radius:10px; }
     table { width:100%; border-collapse:collapse; font-size:0.92rem; }
     thead th { position:sticky; top:0; text-align:left; padding:8px; font-weight:700; color:var(--text-secondary); background:transparent; }
     tbody td { padding:8px; border-bottom:1px solid rgba(15,23,32,0.04); }
-    html[data-theme='dark'] tbody td { border-bottom:1px solid rgba(255,255,255,0.02); }
 
     footer { text-align:center; margin-top:26px; color:var(--text-secondary); }
 
     @media (max-width:640px){
       .nav-menu { display:none; }
-      .logo { width:56px; height:56px; }
-      canvas { height:240px !important; }
+      .logo { width:48px; height:48px; }
+      .chart-wrap.large { height:320px; }
+      .chart-wrap.medium { height:260px; }
+      .chart-wrap.small { height:200px; }
     }
 
-    /* focus styles */
-    .switch:focus { outline: 3px solid rgba(99,102,241,0.18); outline-offset:3px; border-radius:12px; }
   </style>
 </head>
 <body>
@@ -135,7 +113,6 @@
       </div>
     </header>
 
-    <!-- Metrics -->
     <section class="metrics" id="top-metrics" aria-live="polite">
       <div class="card"><div class="metric-title">Total HBD</div><div class="metric-value"><span id="total-hbd">—</span></div></div>
       <div class="card"><div class="metric-title">Total Hive</div><div class="metric-value"><span id="total-hive">—</span></div></div>
@@ -143,7 +120,6 @@
       <div class="card"><div class="metric-title">Total Spend (HBD)</div><div class="metric-value"><span id="total-spend">—</span></div></div>
     </section>
 
-    <!-- Filters -->
     <div class="panel" id="filters-panel" role="region" aria-label="Filters">
       <div class="panel-header">
         <h3>Filters</h3>
@@ -165,13 +141,18 @@
         <section class="panel" id="panel-overview">
           <div class="panel-header">
             <h3>Overview — Cumulative Spend</h3>
-            <p class="muted">Cumulative total spend over time (ascending line)</p>
+            <p class="muted">Cumulative total spend over time (uses column "cumulative spending")</p>
           </div>
-          <canvas id="chart-cumulative" aria-label="Cumulative spend chart"></canvas>
+
+          <div class="chart-wrap large">
+            <div id="chart-cumulative-empty" class="chart-empty" style="display:none">No data for cumulative chart — check sheet/public access or column headers</div>
+            <canvas id="chart-cumulative" aria-label="Cumulative spend chart"></canvas>
+          </div>
+
           <div style="height:14px"></div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <canvas id="chart-category" aria-label="Category distribution" style="height:260px"></canvas>
-            <canvas id="chart-theme" aria-label="Theme distribution" style="height:260px"></canvas>
+            <div class="chart-wrap medium"><canvas id="chart-category" aria-label="Category distribution"></canvas></div>
+            <div class="chart-wrap medium"><canvas id="chart-theme" aria-label="Theme distribution"></canvas></div>
           </div>
         </section>
 
@@ -181,8 +162,8 @@
             <p class="muted">Event types & Hive conversions</p>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <canvas id="chart-eventtype" aria-label="Event type distribution"></canvas>
-            <canvas id="chart-hiveconv" aria-label="Hive conversion summary"></canvas>
+            <div class="chart-wrap small"><canvas id="chart-eventtype" aria-label="Event type distribution"></canvas></div>
+            <div class="chart-wrap small"><canvas id="chart-hiveconv" aria-label="Hive conversion summary"></canvas></div>
           </div>
         </section>
       </main>
@@ -206,7 +187,7 @@
             <table id="data-table" aria-describedby="table-desc">
               <thead>
                 <tr>
-                  <th>Wallet</th><th>Date</th><th>HBD</th><th>Hive</th><th>Event/Project</th><th>Country</th><th>Theme</th><th>Event Type</th><th>Category</th><th>Hive→HBD</th><th>Total Spend</th>
+                  <th>Wallet</th><th>Date</th><th>HBD</th><th>Hive</th><th>Event/Project</th><th>Country</th><th>Theme</th><th>Event Type</th><th>Category</th><th>Hive→HBD</th><th>Total Spend</th><th>Cumulative</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -221,119 +202,184 @@
   </div>
 
   <script>
-  /**
-   * Dashboard single-file:
-   * - Fetches Google Sheet (public) via gviz JSON
-   * - Builds records, computes cumulative spend (strict cents arithmetic)
-   * - Renders interactive charts (Chart.js) and Leaflet map using world geojson
-   * - Theme toggle light/dark, persisted in localStorage
-   *
-   * Notes: All UI text is in English. Conversation language: Spanish (we keep speaking Spanish).
-   */
-
   (function(){
     'use strict';
-
     // CONFIG
     const SHEET_ID = '1tqPtEbS5EsajO-kgEgNtK1-eqXdZS8IOLaZ0CRKBrN4';
     const GID = '1417340119';
     const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&tqx=out:json`;
     const GEOJSON_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
 
-    // STATE
-    let rawRows = [];
     let records = [];
     let charts = {};
     let map = null;
     let geoLayer = null;
-    let currentCountryAgg = {}; // normalized name -> totalSpend
+    let currentCountryAgg = {};
 
-    // UTIL
+    function log(...args){ try{ console.debug('[DASH]', ...args); }catch(e){} }
+
+    // robust numeric parser (handles 1.083.040,71 and 1,083,040.71 etc.)
     function parseNumberFlexible(v){
       if(v === null || v === undefined) return 0;
       if(typeof v === 'number') return v;
       let s = String(v).trim();
       if(!s) return 0;
-      s = s.replace(/[^0-9\.,-]/g,'');
+      s = s.replace(/\u00A0/g,'').replace(/[^0-9\.,-]/g,'').trim();
       const lastDot = s.lastIndexOf('.');
       const lastComma = s.lastIndexOf(',');
       if(lastDot>-1 && lastComma>-1){
-        if(lastDot>lastComma) s = s.replace(/,/g,'');
-        else s = s.replace(/\./g,'').replace(/,/g,'.');
+        if(lastDot>lastComma) {
+          // e.g. 1,083,040.71 -> dots after commas -> remove commas
+          s = s.replace(/,/g,'');
+        } else {
+          // e.g. 1.083.040,71 -> replace dots (thousands) and comma->dot
+          s = s.replace(/\./g,'').replace(/,/g,'.');
+        }
       } else if(lastComma>-1 && lastDot===-1){
+        // e.g. 1234,56 -> comma as decimal
         s = s.replace(/,/g,'.');
+      } else {
+        // safe: remove thousands separators (commas) if decimal dot present later
+        s = s;
       }
       const n = parseFloat(s);
       return isNaN(n) ? 0 : n;
     }
+
     function parseDateFlexible(d){
       if(!d) return null;
       if(typeof d === 'object' && d instanceof Date) return d;
       if(typeof d === 'number') return new Date(Math.round((d - 25569) * 86400 * 1000));
       let s = String(d).trim();
-      s = s.replace(/\./g,'/').replace(/-/g,'/');
+      s = s.replace(/\u00A0/g,'').replace(/\./g,'/').replace(/-/g,'/');
       let dt = new Date(s);
       if(!isNaN(dt)) return dt;
       const parts = s.split('/');
       if(parts.length===3){
-        let [a,b,c] = parts;
-        if(c.length===4){
-          if(parseInt(a,10)>12) return new Date(`${c}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`);
+        let [a,b,c] = parts.map(p => p.trim());
+        if(c && c.length===4){
+          // handle d/m/yyyy or m/d/yyyy ambiguity: usually sheets are d/m/yyyy -> if a>12 then a is day
+          if(Number(a) > 12) return new Date(`${c}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`);
+          // otherwise assume d/m/yyyy
           return new Date(`${c}-${a.padStart(2,'0')}-${b.padStart(2,'0')}`);
         }
       }
       return isNaN(dt) ? null : dt;
     }
+
     function normalizeName(s){
       if(!s) return '';
       return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim();
     }
+
     function fmt(n){
       return (Number(n)||0).toLocaleString(undefined,{ maximumFractionDigits:2 });
     }
     function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g,m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-    // FETCH SHEET
+    // fetch sheet using GViz JSON and extract raw cell formatted or value
     async function fetchSheet(){
+      log('Fetching sheet:', GVIZ_URL);
       const res = await fetch(GVIZ_URL);
       if(!res.ok) throw new Error('Failed to fetch sheet: ' + res.status);
       const txt = await res.text();
-      const jsonText = txt.substring(txt.indexOf('{'), txt.lastIndexOf('}')+1);
+      const firstBrace = txt.indexOf('{');
+      const lastBrace = txt.lastIndexOf('}');
+      if(firstBrace === -1 || lastBrace === -1) throw new Error('Unexpected GViz response format');
+      const jsonText = txt.substring(firstBrace, lastBrace + 1);
       const data = JSON.parse(jsonText);
-      const cols = data.table.cols.map(c => c.label || c.id);
-      const rows = data.table.rows.map(r => r.c.map(cell => cell ? (cell.v !== undefined ? cell.v : cell.f) : ''));
-      rawRows = rows;
+      const cols = data.table.cols.map(c => (c && c.label) ? String(c.label).trim() : (c && c.id) ? String(c.id).trim() : '');
+      const rows = data.table.rows.map(r => r.c.map(cell => {
+        if(!cell) return '';
+        // prefer formatted string (f) so we get the same text as seen in sheet (thousand separators, decimals)
+        if(cell.f !== undefined && cell.f !== null && String(cell.f).trim() !== '') return cell.f;
+        if(cell.v !== undefined && cell.v !== null) return cell.v;
+        return '';
+      }));
+      log('Cols detected:', cols);
+      log('Rows fetched:', rows.length);
       return { cols, rows };
     }
 
-    // PROCESS ROWS
+    // process rows and detect cumulative column robustly
     function processRows(cols, rows){
+      const colNormalized = cols.map(c => (c||'').toString().toLowerCase().trim());
+      // priority: exact 'cumulative spending' -> 'cumulative (sheet)' -> any header containing 'cumul' or 'cumulative'
+      let cumulIndex = -1;
+      for(let i=0;i<colNormalized.length;i++){
+        if(colNormalized[i] === 'cumulative spending') { cumulIndex = i; break; }
+      }
+      if(cumulIndex === -1){
+        for(let i=0;i<colNormalized.length;i++){
+          if(colNormalized[i] === 'cumulative (sheet)' || colNormalized[i].includes('cumulative (sheet)')) { cumulIndex = i; break; }
+        }
+      }
+      if(cumulIndex === -1){
+        for(let i=0;i<colNormalized.length;i++){
+          if(colNormalized[i].includes('cumul') || colNormalized[i].includes('cumulative')) { cumulIndex = i; break; }
+        }
+      }
+
+      // detect date index similarly
+      let dateIndex = colNormalized.findIndex(h => h === 'date' || h === 'fecha' || h.includes('date'));
+      if(dateIndex === -1) {
+        dateIndex = colNormalized.findIndex(h => h.includes('fecha'));
+      }
+
+      log('Detected indices -> date:', dateIndex, 'cumulative:', cumulIndex, 'cols:', colNormalized);
+
       const out = [];
       for(const r of rows){
-        const rec = {};
-        for(let i=0;i<cols.length;i++) rec[cols[i]||`col${i}`] = r[i] !== undefined ? r[i] : '';
-        const get = name => {
-          const key = Object.keys(rec).find(k => k.replace(/\s+/g,'').toLowerCase() === name.replace(/\s+/g,'').toLowerCase());
-          return key ? rec[key] : '';
+        const recObj = {};
+        for(let i=0;i<cols.length;i++) recObj[ (cols[i] || `col${i}`) ] = (r[i] !== undefined && r[i] !== null) ? r[i] : '';
+        const getByKeyName = (name) => {
+          const key = Object.keys(recObj).find(k => k.replace(/\s+/g,'').toLowerCase() === name.replace(/\s+/g,'').toLowerCase());
+          return key ? recObj[key] : '';
         };
-        const Wallet = get('Wallet') || '';
-        const DateRaw = get('Date') || '';
+
+        const Wallet = getByKeyName('Wallet') || '';
+        const DateRaw = (dateIndex !== -1) ? r[dateIndex] : (getByKeyName('Date') || '');
         const DateObj = parseDateFlexible(DateRaw);
-        const HBD = parseNumberFlexible(get('HBD'));
-        const Hive = parseNumberFlexible(get('Hive'));
-        const EventProject = get('Event/Project') || get('Event') || '';
-        const Country = (get('Country')||'').toString().trim();
-        const Theme = (get('Theme')||'').toString().trim();
-        const EventType = (get('Event Type')||get('EventType')||'').toString().trim();
-        const Category = (get('Category')||'').toString().trim();
-        const HiveToHBD = parseNumberFlexible(get('Hive To HBD') || get('HiveToHBD') || '');
-        const TotalSpend = parseNumberFlexible(get('Total Spend') || '');
-        out.push({ Wallet, DateObj, HBD, Hive, EventProject, Country, Theme, EventType, Category, HiveToHBD, TotalSpend });
+        const HBD = parseNumberFlexible(getByKeyName('HBD') || '');
+        const Hive = parseNumberFlexible(getByKeyName('Hive') || '');
+        const EventProject = getByKeyName('Event/Project') || getByKeyName('Event') || '';
+        const Country = (getByKeyName('Country')||'').toString().trim();
+        const Theme = (getByKeyName('Theme')||'').toString().trim();
+        const EventType = (getByKeyName('Event Type')||getByKeyName('EventType')||'').toString().trim();
+        const Category = (getByKeyName('Category')||'').toString().trim();
+        const HiveToHBD = parseNumberFlexible(getByKeyName('Hive To HBD') || getByKeyName('HiveToHBD') || '');
+        const TotalSpend = parseNumberFlexible(getByKeyName('Total Spend') || getByKeyName('TotalSpend') || '');
+
+        // IMPORTANT: Extract cumulative spend directly from the sheet column (no re-calculation)
+        let CumulativeSpend = null;
+        if(cumulIndex !== -1){
+          const raw = r[cumulIndex];
+          if(raw !== undefined && raw !== null && String(raw).trim() !== '') {
+            CumulativeSpend = parseNumberFlexible(raw);
+          }
+        } else {
+          // attempt to find any column name containing 'cumul'
+          const altKey = Object.keys(recObj).find(k => k.toLowerCase().includes('cumul') || k.toLowerCase().includes('cumulative'));
+          if(altKey){
+            const raw = recObj[altKey];
+            if(raw !== undefined && raw !== null && String(raw).trim() !== '') {
+              CumulativeSpend = parseNumberFlexible(raw);
+            }
+          }
+        }
+
+        out.push({
+          Wallet, DateObj, HBD, Hive, EventProject, Country, Theme, EventType, Category, HiveToHBD, TotalSpend,
+          CumulativeSpend
+        });
       }
-      return out.filter(r => r.Wallet || r.DateObj || r.HBD || r.Hive || r.TotalSpend);
+
+      log('Processed rows:', out.length);
+      log('Sample processed:', out.slice(0,6).map(r => ({ date: r.DateObj ? r.DateObj.toISOString().slice(0,10) : null, cumulative: r.CumulativeSpend })));
+      return out.filter(r => r.Wallet || r.DateObj || r.HBD || r.Hive || r.TotalSpend || r.CumulativeSpend !== null);
     }
 
-    // UI: populate filters, table, metrics
+    // UI: populate filters and table
     function populateFilters(recs){
       const countrySet = Array.from(new Set(recs.map(r => r.Country).filter(Boolean))).sort();
       const selCountry = document.getElementById('filter-country'); selCountry.innerHTML = '<option value="">All countries</option>';
@@ -375,126 +421,31 @@
           + '<td>' + escapeHtml(r.EventType) + '</td>'
           + '<td>' + escapeHtml(r.Category) + '</td>'
           + '<td>' + (r.HiveToHBD ? fmt(r.HiveToHBD) : '') + '</td>'
-          + '<td>' + (r.TotalSpend ? fmt(r.TotalSpend) : '') + '</td>';
+          + '<td>' + (r.TotalSpend ? fmt(r.TotalSpend) : '') + '</td>'
+          + '<td>' + (r.CumulativeSpend !== null && r.CumulativeSpend !== undefined ? fmt(r.CumulativeSpend) : '') + '</td>';
         tr.addEventListener('click', ()=>{ document.getElementById('search-wallet').value = r.Wallet || ''; applyFiltersDebounced(); window.scrollTo({top:0,behavior:'smooth'}); });
         tbody.appendChild(tr);
       }
     }
 
-    // CHARTS
+    // charts helpers
     function createOrUpdateChart(id, config){
       if(charts[id]){ try{ charts[id].destroy(); } catch(e){} charts[id] = null; }
       const ctxEl = document.getElementById(id);
       if(!ctxEl) return;
+      if(!config.options) config.options = {};
+      config.options.responsive = true;
+      config.options.maintainAspectRatio = false;
       const ctx = ctxEl.getContext('2d');
       charts[id] = new Chart(ctx, config);
-    }
-
-    // cumulative series: group by day, then accumulate in cents
-    function buildCumulativeSeries(recs){
-      const withDates = recs.filter(r => r.DateObj).slice().sort((a,b)=> a.DateObj - b.DateObj);
-      const dayMap = new Map();
-      for(const r of withDates){
-        const iso = r.DateObj.toISOString().slice(0,10);
-        const prev = dayMap.get(iso) || 0;
-        dayMap.set(iso, prev + Number(r.TotalSpend || 0));
-      }
-      const days = Array.from(dayMap.entries()).sort((a,b)=> a[0].localeCompare(b[0]));
-      const labels = [];
-      const values = [];
-      let cumCents = 0;
-      for(const [day, amount] of days){
-        const amountCents = Math.round(Number(amount) * 100);
-        cumCents += amountCents;
-        labels.push(day);
-        values.push(cumCents / 100);
-      }
-      return { labels, values };
-    }
-
-    function updateCumulativeChart(recs){
-      const { labels, values } = buildCumulativeSeries(recs);
-      createOrUpdateChart('chart-cumulative', {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Cumulative Total Spend (HBD)',
-            data: values,
-            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--hive-red') || '#e31337',
-            backgroundColor: 'rgba(227,19,55,0.12)',
-            fill: true,
-            tension: 0.22,
-            pointRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true },
-            tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.y) + ' HBD' } }
-          },
-          scales: {
-            x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#666' } },
-            y: { ticks: { callback: v => fmt(v) } }
-          }
-        }
-      });
-    }
-
-    function updateOtherCharts(recs){
-      // aggregate by key
-      const agg = (key) => {
-        const map = new Map();
-        recs.forEach(r => {
-          const k = r[key] || 'Unknown';
-          map.set(k, (map.get(k) || 0) + Number(r.TotalSpend || 0));
-        });
-        return Array.from(map.entries()).map(([k,v]) => ({ k, total: v })).sort((a,b) => b.total - a.total);
-      };
-      const cat = agg('Category');
-      const theme = agg('Theme');
-      const evtype = agg('EventType');
-
-      createOrUpdateChart('chart-category', {
-        type: 'doughnut',
-        data: { labels: cat.map(a => a.k), datasets: [{ data: cat.map(a => a.total), backgroundColor: generatePalette(cat.length) }] },
-        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right' }, tooltip:{ callbacks:{ label: ctx => fmt(ctx.parsed) + ' HBD' } } } }
-      });
-
-      createOrUpdateChart('chart-theme', {
-        type: 'bar',
-        data: { labels: theme.map(a => a.k), datasets: [{ label: 'Total Spend', data: theme.map(a => a.total), backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--hive-red') || '#e31337' }] },
-        options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ callback: v => fmt(v) } } } }
-      });
-
-      createOrUpdateChart('chart-eventtype', {
-        type: 'pie',
-        data: { labels: evtype.map(a => a.k), datasets: [{ data: evtype.map(a => a.total), backgroundColor: generatePalette(evtype.length) }] },
-        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right' } } }
-      });
-
-      // hive conversions
-      const convMap = new Map();
-      recs.forEach(r => {
-        const k = (r.HiveToHBD && Number(r.HiveToHBD) > 0) ? 'Converted' : 'Not Converted';
-        convMap.set(k, (convMap.get(k) || 0) + Number(r.HiveToHBD || 0));
-      });
-      const conv = Array.from(convMap.entries()).map(([k,v])=>({k,total:v}));
-
-      createOrUpdateChart('chart-hiveconv', {
-        type: 'bar',
-        data: { labels: conv.map(a => a.k), datasets: [{ label:'Hive→HBD (sum)', data: conv.map(a => a.total), backgroundColor: ['#e31337','rgba(0,0,0,0.08)'] }] },
-        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ ticks:{ callback: v => fmt(v) } } } }
-      });
+      try{ charts[id].update(); }catch(e){}
     }
 
     function generatePalette(n){
       const base = '#e31337';
       const arr = [];
       for(let i=0;i<n;i++){
-        arr.push(shadeColor(base, 6 + (i*(50/Math.max(1,n)))));
+        arr.push(shadeColor(base, 6 + (i*(40/Math.max(1,n)))));
       }
       return arr;
     }
@@ -507,19 +458,141 @@
       return `rgb(${R},${G},${B})`;
     }
 
-    // MAP (Leaflet + GeoJSON)
+    // ---------------------------
+    // Build cumulative series: IMPORTANT: use EXCLUSIVELY CumulativeSpend column values
+    // - Do NOT compute running sum in code.
+    // - For days with multiple rows: choose the maximum reported cumulative value (that's the latest total for that day).
+    // - Sort by date ascending and return labels/values arrays.
+    // ---------------------------
+    function buildCumulativeSeries(recs){
+      // filter rows that have both date and CumulativeSpend not null
+      const withCumul = recs.filter(r => r.DateObj && (r.CumulativeSpend !== null && r.CumulativeSpend !== undefined && r.CumulativeSpend !== ''));
+      if(withCumul.length === 0){
+        return { labels: [], values: [], source: 'none' };
+      }
+      const map = new Map();
+      for(const r of withCumul){
+        const iso = r.DateObj.toISOString().slice(0,10);
+        const val = Number(r.CumulativeSpend || 0);
+        // choose the maximum reported cumulative value for the day (keeps the sheet's final total of that date)
+        const prev = map.get(iso) || -Infinity;
+        if(val >= prev) map.set(iso, val);
+      }
+      // now produce arrays sorted by date
+      const entries = Array.from(map.entries()).sort((a,b)=> a[0].localeCompare(b[0]));
+      const labels = entries.map(e => e[0]);
+      const values = entries.map(e => e[1]);
+      // It is expected that cumulative series is non-decreasing; but do not re-calc, only enforce monotonic by taking running max:
+      let runningMax = -Infinity;
+      for(let i=0;i<values.length;i++){
+        if(values[i] < runningMax) values[i] = runningMax;
+        else runningMax = values[i];
+      }
+      return { labels, values, source: 'sheet' };
+    }
+
+    function updateCumulativeChart(recs){
+      const emptyEl = document.getElementById('chart-cumulative-empty');
+      const { labels, values, source } = buildCumulativeSeries(recs);
+      if(!labels || labels.length === 0){ emptyEl.style.display = 'flex'; }
+      else emptyEl.style.display = 'none';
+
+      createOrUpdateChart('chart-cumulative', {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Cumulative (sheet)',
+            data: values,
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--hive-red') || '#e31337',
+            backgroundColor: (ctx) => {
+              const c = ctx.chart;
+              const g = c.ctx.createLinearGradient(0,0,0,c.height || 420);
+              g.addColorStop(0, 'rgba(227,19,55,0.16)');
+              g.addColorStop(0.6, 'rgba(227,19,55,0.06)');
+              g.addColorStop(1, 'rgba(227,19,55,0.02)');
+              return g;
+            },
+            fill: true,
+            tension: 0.38,
+            cubicInterpolationMode: 'monotone',
+            pointRadius: 2,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--hive-red') || '#e31337',
+            borderWidth: 2.4,
+            spanGaps: true
+          }]
+        },
+        options: {
+          plugins: { legend: { position:'top' }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.y) + ' HBD' } } },
+          scales: {
+            x: { grid: { display:false }, ticks: { maxRotation:45, minRotation:25, color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#666' } },
+            y: { ticks: { callback: v => fmt(v) } }
+          },
+          interaction: { mode:'index', intersect:false },
+          animation: { duration: 600 }
+        }
+      });
+
+      setTimeout(()=>{ try{ charts['chart-cumulative'] && charts['chart-cumulative'].resize && charts['chart-cumulative'].resize(); charts['chart-cumulative'] && charts['chart-cumulative'].update && charts['chart-cumulative'].update(); }catch(e){} }, 220);
+    }
+
+    function updateOtherCharts(recs){
+      const agg = (key) => {
+        const map = new Map();
+        recs.forEach(r => {
+          const k = (r[key] || 'Unknown') || 'Unknown';
+          map.set(k, (map.get(k) || 0) + Number(r.TotalSpend || 0));
+        });
+        return Array.from(map.entries()).map(([k,v]) => ({ k, total: v })).sort((a,b) => b.total - a.total);
+      };
+      const cat = agg('Category');
+      const theme = agg('Theme');
+      const evtype = agg('EventType');
+
+      createOrUpdateChart('chart-category', {
+        type: 'doughnut',
+        data: { labels: cat.map(a => a.k), datasets: [{ data: cat.map(a => a.total), backgroundColor: generatePalette(cat.length) }] },
+        options: { plugins:{ legend:{ position:'right' }, tooltip:{ callbacks:{ label: ctx => fmt(ctx.parsed) + ' HBD' } } } }
+      });
+
+      createOrUpdateChart('chart-theme', {
+        type: 'bar',
+        data: { labels: theme.map(a => a.k), datasets: [{ label: 'Total Spend', data: theme.map(a => a.total), backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--hive-red') || '#e31337' }] },
+        options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ callback: v => fmt(v) } } } }
+      });
+
+      createOrUpdateChart('chart-eventtype', {
+        type: 'pie',
+        data: { labels: evtype.map(a => a.k), datasets: [{ data: evtype.map(a => a.total), backgroundColor: generatePalette(evtype.length) }] },
+        options: { plugins:{ legend:{ position:'right' } } }
+      });
+
+      const convMap = new Map();
+      recs.forEach(r => {
+        const k = (r.HiveToHBD && Number(r.HiveToHBD) > 0) ? 'Converted' : 'Not Converted';
+        convMap.set(k, (convMap.get(k) || 0) + Number(r.HiveToHBD || 0));
+      });
+      const conv = Array.from(convMap.entries()).map(([k,v])=>({k,total:v}));
+
+      createOrUpdateChart('chart-hiveconv', {
+        type: 'bar',
+        data: { labels: conv.map(a => a.k), datasets: [{ label:'Hive→HBD (sum)', data: conv.map(a => a.total), backgroundColor: ['#e31337','rgba(0,0,0,0.08)'] }] },
+        options: { plugins:{ legend:{ display:false } }, scales:{ y:{ ticks:{ callback: v => fmt(v) } } } }
+      });
+
+      setTimeout(()=>{ Object.keys(charts).forEach(k=>{ try{ charts[k] && charts[k].resize && charts[k].resize(); charts[k] && charts[k].update && charts[k].update(); }catch(e){} }); }, 300);
+    }
+
+    // Map (Leaflet + GeoJSON)
     async function initMap(filteredRecords){
       try{
         if(!filteredRecords) filteredRecords = records.slice();
-        // create map if not exists or reset
-        if(map){
-          map.remove();
-          map = null;
-        }
+        if(map){ map.remove(); map = null; }
         map = L.map('mapchart', { zoomControl:true, attributionControl:false }).setView([20,0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:5 }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom:5 }).addTo(map);
 
-        // aggregate by normalized country
         const agg = new Map();
         filteredRecords.forEach(r => {
           const nm = normalizeName(r.Country || '');
@@ -528,24 +601,14 @@
         });
         currentCountryAgg = Object.fromEntries(agg.entries());
 
-        // fetch geojson
         const res = await fetch(GEOJSON_URL);
-        if(!res.ok){
-          document.getElementById('map-info').style.display = 'block';
-          document.getElementById('map-info').textContent = 'Map data failed to load.';
-          return;
-        }
+        if(!res.ok){ document.getElementById('map-info').style.display='block'; document.getElementById('map-info').textContent='Map data failed to load.'; return; }
         const geojson = await res.json();
 
         function styleFeature(feature){
           const name = normalizeName(feature.properties.name || feature.properties.NAME || feature.properties.ADMIN || '');
           const val = currentCountryAgg[name] || 0;
-          return {
-            weight: 0.6,
-            color: '#cfd8df',
-            fillColor: getCountryColor(val),
-            fillOpacity: val > 0 ? 0.85 : 0.12
-          };
+          return { weight: 0.6, color: '#cfd8df', fillColor: getCountryColor(val), fillOpacity: val > 0 ? 0.88 : 0.12 };
         }
 
         function onEachFeature(feature, layer){
@@ -554,25 +617,14 @@
           const val = currentCountryAgg[name] || 0;
           layer.bindPopup('<strong>' + escapeHtml(rawName) + '</strong><br/>Total spend: ' + fmt(val) + ' HBD');
           layer.on({
-            mouseover: function(){
-              layer.setStyle({ weight: 1.2, color: '#333' });
-              document.getElementById('map-info').style.display = 'block';
-              document.getElementById('map-info').textContent = rawName + ' — ' + (val ? fmt(val) + ' HBD' : 'No data');
-            },
-            mouseout: function(){
-              geoLayer.resetStyle(layer);
-              document.getElementById('map-info').style.display = 'none';
-            },
-            click: function(){
-              // set filter by the display name if option exists
-              setCountryFilterByNormalized(name);
-              applyFiltersDebounced();
-            }
+            mouseover: function(){ layer.setStyle({ weight: 1.4, color: '#333' }); document.getElementById('map-info').style.display='block'; document.getElementById('map-info').textContent = rawName + ' — ' + (val ? fmt(val) + ' HBD' : 'No data'); },
+            mouseout: function(){ geoLayer.resetStyle(layer); document.getElementById('map-info').style.display='none'; },
+            click: function(){ setCountryFilterByNormalized(name); applyFiltersDebounced(); }
           });
         }
 
         geoLayer = L.geoJSON(geojson, { style: styleFeature, onEachFeature: onEachFeature }).addTo(map);
-        try{ map.fitBounds(geoLayer.getBounds(), { padding:[10,10] }); } catch(e){}
+        try{ map.fitBounds(geoLayer.getBounds(), { padding:[8,8] }); } catch(e){}
       } catch(err){
         console.warn('initMap error', err);
         document.getElementById('map-info').style.display = 'block';
@@ -583,10 +635,7 @@
     function setCountryFilterByNormalized(norm){
       const sel = document.getElementById('filter-country');
       for(const opt of Array.from(sel.options)){
-        if(normalizeName(opt.value) === norm){
-          sel.value = opt.value;
-          return;
-        }
+        if(normalizeName(opt.value) === norm){ sel.value = opt.value; return; }
       }
       sel.value = '';
     }
@@ -604,7 +653,7 @@
       return 'rgb(' + r + ',' + g + ',' + b + ')';
     }
 
-    // FILTERS
+    // Filters and UI
     function getFilters(){
       return {
         from: document.getElementById('date-from').value,
@@ -637,15 +686,12 @@
       renderTable(out);
       updateCumulativeChart(out);
       updateOtherCharts(out);
-
-      // redraw map based on filtered data
       initMap(out);
     }
 
     let applyTimeout = null;
     function applyFiltersDebounced(){ if(applyTimeout) clearTimeout(applyTimeout); applyTimeout = setTimeout(()=>applyFilters(), 180); }
 
-    // CHART INTERACTIVITY
     function setChartInteractivity(){
       ['chart-category','chart-theme','chart-eventtype'].forEach(id => {
         const el = document.getElementById(id);
@@ -660,7 +706,6 @@
           if(id === 'chart-category') document.getElementById('filter-category').value = label || '';
           if(id === 'chart-theme') document.getElementById('filter-theme').value = label || '';
           if(id === 'chart-eventtype'){
-            // filter by event type ad-hoc
             const filtered = records.filter(r => (r.EventType || '').toLowerCase() === (label || '').toLowerCase());
             renderTopMetrics(filtered);
             renderTable(filtered);
@@ -674,32 +719,21 @@
       });
     }
 
-    // THEME TOGGLE
     function setTheme(theme){
       document.documentElement.setAttribute('data-theme', theme);
       document.getElementById('switch-knob').style.transform = theme === 'light' ? 'translateX(20px)' : 'translateX(0)';
       localStorage.setItem('dashboard-theme', theme);
+      Object.keys(charts || {}).forEach(k => { try{ charts[k] && charts[k].update && charts[k].update(); }catch(e){} });
     }
 
     // INIT
     async function init(){
-      // theme default
       const saved = localStorage.getItem('dashboard-theme') || 'light';
       setTheme(saved);
-
-      // event listeners for theme toggle
       const toggle = document.getElementById('theme-toggle');
-      toggle.addEventListener('click', () => {
-        const cur = document.documentElement.getAttribute('data-theme') || 'light';
-        const next = cur === 'light' ? 'dark' : 'light';
-        setTheme(next);
-      });
+      toggle.addEventListener('click', () => { const cur = document.documentElement.getAttribute('data-theme') || 'light'; setTheme(cur === 'light' ? 'dark' : 'light'); });
       toggle.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); } });
 
-      // show panels nicely
-      document.querySelectorAll('.card, .panel').forEach((el, idx) => setTimeout(()=> el.style.opacity = '1', idx * 60));
-
-      // fetch sheet data
       try{
         const { cols, rows } = await fetchSheet();
         records = processRows(cols, rows);
@@ -708,11 +742,9 @@
         renderTable(records);
         updateCumulativeChart(records);
         updateOtherCharts(records);
-        // map
         await initMap(records);
         setChartInteractivity();
 
-        // filter controls
         ['filter-country','filter-category','filter-theme','date-from','date-to'].forEach(id => {
           const el = document.getElementById(id);
           if(el) el.addEventListener('change', applyFiltersDebounced);
@@ -720,10 +752,10 @@
         const search = document.getElementById('search-wallet');
         if(search) search.addEventListener('input', applyFiltersDebounced);
         const reset = document.getElementById('reset-filters');
-        if(reset) reset.addEventListener('click', () => {
-          ['date-from','date-to','filter-country','filter-category','filter-theme','search-wallet'].forEach(id => document.getElementById(id).value = '');
-          applyFiltersDebounced();
-        });
+        if(reset) reset.addEventListener('click', () => { ['date-from','date-to','filter-country','filter-category','filter-theme','search-wallet'].forEach(id => document.getElementById(id).value = ''); applyFiltersDebounced(); });
+
+        document.querySelectorAll('.card, .panel').forEach((el, idx) => setTimeout(()=> el.classList.add('revealed'), idx * 60));
+        setTimeout(()=>{ try{ Object.keys(charts).forEach(k=>{ charts[k] && charts[k].resize && charts[k].resize(); charts[k] && charts[k].update && charts[k].update(); }); if(map) map.invalidateSize(); }catch(e){} }, 420);
 
       } catch(err){
         console.error('Initialization error', err);
@@ -731,19 +763,16 @@
       }
     }
 
-    // start when DOM ready and libs loaded
     function waitForLibrariesAndInit(){
-      // Chart and L should be available (scripts loaded with defer). If not, poll briefly.
       const start = Date.now();
       (function poll(){
         if(window.Chart && window.L) { init(); return; }
-        if(Date.now() - start > 4000) { console.warn('Libraries not loaded in time.'); init(); return; }
+        if(Date.now() - start > 5000) { console.warn('Libraries not loaded in time. Trying to init anyway.'); init(); return; }
         setTimeout(poll, 80);
       })();
     }
 
     document.addEventListener('DOMContentLoaded', waitForLibrariesAndInit);
-
   })();
   </script>
 </body>
